@@ -129,10 +129,10 @@ const FinancialStatements = () => {
 
               <div className="flex gap-2 ml-auto">
                 <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setIsQueried(true)}>
-                  <Search className="w-3.5 h-3.5" /> 조회
+                  <Search className="w-3.5 h-3.5" /> 照会
                 </Button>
                 <Button size="sm" variant="outline" className="gap-1.5 text-xs">
-                  <FileDown className="w-3.5 h-3.5" /> PDF 출력
+                  <FileDown className="w-3.5 h-3.5" /> PDF出力
                 </Button>
               </div>
             </div>
