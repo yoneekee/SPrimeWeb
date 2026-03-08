@@ -168,11 +168,24 @@ const EmployeeMaster = () => {
               </TableBody>
             </Table>
           </CardContent>
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">表示件数</span>
+              <Select value={String(itemsPerPage)} onValueChange={(v) => { setItemsPerPage(Number(v)); setCurrentPage(1); }}>
+                <SelectTrigger className="h-7 w-16 text-xs border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5件</SelectItem>
+                  <SelectItem value="10">10件</SelectItem>
+                  <SelectItem value="15">15件</SelectItem>
+                </SelectContent>
+              </Select>
               <span className="text-xs text-muted-foreground">
                 {filtered.length}件中 {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filtered.length)}件
               </span>
+            </div>
+            {totalPages > 1 && (
               <div className="flex items-center gap-1">
                 <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
                   <ChevronLeft className="w-3.5 h-3.5" />
@@ -186,8 +199,8 @@ const EmployeeMaster = () => {
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </Card>
 
         {/* Detail Modal */}
