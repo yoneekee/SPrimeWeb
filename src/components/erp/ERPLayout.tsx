@@ -188,7 +188,10 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                         <Settings className="w-3.5 h-3.5 text-muted-foreground" />
                         설정
                       </button>
-                      <button className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-destructive hover:bg-secondary/50 transition-colors">
+                      <button
+                        onClick={() => { logout(); navigate("/login", { replace: true }); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-destructive hover:bg-secondary/50 transition-colors"
+                      >
                         <LogOut className="w-3.5 h-3.5" />
                         로그아웃
                       </button>
