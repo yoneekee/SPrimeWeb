@@ -64,7 +64,7 @@ const ItemMaster = () => {
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const openNew = () => { setEditingItem(null); setDialogOpen(true); };
   const openEdit = (item: Item) => { setEditingItem(item); setDialogOpen(true); };
