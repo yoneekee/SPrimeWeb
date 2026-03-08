@@ -60,11 +60,15 @@ const EmployeeMaster = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEmp, setEditingEmp] = useState<Employee | null>(null);
   const [deptFilter, setDeptFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const openNew = () => { setEditingEmp(null); setDialogOpen(true); };
   const openEdit = (emp: Employee) => { setEditingEmp(emp); setDialogOpen(true); };
 
   const filtered = deptFilter === "all" ? mockEmployees : mockEmployees.filter(e => e.deptCode === deptFilter);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <ERPLayout>
