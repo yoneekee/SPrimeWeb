@@ -277,13 +277,13 @@ const ProductionExecution = () => {
                 <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} className="gap-1.5 text-xs">
                   <Send className="w-3.5 h-3.5" /> 신청
                 </Button>
-                <Button size="sm" variant={isButtonActive("approve") ? "default" : "outline"} disabled={!isButtonActive("approve")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("approve") ? "default" : "outline"} disabled={!isButtonActive("approve")} onClick={() => openActionModal("approve")} className="gap-1.5 text-xs">
                   <CheckCircle2 className="w-3.5 h-3.5" /> 승인
                 </Button>
-                <Button size="sm" variant={isButtonActive("reject") ? "destructive" : "outline"} disabled={!isButtonActive("reject")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("reject") ? "destructive" : "outline"} disabled={!isButtonActive("reject")} onClick={() => openActionModal("reject")} className="gap-1.5 text-xs">
                   <XCircle className="w-3.5 h-3.5" /> 부인
                 </Button>
-                <Button size="sm" variant={isButtonActive("return") ? "outline" : "outline"} disabled={!isButtonActive("return")} className="gap-1.5 text-xs border-warning/50 text-warning hover:bg-warning/10">
+                <Button size="sm" variant={isButtonActive("return") ? "outline" : "outline"} disabled={!isButtonActive("return")} onClick={() => openActionModal("return")} className="gap-1.5 text-xs border-warning/50 text-warning hover:bg-warning/10">
                   <RotateCcw className="w-3.5 h-3.5" /> 반려
                 </Button>
                 <Separator orientation="vertical" className="h-8" />
