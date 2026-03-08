@@ -142,8 +142,22 @@ const ProductionExecution = () => {
     { slipNo: "SLP20240305-003", date: "2024-03-05", requester: "佐藤 花子", status: "A01", totalAmount: "12,300,000" },
     { slipNo: "SLP20240304-002", date: "2024-03-04", requester: "鈴木 一郎", status: "I00", totalAmount: "95,200,000" },
     { slipNo: "SLP20240301-001", date: "2024-03-01", requester: "田中 太郎", status: "S00", totalAmount: "0" },
+    { slipNo: "SLP20240228-005", date: "2024-02-28", requester: "高橋 健太", status: "P04", totalAmount: "23,400,000" },
+    { slipNo: "SLP20240227-002", date: "2024-02-27", requester: "佐藤 花子", status: "A02", totalAmount: "8,900,000" },
+    { slipNo: "SLP20240226-004", date: "2024-02-26", requester: "鈴木 一郎", status: "P02", totalAmount: "41,600,000" },
+    { slipNo: "SLP20240225-001", date: "2024-02-25", requester: "田中 太郎", status: "I00", totalAmount: "55,000,000" },
+    { slipNo: "SLP20240222-003", date: "2024-02-22", requester: "山田 優子", status: "S01", totalAmount: "15,750,000" },
+    { slipNo: "SLP20240220-002", date: "2024-02-20", requester: "高橋 健太", status: "P01", totalAmount: "33,200,000" },
+    { slipNo: "SLP20240218-001", date: "2024-02-18", requester: "佐藤 花子", status: "A01", totalAmount: "27,800,000" },
+    { slipNo: "SLP20240215-004", date: "2024-02-15", requester: "鈴木 一郎", status: "I00", totalAmount: "62,100,000" },
+    { slipNo: "SLP20240212-002", date: "2024-02-12", requester: "田中 太郎", status: "P03", totalAmount: "18,500,000" },
+    { slipNo: "SLP20240210-001", date: "2024-02-10", requester: "山田 優子", status: "A00", totalAmount: "44,300,000" },
+    { slipNo: "SLP20240208-003", date: "2024-02-08", requester: "高橋 健太", status: "P04", totalAmount: "9,700,000" },
+    { slipNo: "SLP20240205-002", date: "2024-02-05", requester: "佐藤 花子", status: "I00", totalAmount: "71,000,000" },
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SLP20240307-001");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Modal state for approval/reject/return actions
   const [actionModal, setActionModal] = useState<{
