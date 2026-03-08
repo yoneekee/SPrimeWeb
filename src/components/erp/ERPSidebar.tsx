@@ -100,6 +100,10 @@ const ERPSidebar = () => {
     );
   };
 
+  const openGroup = (id: string) => {
+    setOpenGroups((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  };
+
   const isActive = (path: string) => location.pathname === path;
 
   const handleMouseEnter = () => {
