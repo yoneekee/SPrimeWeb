@@ -61,7 +61,7 @@ const EmployeeMaster = () => {
   const [editingEmp, setEditingEmp] = useState<Employee | null>(null);
   const [deptFilter, setDeptFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const openNew = () => { setEditingEmp(null); setDialogOpen(true); };
   const openEdit = (emp: Employee) => { setEditingEmp(emp); setDialogOpen(true); };
