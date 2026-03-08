@@ -14,6 +14,7 @@ import InvoiceManagement from "./pages/InvoiceManagement";
 import EmployeeMaster from "./pages/EmployeeMaster";
 import ItemMaster from "./pages/ItemMaster";
 import WarehouseMaster from "./pages/WarehouseMaster";
+import ProductionSlipCreate from "./pages/ProductionSlipCreate";
 
 const queryClient = new QueryClient();
 
