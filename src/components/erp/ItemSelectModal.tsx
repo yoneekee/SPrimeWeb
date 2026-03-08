@@ -44,7 +44,7 @@ const ItemSelectModal = ({
   onSelect,
   selectedCodes = [],
   showStock = false,
-  title = "품목 선택",
+  title = "品目選択",
 }: ItemSelectModalProps) => {
   const [search, setSearch] = useState("");
 
@@ -75,14 +75,14 @@ const ItemSelectModal = ({
             <Search className="w-4 h-4 text-muted-foreground" />
             <input
               className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none w-full"
-              placeholder="품목코드, 품목명, 규격으로 검색..."
+              placeholder="品目コード、品目名、規格で検索..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoFocus
             />
           </div>
           <Badge variant="outline" className="text-xs px-2 py-1">
-            {filteredItems.length}건
+            {filteredItems.length}件
           </Badge>
         </div>
 
@@ -92,24 +92,24 @@ const ItemSelectModal = ({
             <TableHeader>
               <TableRow className="hover:bg-transparent border-border bg-muted/50">
                 <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 w-10"></TableHead>
-                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3">품목코드</TableHead>
-                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3">품목명</TableHead>
+                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3">品目コード</TableHead>
+                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3">品目名</TableHead>
                 {!showStock && (
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3">규격</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3">規格</TableHead>
                 )}
-                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 text-center">단위</TableHead>
+                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 text-center">単位</TableHead>
                 {showStock && (
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 text-right">현재고</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 text-right">実在庫</TableHead>
                 )}
-                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 text-right">단가</TableHead>
-                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 w-20 text-center">선택</TableHead>
+                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 text-right">単価</TableHead>
+                <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-9 px-3 w-20 text-center">選択</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={showStock ? 7 : 7} className="text-center py-8 text-muted-foreground text-sm">
-                    검색 결과가 없습니다
+                    検索結果がありません
                   </TableCell>
                 </TableRow>
               ) : (
@@ -159,7 +159,7 @@ const ItemSelectModal = ({
                       <TableCell className="px-3 py-2 text-center">
                         {isSelected ? (
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/30">
-                            추가됨
+                            追加済
                           </Badge>
                         ) : (
                           <Button
@@ -171,7 +171,7 @@ const ItemSelectModal = ({
                               handleSelect(item);
                             }}
                           >
-                            선택
+                            選択
                           </Button>
                         )}
                       </TableCell>
@@ -186,7 +186,7 @@ const ItemSelectModal = ({
         {/* Footer */}
         <div className="flex justify-end pt-2">
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
-            닫기
+            閉じる
           </Button>
         </div>
       </DialogContent>
