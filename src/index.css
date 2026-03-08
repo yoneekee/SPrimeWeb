@@ -6,6 +6,63 @@
 
 @layer base {
   :root {
+    --background: 210 20% 96%;
+    --foreground: 220 20% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 14%;
+
+    --primary: 185 72% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 16% 92%;
+    --secondary-foreground: 220 16% 30%;
+
+    --muted: 210 14% 89%;
+    --muted-foreground: 215 12% 46%;
+
+    --accent: 185 72% 38%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 16% 85%;
+    --input: 214 16% 85%;
+    --ring: 185 72% 38%;
+
+    --radius: 0.5rem;
+
+    --success: 152 60% 38%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 20% 7%;
+    --info: 210 80% 50%;
+    --info-foreground: 0 0% 100%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(185 72% 38%), hsl(200 80% 40%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 20% 97%));
+    --gradient-glow: linear-gradient(180deg, hsl(185 72% 38% / 0.08), transparent);
+
+    --shadow-card: 0 1px 4px hsl(220 20% 80% / 0.3);
+    --shadow-glow: 0 0 16px hsl(185 72% 38% / 0.08);
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 16% 40%;
+    --sidebar-primary: 185 72% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 16% 94%;
+    --sidebar-accent-foreground: 220 20% 14%;
+    --sidebar-border: 214 16% 88%;
+    --sidebar-ring: 185 72% 38%;
+
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  .dark {
     --background: 220 20% 7%;
     --foreground: 210 20% 90%;
 
@@ -34,9 +91,6 @@
     --input: 220 14% 18%;
     --ring: 185 72% 48%;
 
-    --radius: 0.5rem;
-
-    /* Custom ERP tokens */
     --success: 152 60% 45%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
@@ -59,8 +113,6 @@
     --sidebar-accent-foreground: 210 20% 90%;
     --sidebar-border: 220 14% 15%;
     --sidebar-ring: 185 72% 48%;
-
-    --font-mono: 'JetBrains Mono', monospace;
   }
 }
 
@@ -153,12 +205,12 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(220 20% 7%);
+  background: hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(220 14% 22%);
+  background: hsl(var(--border));
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(185 72% 48% / 0.4);
+  background: hsl(var(--primary) / 0.4);
 }
