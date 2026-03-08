@@ -28,8 +28,8 @@ const InventoryStatus = () => {
           return (
             <div key={i} className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-[11px] text-foreground truncate mr-2">{item.name}</span>
-                <span className="data-text text-[11px] text-muted-foreground whitespace-nowrap">
+                <span className="text-xs text-foreground truncate mr-2">{item.name}</span>
+                <span className="data-text text-xs text-muted-foreground whitespace-nowrap">
                   {item.stock.toLocaleString()} / {item.max.toLocaleString()} {item.unit}
                 </span>
               </div>
