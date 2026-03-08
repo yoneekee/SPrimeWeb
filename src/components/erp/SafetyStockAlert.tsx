@@ -1,8 +1,8 @@
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 const alertItems = [
   { code: "RAW-ORING-VT", name: "バイトン O-リング (Φ300)", stockQty: 25, safetyStock: 50, unit: "EA" },
-  { code: "RAW-GAS-N2", name: "高純度窒素ガス (N2)", stockQty: 15, safetyStock: 20, unit: "SET" },
+  { code: "RAW-GAS-N2", name: "高純度窒素ガス (N₂)", stockQty: 15, safetyStock: 20, unit: "SET" },
   { code: "SEMI-RF-GEN", name: "RF発生器ユニット", stockQty: 3, safetyStock: 5, unit: "EA" },
   { code: "RAW-CAP-HV", name: "高圧セラミックコンデンサ", stockQty: 40, safetyStock: 60, unit: "EA" },
 ];
@@ -13,10 +13,10 @@ const SafetyStockAlert = () => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-warning" />
-          <h3 className="text-sm font-semibold text-foreground">안전재고 미달 경고</h3>
+          <h3 className="text-sm font-semibold text-foreground">安全在庫割れ警告</h3>
         </div>
         <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/20 text-destructive font-medium">
-          {alertItems.length}건
+          {alertItems.length}件
         </span>
       </div>
       <div className="space-y-2">

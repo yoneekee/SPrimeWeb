@@ -12,24 +12,24 @@ import {
 } from "recharts";
 
 const data = [
-  { name: "1월", 생산량: 4200, 불량률: 120, 출하량: 3800 },
-  { name: "2월", 생산량: 5100, 불량률: 95, 출하량: 4600 },
-  { name: "3월", 생산량: 4800, 불량률: 140, 출하량: 4200 },
-  { name: "4월", 생산량: 5500, 불량률: 88, 출하량: 5100 },
-  { name: "5월", 생산량: 6200, 불량률: 72, 출하량: 5800 },
-  { name: "6월", 생산량: 5900, 불량률: 105, 출하량: 5400 },
-  { name: "7월", 생산량: 6800, 불량률: 65, 출하량: 6300 },
+  { name: "1月", 生産量: 4200, 不良数: 120, 出荷量: 3800 },
+  { name: "2月", 生産量: 5100, 不良数: 95, 出荷量: 4600 },
+  { name: "3月", 生産量: 4800, 不良数: 140, 出荷量: 4200 },
+  { name: "4月", 生産量: 5500, 不良数: 88, 出荷量: 5100 },
+  { name: "5月", 生産量: 6200, 不良数: 72, 出荷量: 5800 },
+  { name: "6月", 生産量: 5900, 不良数: 105, 出荷量: 5400 },
+  { name: "7月", 生産量: 6800, 不良数: 65, 出荷量: 6300 },
 ];
 
-const tabs = ["생산 추이", "품질 분석", "출하 현황"] as const;
+const tabs = ["生産推移", "品質分析", "出荷状況"] as const;
 
 const DashboardChart = () => {
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("생산 추이");
+  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("生産推移");
 
   return (
     <div className="card-glow border-glow rounded-lg bg-card p-5 animate-slide-up" style={{ animationDelay: "200ms" }}>
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-sm font-semibold text-foreground">생산 현황 모니터링</h3>
+        <h3 className="text-sm font-semibold text-foreground">生産状況モニタリング</h3>
         <div className="flex gap-1 bg-secondary rounded-md p-0.5">
           {tabs.map((tab) => (
             <button
@@ -79,17 +79,17 @@ const DashboardChart = () => {
                 color: "hsl(210, 20%, 90%)",
               }}
             />
-            {activeTab === "생산 추이" && (
+            {activeTab === "生産推移" && (
               <>
-                <Area type="monotone" dataKey="생산량" stroke="hsl(185, 72%, 48%)" fill="url(#gradProd)" strokeWidth={2} />
-                <Area type="monotone" dataKey="출하량" stroke="hsl(210, 80%, 55%)" fill="url(#gradShip)" strokeWidth={2} />
+                <Area type="monotone" dataKey="生産量" stroke="hsl(185, 72%, 48%)" fill="url(#gradProd)" strokeWidth={2} />
+                <Area type="monotone" dataKey="出荷量" stroke="hsl(210, 80%, 55%)" fill="url(#gradShip)" strokeWidth={2} />
               </>
             )}
-            {activeTab === "품질 분석" && (
-              <Area type="monotone" dataKey="불량률" stroke="hsl(0, 72%, 51%)" fill="hsl(0, 72%, 51%, 0.1)" strokeWidth={2} />
+            {activeTab === "品質分析" && (
+              <Area type="monotone" dataKey="不良数" stroke="hsl(0, 72%, 51%)" fill="hsl(0, 72%, 51%, 0.1)" strokeWidth={2} />
             )}
-            {activeTab === "출하 현황" && (
-              <Area type="monotone" dataKey="출하량" stroke="hsl(152, 60%, 45%)" fill="hsl(152, 60%, 45%, 0.1)" strokeWidth={2} />
+            {activeTab === "出荷状況" && (
+              <Area type="monotone" dataKey="出荷量" stroke="hsl(152, 60%, 45%)" fill="hsl(152, 60%, 45%, 0.1)" strokeWidth={2} />
             )}
           </AreaChart>
         </ResponsiveContainer>

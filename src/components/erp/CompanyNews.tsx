@@ -1,11 +1,11 @@
 import { Newspaper, Clock } from "lucide-react";
 
 const newsItems = [
-  { title: "8인치 웨이퍼 생산라인 가동률 98% 달성", time: "2시간 전", type: "success" as const },
-  { title: "품질관리 ISO 9001 갱신 심사 완료", time: "5시간 전", type: "info" as const },
-  { title: "3분기 원자재 단가 협상 결과 공유", time: "1일 전", type: "warning" as const },
-  { title: "신규 클린룸 장비 도입 일정 확정", time: "2일 전", type: "info" as const },
-  { title: "안전교육 미이수자 알림", time: "3일 전", type: "destructive" as const },
+  { title: "8インチウェーハ生産ライン稼働率98%達成", time: "2時間前", type: "success" as const },
+  { title: "品質管理ISO 9001更新審査完了", time: "5時間前", type: "info" as const },
+  { title: "第3四半期 原材料単価交渉結果共有", time: "1日前", type: "warning" as const },
+  { title: "新規クリーンルーム設備導入日程確定", time: "2日前", type: "info" as const },
+  { title: "安全教育未受講者通知", time: "3日前", type: "destructive" as const },
 ];
 
 const statusColors = {
@@ -20,7 +20,7 @@ const CompanyNews = () => {
     <div className="card-glow border-glow rounded-lg bg-card p-4 h-full animate-slide-up" style={{ animationDelay: "100ms" }}>
       <div className="flex items-center gap-2 mb-4">
         <Newspaper className="w-4 h-4 text-primary" />
-        <h3 className="text-sm font-semibold text-foreground">Company News</h3>
+        <h3 className="text-sm font-semibold text-foreground">社内ニュース</h3>
       </div>
       <div className="space-y-3">
         {newsItems.map((item, i) => (
