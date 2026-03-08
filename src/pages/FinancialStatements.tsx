@@ -90,7 +90,7 @@ const FinancialStatements = () => {
             <div className="flex flex-wrap items-end gap-4">
               {/* Date Range */}
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">조회 기간</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">照会期間</label>
                 <div className="flex items-center gap-2">
                   <Input
                     type="date"
