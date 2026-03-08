@@ -538,6 +538,57 @@ const CompanyIntro = () => {
           </p>
         </div>
       </div>
+
+      {/* Table Schema Modal */}
+      <Dialog open={!!selectedTable} onOpenChange={(open) => !open && setSelectedTable(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-mono flex items-center gap-2">
+              <Database className="w-4 h-4 text-primary" />
+              {selectedTable}
+              <Badge variant="outline" className="text-[9px] ml-1">
+                {tableList.find((t) => t.name === selectedTable)?.desc}
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTable && tableSchemas[selectedTable] && (
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-secondary/50">
+                    <TableHead className="text-[10px] font-semibold">컬럼명</TableHead>
+                    <TableHead className="text-[10px] font-semibold">데이터 타입</TableHead>
+                    <TableHead className="text-[10px] font-semibold">제약</TableHead>
+                    <TableHead className="text-[10px] font-semibold">설명</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tableSchemas[selectedTable].map((col) => (
+                    <TableRow key={col.name}>
+                      <TableCell className="text-[11px] font-mono text-primary font-medium">{col.name}</TableCell>
+                      <TableCell className="text-[11px] font-mono text-muted-foreground">{col.type}</TableCell>
+                      <TableCell className="text-[11px]">
+                        <Badge
+                          variant="outline"
+                          className={`text-[9px] ${
+                            col.constraint === "PK" ? "border-primary/40 text-primary" :
+                            col.constraint === "FK" ? "border-warning/40 text-warning" :
+                            col.constraint === "NOT NULL" ? "border-destructive/40 text-destructive" :
+                            "text-muted-foreground"
+                          }`}
+                        >
+                          {col.constraint}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-[11px] text-muted-foreground">{col.desc}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </ERPLayout>
   );
 };
