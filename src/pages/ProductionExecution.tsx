@@ -35,6 +35,7 @@ import {
   Search,
   FileText,
 } from "lucide-react";
+import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
 
 // --- Mock Data ---
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
