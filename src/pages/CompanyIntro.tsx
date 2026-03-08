@@ -560,14 +560,15 @@ const CompanyIntro = () => {
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
-                { id: "8.1", title: "製品生産および実行", desc: "生産起案～最終検収までの全ライフサイクル管理", path: "/production/execution" },
-                { id: "8.2", title: "出庫および在庫調整", desc: "出庫申請～売上確定/在庫調整のライフサイクル管理", path: "/production/shipping" },
-                { id: "8.3", title: "財務諸表照会", desc: "B/S、P/L照会およびPDF出力", path: "/documents/finance" },
-                { id: "8.4", title: "BOM生産伝票", desc: "BOM基盤の生産伝票照会および出力", path: "/documents/bom" },
-                { id: "8.5", title: "請求書・発注書", desc: "発注書（PO）、請求書（Invoice）照会およびPDF出力", path: "/documents/invoice" },
-                { id: "8.6", title: "社員マスタ", desc: "社員登録・修正および権限管理", path: "/master/employee" },
-                { id: "8.7", title: "品目マスタ", desc: "原材料/半製品/完成品の登録・修正", path: "/master/item" },
-                { id: "8.8", title: "倉庫拠点マスタ", desc: "倉庫、拠点の登録・修正", path: "/master/warehouse" },
+                { id: "8.1", title: "生産出庫伝票一覧", desc: "製造購買および出庫に関する全伝票を横断的に検索・照会", path: "/production/slips" },
+                { id: "8.2", title: "製品生産および実行", desc: "生産起案～最終検収までの全ライフサイクル管理", path: "/production/execution" },
+                { id: "8.3", title: "出庫および在庫調整", desc: "出庫申請～売上確定/在庫調整のライフサイクル管理", path: "/production/shipping" },
+                { id: "8.4", title: "財務諸表照会", desc: "B/S、P/L照会およびPDF出力", path: "/documents/finance" },
+                { id: "8.5", title: "BOM生産伝票", desc: "BOM基盤の生産伝票照会および出力", path: "/documents/bom" },
+                { id: "8.6", title: "請求書・発注書", desc: "発注書（PO）、請求書（Invoice）照会およびPDF出力", path: "/documents/invoice" },
+                { id: "8.7", title: "社員マスタ", desc: "社員登録・修正および権限管理", path: "/master/employee" },
+                { id: "8.8", title: "品目マスタ", desc: "原材料/半製品/完成品の登録・修正", path: "/master/item" },
+                { id: "8.9", title: "倉庫拠点マスタ", desc: "倉庫、拠点の登録・修正", path: "/master/warehouse" },
               ].map((screen) => (
                 <div
                   key={screen.id}
