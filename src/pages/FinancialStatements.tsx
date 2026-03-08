@@ -146,19 +146,19 @@ const FinancialStatements = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">자산 총계</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">資産合計</div>
                     <div className="text-lg font-mono font-bold text-primary">¥{assetTotal.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">부채 총계</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">負債合計</div>
                     <div className="text-lg font-mono font-bold text-destructive">¥{liabilityTotal.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">순자산 (자본)</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">純資産（資本）</div>
                     <div className="text-lg font-mono font-bold text-success flex items-center gap-1.5">
                       ¥{equityTotal.toLocaleString()}
                       <TrendingUp className="w-4 h-4" />
