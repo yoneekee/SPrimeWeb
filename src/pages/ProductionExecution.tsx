@@ -44,6 +44,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+} from "lucide-react";
 import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
 
 // --- Mock Data ---
