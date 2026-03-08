@@ -118,7 +118,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 </Button>
 
                 {notifOpen && (
-                  <div className="absolute right-0 top-9 w-80 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-slide-up" style={{ opacity: 1, backdropFilter: "none" }}>
+                  <div className="absolute right-0 top-9 w-80 border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-slide-up bg-background" style={{ opacity: 1 }}>
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
                       <span className="text-xs font-semibold text-foreground">알림</span>
                       <div className="flex items-center gap-2">
