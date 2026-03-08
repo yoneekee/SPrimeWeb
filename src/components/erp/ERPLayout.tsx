@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import ERPSidebar from "./ERPSidebar";
-import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X } from "lucide-react";
+import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X, LogIn, LogOut, Settings, UserCircle } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,8 +38,10 @@ interface ERPLayoutProps {
 const ERPLayout = ({ children }: ERPLayoutProps) => {
   const { theme, toggleTheme } = useTheme();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(mockNotifications);
   const panelRef = useRef<HTMLDivElement>(null);
+  const userPanelRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -53,10 +55,13 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setNotifOpen(false);
       }
+      if (userPanelRef.current && !userPanelRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
     };
-    if (notifOpen) document.addEventListener("mousedown", handler);
+    if (notifOpen || userMenuOpen) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [notifOpen]);
+  }, [notifOpen, userMenuOpen]);
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -146,8 +151,46 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 )}
               </div>
 
-              <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
-                <User className="w-3.5 h-3.5 text-primary" />
+              {/* User Menu */}
+              <div className="relative" ref={userPanelRef}>
+                <button
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/30 transition-colors"
+                >
+                  <User className="w-3.5 h-3.5 text-primary" />
+                </button>
+
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-9 w-64 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden animate-slide-up">
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
+                      <span className="text-xs font-semibold text-foreground">내 계정</span>
+                      <button onClick={() => setUserMenuOpen(false)} className="text-muted-foreground hover:text-foreground">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="px-4 py-3 border-b border-border">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center">
+                          <UserCircle className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-foreground">관리자</p>
+                          <p className="text-[11px] text-muted-foreground truncate">admin@example.com</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="py-1">
+                      <button className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-foreground hover:bg-secondary/50 transition-colors">
+                        <Settings className="w-3.5 h-3.5 text-muted-foreground" />
+                        설정
+                      </button>
+                      <button className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-destructive hover:bg-secondary/50 transition-colors">
+                        <LogOut className="w-3.5 h-3.5" />
+                        로그아웃
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </header>
