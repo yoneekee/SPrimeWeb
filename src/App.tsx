@@ -49,6 +49,7 @@ const App = () => (
           <Route path="/documents/bom" element={<ProtectedRoute><BomProductionSlip /></ProtectedRoute>} />
           <Route path="/documents/bom/new" element={<ProtectedRoute><BomSlipCreate /></ProtectedRoute>} />
           <Route path="/documents/invoice" element={<ProtectedRoute><InvoiceManagement /></ProtectedRoute>} />
+          <Route path="/company" element={<ProtectedRoute><CompanyIntro /></ProtectedRoute>} />
           <Route path="/master" element={<ProtectedRoute><PlaceholderPage title="마스터 관리" description="마스터 데이터 관리 화면입니다." /></ProtectedRoute>} />
           <Route path="/master/employee" element={<ProtectedRoute><EmployeeMaster /></ProtectedRoute>} />
           <Route path="/master/item" element={<ProtectedRoute><ItemMaster /></ProtectedRoute>} />
