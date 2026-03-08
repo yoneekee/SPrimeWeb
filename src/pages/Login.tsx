@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Mail, Eye, EyeOff, Factory } from "lucide-react";
+import { Lock, User as UserIcon, Eye, EyeOff, Factory } from "lucide-react";
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
@@ -18,12 +18,12 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!email || !password) {
-      setError("이메일과 비밀번호를 입력해주세요.");
+    if (!username || !password) {
+      setError("아이디와 비밀번호를 입력해주세요.");
       return;
     }
     setLoading(true);
-    const ok = await login(email, password);
+    const ok = await login(username, password);
     setLoading(false);
     if (ok) {
       navigate("/", { replace: true });
@@ -56,17 +56,17 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-xs font-medium text-foreground">이메일</Label>
+              <Label htmlFor="username" className="text-xs font-medium text-foreground">아이디</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="admin"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="pl-10 h-10 bg-secondary/50 border-border"
-                  autoComplete="email"
+                  autoComplete="username"
                 />
               </div>
             </div>
@@ -104,7 +104,7 @@ const Login = () => {
           </form>
 
           <p className="text-[11px] text-muted-foreground text-center mt-6">
-            아무 이메일/비밀번호로 로그인 가능합니다 (데모)
+            아무 아이디/비밀번호로 로그인 가능합니다 (데모)
           </p>
         </div>
       </div>

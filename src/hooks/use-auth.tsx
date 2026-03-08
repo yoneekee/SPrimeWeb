@@ -18,10 +18,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock: any non-empty email/password succeeds
-    if (email && password) {
-      const u = { name: email.split("@")[0], email };
+  const login = async (username: string, password: string): Promise<boolean> => {
+    if (username && password) {
+      const u = { name: username, email: username };
       setUser(u);
       setIsLoggedIn(true);
       sessionStorage.setItem("erp_logged_in", "true");
