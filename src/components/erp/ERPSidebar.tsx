@@ -198,8 +198,16 @@ const ERPSidebar = () => {
                   </SidebarMenuItem>
 
                   {/* Sub items */}
-                  {!collapsed && item.children && openGroups.includes(item.id) && (
-                    <div className="ml-4 pl-4 border-l border-border/50 mt-1 mb-2 space-y-0.5">
+                  {!collapsed && item.children && (
+                    <div
+                      className="ml-4 pl-4 border-l border-border/50 space-y-0.5 overflow-hidden transition-all duration-300 ease-in-out"
+                      style={{
+                        maxHeight: openGroups.includes(item.id) ? `${item.children.length * 40}px` : "0px",
+                        opacity: openGroups.includes(item.id) ? 1 : 0,
+                        marginTop: openGroups.includes(item.id) ? "4px" : "0px",
+                        marginBottom: openGroups.includes(item.id) ? "8px" : "0px",
+                      }}
+                    >
                       {item.children.map((sub) => (
                         <SidebarMenuItem key={sub.id}>
                           <SidebarMenuButton
