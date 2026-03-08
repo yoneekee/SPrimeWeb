@@ -116,8 +116,8 @@ const SlipListPage = () => {
     if (requesterFilter !== "all" && s.requester !== requesterFilter) return false;
     if (approverFilter !== "all" && s.approver !== approverFilter) return false;
     if (handlerFilter !== "all" && s.handler !== handlerFilter) return false;
-    if (dateFrom && s.date < dateFrom) return false;
-    if (dateTo && s.date > dateTo) return false;
+    if (dateFrom && s.date < format(dateFrom, "yyyy-MM-dd")) return false;
+    if (dateTo && s.date > format(dateTo, "yyyy-MM-dd")) return false;
     if (searchText) {
       const q = searchText.toLowerCase();
       if (!s.slipNo.toLowerCase().includes(q) && !s.partner.toLowerCase().includes(q)) return false;
