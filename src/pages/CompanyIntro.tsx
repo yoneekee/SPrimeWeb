@@ -271,7 +271,9 @@ const SectionTitle = ({ icon: Icon, children }: { icon: React.ElementType; child
 );
 
 const CompanyIntro = () => {
+  const navigate = useNavigate();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [navigateTarget, setNavigateTarget] = useState<{ title: string; path: string } | null>(null);
 
   return (
     <ERPLayout>
