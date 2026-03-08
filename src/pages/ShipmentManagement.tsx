@@ -241,27 +241,19 @@ const ShipmentManagement = () => {
                 </Button>
               </div>
 
-              {/* Status Flow */}
-              <div className="mt-4 flex items-center gap-1 text-[10px] text-muted-foreground overflow-x-auto pb-1">
-                {statusFlow.map((code, i) => (
-                  <div key={code} className="flex items-center gap-1 flex-shrink-0">
-                    <span className={`px-1.5 py-0.5 rounded font-mono ${
-                      code === currentStatus
-                        ? "bg-primary text-primary-foreground font-bold"
-                        : statusFlow.indexOf(code) < statusFlow.indexOf(currentStatus)
-                          ? "bg-success/20 text-success"
-                          : "bg-muted text-muted-foreground"
-                    }`}>
-                      {code}
-                    </span>
-                    {i < statusFlow.length - 1 && <span className="text-muted-foreground/40">→</span>}
-                  </div>
-                ))}
-                <span className="text-muted-foreground/40 mx-1">|</span>
-                <span className={`px-1.5 py-0.5 rounded font-mono ${
-                  currentStatus === "T04" ? "bg-warning/20 text-warning font-bold" : "bg-muted text-muted-foreground"
-                }`}>T04</span>
-              </div>
+              <StatusFlowStepper
+                steps={[
+                  { code: "S00", label: "작성중" },
+                  { code: "S01", label: "신청중" },
+                  { code: "A00", label: "승인중" },
+                  { code: "A01", label: "승인완료" },
+                  { code: "T01", label: "적송중" },
+                  { code: "T02", label: "출고완료" },
+                  { code: "T03", label: "매출확정" },
+                ]}
+                currentStatus={currentStatus}
+                extraStep={{ code: "T04", label: "재고조정" }}
+              />
             </CardContent>
           </Card>
         </div>
