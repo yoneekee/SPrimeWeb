@@ -106,19 +106,19 @@ const mockItems: ShipmentItem[] = [
 ];
 
 const mockWorkflow: WorkflowEntry[] = [
-  { stepNo: 1, status: "출고신청", empName: "정수현", role: "신청자", comment: "삼성전자 평택 FAB 납품 건", procAt: "2024-03-10 09:00:00" },
+  { stepNo: 1, status: "출고신청", empName: "정수현", role: "신청자", comment: "東京エレクトロン 川崎 FAB 납품 건", procAt: "2024-03-10 09:00:00" },
   { stepNo: 2, status: "승인", empName: "박지영", role: "승인자(1차)", comment: "재고 확인 완료, 승인", procAt: "2024-03-10 11:30:00" },
   { stepNo: 3, status: "승인", empName: "이동훈", role: "승인자(2차)", comment: "출고 승인", procAt: "2024-03-10 14:00:00" },
-  { stepNo: 4, status: "배송시작", empName: "최유진", role: "물류담당", comment: "운송업체: 대한통운 / 송장번호: DHL-240311-0891", procAt: "2024-03-11 08:30:00" },
+  { stepNo: 4, status: "배송시작", empName: "최유진", role: "물류담당", comment: "운송업체: ヤマト運輸 / 송장번호: YMT-240311-0891", procAt: "2024-03-11 08:30:00" },
 ];
 
 const ShipmentManagement = () => {
   const navigate = useNavigate();
   const [currentStatus, setCurrentStatus] = useState("T01");
   const [slipList] = useState([
-    { slipNo: "SHP20240310-001", date: "2024-03-10", customer: "삼성전자(주)", status: "T01", totalAmount: "245,000,000" },
-    { slipNo: "SHP20240308-002", date: "2024-03-08", customer: "SK하이닉스(주)", status: "T03", totalAmount: "156,000,000" },
-    { slipNo: "SHP20240306-001", date: "2024-03-06", customer: "도쿄일렉트론(주)", status: "T02", totalAmount: "89,500,000" },
+    { slipNo: "SHP20240310-001", date: "2024-03-10", customer: "東京エレクトロン(株)", status: "T01", totalAmount: "245,000,000" },
+    { slipNo: "SHP20240308-002", date: "2024-03-08", customer: "SCREEN HD(株)", status: "T03", totalAmount: "156,000,000" },
+    { slipNo: "SHP20240306-001", date: "2024-03-06", customer: "ディスコ(株)", status: "T02", totalAmount: "89,500,000" },
     { slipNo: "SHP20240303-003", date: "2024-03-03", customer: "TSMC Japan", status: "T04", totalAmount: "12,800,000" },
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SHP20240310-001");
