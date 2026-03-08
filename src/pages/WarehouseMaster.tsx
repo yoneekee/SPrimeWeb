@@ -51,7 +51,7 @@ const WarehouseMaster = () => {
   const [editingLoc, setEditingLoc] = useState<Location | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const openNew = () => { setEditingLoc(null); setDialogOpen(true); };
   const openEdit = (loc: Location) => { setEditingLoc(loc); setDialogOpen(true); };
