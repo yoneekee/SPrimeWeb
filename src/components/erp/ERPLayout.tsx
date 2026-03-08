@@ -194,7 +194,10 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                       </div>
                     </div>
                     <div className="py-1">
-                      <button className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-foreground hover:bg-secondary/50 transition-colors">
+                      <button
+                        onClick={() => { setUserMenuOpen(false); setSettingsOpen(true); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-foreground hover:bg-secondary/50 transition-colors"
+                      >
                         <Settings className="w-3.5 h-3.5 text-muted-foreground" />
                         설정
                       </button>
