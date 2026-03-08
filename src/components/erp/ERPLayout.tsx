@@ -55,10 +55,13 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setNotifOpen(false);
       }
+      if (userPanelRef.current && !userPanelRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
     };
-    if (notifOpen) document.addEventListener("mousedown", handler);
+    if (notifOpen || userMenuOpen) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [notifOpen]);
+  }, [notifOpen, userMenuOpen]);
 
   return (
     <SidebarProvider defaultOpen={false}>
