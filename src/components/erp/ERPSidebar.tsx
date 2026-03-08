@@ -179,7 +179,7 @@ const ERPSidebar = () => {
           {!collapsed && (
            <div>
               <div className="text-sm font-semibold text-foreground tracking-tight">S-Prime ERP</div>
-              <div className="text-[10px] text-muted-foreground">반도체 정밀 기기 관리</div>
+              <div className="text-[10px] text-muted-foreground">半導体精密機器管理</div>
             </div>
           )}
         </div>

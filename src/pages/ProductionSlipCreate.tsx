@@ -46,13 +46,13 @@ interface NewDetailItem {
 }
 
 const ITEM_CATALOG: CatalogItem[] = [
-  { code: "SEMI-WAFER-01", name: "실리콘 웨이퍼 300mm", spec: "300mm / P-type", unit: "EA", price: 85000 },
-  { code: "SEMI-WAFER-02", name: "실리콘 웨이퍼 200mm", spec: "200mm / N-type", unit: "EA", price: 62000 },
-  { code: "SEMI-CHEM-03", name: "포토레지스트 AZ-5214", spec: "1L / UV-grade", unit: "EA", price: 120000 },
-  { code: "SEMI-CHEM-04", name: "현상액 AZ-300MIF", spec: "5L / TMAH", unit: "EA", price: 95000 },
-  { code: "SEMI-GAS-07", name: "고순도 질소가스 (N2)", spec: "99.999% / 47L", unit: "SET", price: 45000 },
-  { code: "SEMI-GAS-08", name: "고순도 아르곤가스 (Ar)", spec: "99.9999% / 47L", unit: "SET", price: 78000 },
-  { code: "SEMI-PART-10", name: "석영 보트 6인치", spec: "6\" / 25slot", unit: "EA", price: 350000 },
+  { code: "SEMI-WAFER-01", name: "シリコンウェーハ 300mm", spec: "300mm / P-type", unit: "EA", price: 85000 },
+  { code: "SEMI-WAFER-02", name: "シリコンウェーハ 200mm", spec: "200mm / N-type", unit: "EA", price: 62000 },
+  { code: "SEMI-CHEM-03", name: "フォトレジスト AZ-5214", spec: "1L / UV-grade", unit: "EA", price: 120000 },
+  { code: "SEMI-CHEM-04", name: "現像液 AZ-300MIF", spec: "5L / TMAH", unit: "EA", price: 95000 },
+  { code: "SEMI-GAS-07", name: "高純度窒素ガス (N₂)", spec: "99.999% / 47L", unit: "SET", price: 45000 },
+  { code: "SEMI-GAS-08", name: "高純度アルゴンガス (Ar)", spec: "99.9999% / 47L", unit: "SET", price: 78000 },
+  { code: "SEMI-PART-10", name: "石英ボート 6インチ", spec: "6\" / 25slot", unit: "EA", price: 350000 },
   { code: "SEMI-PART-11", name: "O-Ring (Viton)", spec: "ID200 x 5.0", unit: "EA", price: 12000 },
 ];
 
@@ -69,8 +69,8 @@ const ProductionSlipCreate = () => {
   const navigate = useNavigate();
   const [slipNo] = useState(generateSlipNo());
   const [reqDate, setReqDate] = useState(new Date().toISOString().split("T")[0]);
-  const [requester] = useState("김민수");
-  const [department] = useState("제조1팀");
+  const [requester] = useState("田中 太郎");
+  const [department] = useState("製造1課");
   const [vendor, setVendor] = useState("");
   const [remark, setRemark] = useState("");
   const [details, setDetails] = useState<NewDetailItem[]>([]);
@@ -80,7 +80,7 @@ const ProductionSlipCreate = () => {
   const addItem = (catalogItem: CatalogItem) => {
     const existing = details.find((d) => d.itemCode === catalogItem.code);
     if (existing) {
-      toast.error("이미 추가된 품목입니다.");
+      toast.error("既に追加済みの品目です。");
       return;
     }
     setDetails((prev) => [
@@ -98,7 +98,7 @@ const ProductionSlipCreate = () => {
       },
     ]);
     setNextId((n) => n + 1);
-    toast.success(`${catalogItem.name} 추가됨`);
+    toast.success(`${catalogItem.name} を追加しました`);
   };
 
   const removeItem = (id: number) => {
@@ -125,23 +125,23 @@ const ProductionSlipCreate = () => {
 
   const handleSave = () => {
     if (details.length === 0) {
-      toast.error("최소 1개 이상의 품목을 추가해주세요.");
+      toast.error("1件以上の品目を追加してください。");
       return;
     }
-    toast.success("전표가 저장되었습니다 (작성중 상태)");
+    toast.success("伝票を保存しました（作成中ステータス）");
     navigate("/production/execution");
   };
 
   const handleSubmit = () => {
     if (details.length === 0) {
-      toast.error("최소 1개 이상의 품목을 추가해주세요.");
+      toast.error("1件以上の品目を追加してください。");
       return;
     }
     if (!vendor) {
-      toast.error("희망발주처를 선택해주세요.");
+      toast.error("希望発注先を選択してください。");
       return;
     }
-    toast.success("전표가 신청되었습니다");
+    toast.success("伝票を申請しました");
     navigate("/production/execution");
   };
 
@@ -158,19 +158,19 @@ const ProductionSlipCreate = () => {
               className="gap-1.5 text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-4 h-4" />
-              목록
+              一覧
             </Button>
             <Separator orientation="vertical" className="h-6" />
             <div>
-              <h1 className="text-lg font-bold text-foreground">신규 전표 작성</h1>
+              <h1 className="text-lg font-bold text-foreground">新規伝票作成</h1>
               <p className="text-xs text-muted-foreground mt-0.5">
-                원재료 조달을 위한 신규 전표를 작성합니다
+                原材料調達のための新規伝票を作成します
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge className="bg-muted text-muted-foreground text-xs px-2.5 py-0.5">
-              작성중 (Draft)
+              作成中 (Draft)
             </Badge>
           </div>
         </div>
@@ -180,17 +180,17 @@ const ProductionSlipCreate = () => {
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <FileText className="w-4 h-4 text-primary" />
-              전표 헤더 정보
+              伝票ヘッダ情報
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">전표번호</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票番号</label>
                 <Input value={slipNo} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">신청일자</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請日</label>
                 <Input
                   type="date"
                   value={reqDate}
@@ -199,14 +199,14 @@ const ProductionSlipCreate = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">신청자(부서)</label>
-                <Input value={`${requester} (${department})`} readOnly className="h-8 text-xs bg-muted/50 border-border" />
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請者（部署）</label>
+                <Input value={`${requester}（${department}）`} readOnly className="h-8 text-xs bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">희망발주처</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">希望発注先</label>
                 <Select value={vendor} onValueChange={setVendor}>
                   <SelectTrigger className="h-8 text-xs border-border">
-                    <SelectValue placeholder="발주처 선택" />
+                    <SelectValue placeholder="発注先を選択" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="tokyo">東京半導体(株)</SelectItem>
@@ -217,16 +217,16 @@ const ProductionSlipCreate = () => {
                 </Select>
               </div>
               <div className="col-span-2 md:col-span-3 space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">비고</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">備考</label>
                 <Textarea
                   value={remark}
                   onChange={(e) => setRemark(e.target.value)}
-                  placeholder="전표에 대한 비고사항을 입력하세요"
+                  placeholder="伝票に関する備考事項を入力してください"
                   className="text-xs border-border min-h-[60px] resize-none"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">총 합계금액</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">合計金額</label>
                 <Input
                   value={`¥${totalAmount.toLocaleString()}`}
                   readOnly
@@ -241,14 +241,14 @@ const ProductionSlipCreate = () => {
         <Card className="border-border bg-card">
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold">품목 추가</CardTitle>
+              <CardTitle className="text-sm font-semibold">品目追加</CardTitle>
               <Button
                 size="sm"
                 onClick={() => setIsItemModalOpen(true)}
                 className="gap-1.5 text-xs"
               >
                 <Plus className="w-3.5 h-3.5" />
-                품목 선택
+                品目選択
               </Button>
             </div>
           </CardHeader>
@@ -261,7 +261,7 @@ const ProductionSlipCreate = () => {
           items={ITEM_CATALOG}
           onSelect={addItem}
           selectedCodes={details.map((d) => d.itemCode)}
-          title="원재료 품목 선택"
+          title="原材料品目選択"
         />
 
         {/* Detail Items */}
@@ -269,10 +269,10 @@ const ProductionSlipCreate = () => {
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">
-                상세 품목 일람
+                明細品目一覧
                 {details.length > 0 && (
                   <Badge variant="outline" className="ml-2 text-[10px] px-1.5 py-0">
-                    {details.length}건
+                    {details.length}件
                   </Badge>
                 )}
               </CardTitle>
@@ -282,7 +282,7 @@ const ProductionSlipCreate = () => {
             {details.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <FileText className="w-8 h-8 mb-2 opacity-40" />
-                <p className="text-xs">품목을 검색하여 추가해주세요</p>
+                <p className="text-xs">品目を検索して追加してください</p>
               </div>
             ) : (
               <>
@@ -290,14 +290,14 @@ const ProductionSlipCreate = () => {
                   <Table>
                     <TableHeader>
                       <TableRow className="hover:bg-transparent border-border">
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">품목코드</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">품목명</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">규격</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">단위</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">발주수량</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">단가</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">공급가액</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">LOT번호</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">品目コード</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">品目名</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">規格</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">単位</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">発注数量</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">単価</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">供給価額</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">LOT番号</TableHead>
                         <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -347,7 +347,7 @@ const ProductionSlipCreate = () => {
                   </Table>
                 </div>
                 <div className="flex justify-end items-center gap-4 px-4 py-2.5 border-t border-border bg-muted/30">
-                  <span className="text-xs text-muted-foreground">합계</span>
+                  <span className="text-xs text-muted-foreground">合計</span>
                   <span className="text-sm font-mono font-bold text-primary">
                     ¥{totalAmount.toLocaleString()}
                   </span>
@@ -365,7 +365,7 @@ const ProductionSlipCreate = () => {
             onClick={() => navigate("/production/execution")}
             className="gap-1.5 text-xs"
           >
-            취소
+            キャンセル
           </Button>
           <Button
             variant="outline"
@@ -374,7 +374,7 @@ const ProductionSlipCreate = () => {
             className="gap-1.5 text-xs"
           >
             <Save className="w-3.5 h-3.5" />
-            임시저장
+            一時保存
           </Button>
           <Button
             size="sm"
@@ -382,7 +382,7 @@ const ProductionSlipCreate = () => {
             className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Send className="w-3.5 h-3.5" />
-            신청
+            申請
           </Button>
         </div>
       </div>

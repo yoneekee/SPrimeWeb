@@ -47,17 +47,17 @@ import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
 
 // --- Mock Data ---
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  S00: { label: "작성중 (Draft)", color: "bg-muted text-muted-foreground" },
-  S01: { label: "신청중 (Pending)", color: "bg-info/20 text-info" },
-  A00: { label: "승인중 (In-Review)", color: "bg-warning/20 text-warning" },
-  A01: { label: "승인완료 (Approved)", color: "bg-success/20 text-success" },
-  A02: { label: "부인 (Rejected)", color: "bg-destructive/20 text-destructive" },
-  P00: { label: "반려중 (Returning)", color: "bg-warning/20 text-warning" },
-  P01: { label: "견적중 (Quoted)", color: "bg-primary/20 text-primary" },
-  P02: { label: "발주완료 (Ordered)", color: "bg-primary/20 text-primary" },
-  P03: { label: "분납중 (Partial)", color: "bg-info/20 text-info" },
-  P04: { label: "입고완료 (Received)", color: "bg-success/20 text-success" },
-  I00: { label: "검수완료 (Accepted)", color: "bg-success/20 text-success" },
+  S00: { label: "作成中 (Draft)", color: "bg-muted text-muted-foreground" },
+  S01: { label: "申請中 (Pending)", color: "bg-info/20 text-info" },
+  A00: { label: "承認中 (In-Review)", color: "bg-warning/20 text-warning" },
+  A01: { label: "承認済 (Approved)", color: "bg-success/20 text-success" },
+  A02: { label: "否認 (Rejected)", color: "bg-destructive/20 text-destructive" },
+  P00: { label: "差戻中 (Returning)", color: "bg-warning/20 text-warning" },
+  P01: { label: "見積中 (Quoted)", color: "bg-primary/20 text-primary" },
+  P02: { label: "発注済 (Ordered)", color: "bg-primary/20 text-primary" },
+  P03: { label: "分納中 (Partial)", color: "bg-info/20 text-info" },
+  P04: { label: "入庫済 (Received)", color: "bg-success/20 text-success" },
+  I00: { label: "検収済 (Accepted)", color: "bg-success/20 text-success" },
 };
 
 interface DetailItem {
@@ -87,7 +87,7 @@ const mockDetails: DetailItem[] = [
   {
     id: 1,
     itemCode: "SEMI-WAFER-01",
-    itemName: "실리콘 웨이퍼 300mm",
+    itemName: "シリコンウェーハ 300mm",
     spec: "300mm / P-type",
     unit: "EA",
     orderQty: 500,
@@ -100,7 +100,7 @@ const mockDetails: DetailItem[] = [
   {
     id: 2,
     itemCode: "SEMI-CHEM-03",
-    itemName: "포토레지스트 AZ-5214",
+    itemName: "フォトレジスト AZ-5214",
     spec: "1L / UV-grade",
     unit: "EA",
     orderQty: 200,
@@ -113,7 +113,7 @@ const mockDetails: DetailItem[] = [
   {
     id: 3,
     itemCode: "SEMI-GAS-07",
-    itemName: "고순도 질소가스 (N2)",
+    itemName: "高純度窒素ガス (N₂)",
     spec: "99.999% / 47L",
     unit: "SET",
     orderQty: 50,
@@ -126,22 +126,22 @@ const mockDetails: DetailItem[] = [
 ];
 
 const mockWorkflow: WorkflowEntry[] = [
-  { stepNo: 1, status: "신청", empName: "김민수", role: "신청자", comment: "웨이퍼 및 화학 재료 긴급 발주 요청", procAt: "2024-03-07 09:15:00" },
-  { stepNo: 2, status: "승인", empName: "박지영", role: "승인자(1차)", comment: "승인합니다", procAt: "2024-03-07 10:30:00" },
-  { stepNo: 3, status: "승인", empName: "이동훈", role: "승인자(2차)", comment: "수량 확인 완료, 승인", procAt: "2024-03-07 14:20:00" },
-  { stepNo: 4, status: "견적", empName: "최유진", role: "제조담당", comment: "도쿄반도체(주) 견적 접수 완료", procAt: "2024-03-08 11:00:00" },
-  { stepNo: 5, status: "발주", empName: "최유진", role: "제조담당", comment: "발주 확정 - PO#240308-001", procAt: "2024-03-09 09:00:00" },
-  { stepNo: 6, status: "분납입고", empName: "최유진", role: "제조담당", comment: "1차 분납: 웨이퍼 300EA 입고", procAt: "2024-03-12 15:30:00" },
+  { stepNo: 1, status: "申請", empName: "田中 太郎", role: "申請者", comment: "ウェーハおよび化学材料の緊急発注依頼", procAt: "2024-03-07 09:15:00" },
+  { stepNo: 2, status: "承認", empName: "佐藤 花子", role: "承認者（1次）", comment: "承認します", procAt: "2024-03-07 10:30:00" },
+  { stepNo: 3, status: "承認", empName: "鈴木 一郎", role: "承認者（2次）", comment: "数量確認完了、承認", procAt: "2024-03-07 14:20:00" },
+  { stepNo: 4, status: "見積", empName: "山田 優子", role: "製造担当", comment: "東京半導体(株) 見積受領完了", procAt: "2024-03-08 11:00:00" },
+  { stepNo: 5, status: "発注", empName: "山田 優子", role: "製造担当", comment: "発注確定 - PO#240308-001", procAt: "2024-03-09 09:00:00" },
+  { stepNo: 6, status: "分納入庫", empName: "山田 優子", role: "製造担当", comment: "第1回分納: ウェーハ 300EA 入庫", procAt: "2024-03-12 15:30:00" },
 ];
 
 const ProductionExecution = () => {
   const navigate = useNavigate();
   const [currentStatus, setCurrentStatus] = useState("P03");
   const [slipList] = useState([
-    { slipNo: "SLP20240307-001", date: "2024-03-07", requester: "김민수", status: "P03", totalAmount: "68,750,000" },
-    { slipNo: "SLP20240305-003", date: "2024-03-05", requester: "박지영", status: "A01", totalAmount: "12,300,000" },
-    { slipNo: "SLP20240304-002", date: "2024-03-04", requester: "이동훈", status: "I00", totalAmount: "95,200,000" },
-    { slipNo: "SLP20240301-001", date: "2024-03-01", requester: "김민수", status: "S00", totalAmount: "0" },
+    { slipNo: "SLP20240307-001", date: "2024-03-07", requester: "田中 太郎", status: "P03", totalAmount: "68,750,000" },
+    { slipNo: "SLP20240305-003", date: "2024-03-05", requester: "佐藤 花子", status: "A01", totalAmount: "12,300,000" },
+    { slipNo: "SLP20240304-002", date: "2024-03-04", requester: "鈴木 一郎", status: "I00", totalAmount: "95,200,000" },
+    { slipNo: "SLP20240301-001", date: "2024-03-01", requester: "田中 太郎", status: "S00", totalAmount: "0" },
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SLP20240307-001");
 
@@ -170,24 +170,23 @@ const ProductionExecution = () => {
 
   const getActionTitle = (type: "approve" | "reject" | "return" | null) => {
     switch (type) {
-      case "approve": return "승인";
-      case "reject": return "부인";
-      case "return": return "반려";
+      case "approve": return "承認";
+      case "reject": return "否認";
+      case "return": return "差戻";
       default: return "";
     }
   };
 
   const getActionDescription = (type: "approve" | "reject" | "return" | null) => {
     switch (type) {
-      case "approve": return "해당 전표를 승인합니다. 승인 메시지를 입력해주세요.";
-      case "reject": return "해당 전표를 부인합니다. 부인 사유를 입력해주세요.";
-      case "return": return "해당 전표를 반려합니다. 반려 사유를 입력해주세요.";
+      case "approve": return "該当伝票を承認します。承認メッセージを入力してください。";
+      case "reject": return "該当伝票を否認します。否認理由を入力してください。";
+      case "return": return "該当伝票を差戻します。差戻理由を入力してください。";
       default: return "";
     }
   };
 
   const handleActionConfirm = () => {
-    // Here you would typically send the action to the backend
     console.log(`Action: ${actionModal.type}, Message: ${actionMessage}`);
     setActionModal({ open: false, type: null });
     setActionMessage("");
@@ -204,14 +203,14 @@ const ProductionExecution = () => {
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-foreground">제품 생산 및 실행</h1>
+            <h1 className="text-lg font-bold text-foreground">製品生産および実行</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              원재료 조달부터 검수 완료까지의 전체 생산 프로세스를 관리합니다
+              原材料調達から検収完了までの全生産プロセスを管理します
             </p>
           </div>
           <Button size="sm" onClick={() => navigate("/production/execution/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="w-3.5 h-3.5" />
-            신규 전표
+            新規伝票
           </Button>
         </div>
 
@@ -221,12 +220,12 @@ const ProductionExecution = () => {
           <Card className="col-span-12 lg:col-span-4 border-border bg-card">
             <CardHeader className="py-3 px-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold">전표 목록</CardTitle>
+                <CardTitle className="text-sm font-semibold">伝票一覧</CardTitle>
                 <div className="flex items-center gap-1.5 bg-secondary rounded-md px-2.5 py-1">
                   <Search className="w-3 h-3 text-muted-foreground" />
                   <input
                     className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-24"
-                    placeholder="전표번호 검색"
+                    placeholder="伝票番号検索"
                   />
                 </div>
               </div>
@@ -266,7 +265,7 @@ const ProductionExecution = () => {
           <Card className="col-span-12 lg:col-span-8 border-border bg-card">
             <CardHeader className="py-3 px-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold">워크플로우 액션</CardTitle>
+                <CardTitle className="text-sm font-semibold">ワークフローアクション</CardTitle>
                 <Badge className={`text-xs px-2.5 py-0.5 ${statusInfo.color}`}>
                   {statusInfo.label}
                 </Badge>
@@ -275,43 +274,43 @@ const ProductionExecution = () => {
             <CardContent className="px-4 pb-4">
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} className="gap-1.5 text-xs">
-                  <Send className="w-3.5 h-3.5" /> 신청
+                  <Send className="w-3.5 h-3.5" /> 申請
                 </Button>
                 <Button size="sm" variant={isButtonActive("approve") ? "default" : "outline"} disabled={!isButtonActive("approve")} onClick={() => openActionModal("approve")} className="gap-1.5 text-xs">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> 승인
+                  <CheckCircle2 className="w-3.5 h-3.5" /> 承認
                 </Button>
                 <Button size="sm" variant={isButtonActive("reject") ? "destructive" : "outline"} disabled={!isButtonActive("reject")} onClick={() => openActionModal("reject")} className="gap-1.5 text-xs">
-                  <XCircle className="w-3.5 h-3.5" /> 부인
+                  <XCircle className="w-3.5 h-3.5" /> 否認
                 </Button>
                 <Button size="sm" variant={isButtonActive("return") ? "outline" : "outline"} disabled={!isButtonActive("return")} onClick={() => openActionModal("return")} className="gap-1.5 text-xs border-warning/50 text-warning hover:bg-warning/10">
-                  <RotateCcw className="w-3.5 h-3.5" /> 반려
+                  <RotateCcw className="w-3.5 h-3.5" /> 差戻
                 </Button>
                 <Separator orientation="vertical" className="h-8" />
                 <Button size="sm" variant={isButtonActive("order") ? "default" : "outline"} disabled={!isButtonActive("order")} className="gap-1.5 text-xs">
-                  <FileCheck className="w-3.5 h-3.5" /> 발주확정
+                  <FileCheck className="w-3.5 h-3.5" /> 発注確定
                 </Button>
                 <Button size="sm" variant={isButtonActive("partial") ? "default" : "outline"} disabled={!isButtonActive("partial")} className="gap-1.5 text-xs">
-                  <Truck className="w-3.5 h-3.5" /> 분납등록
+                  <Truck className="w-3.5 h-3.5" /> 分納登録
                 </Button>
                 <Button size="sm" variant={isButtonActive("receive") ? "default" : "outline"} disabled={!isButtonActive("receive")} className="gap-1.5 text-xs">
-                  <PackageCheck className="w-3.5 h-3.5" /> 입고종료
+                  <PackageCheck className="w-3.5 h-3.5" /> 入庫完了
                 </Button>
                 <Button size="sm" variant={isButtonActive("inspect") ? "default" : "outline"} disabled={!isButtonActive("inspect")} className="gap-1.5 text-xs">
-                  <ClipboardCheck className="w-3.5 h-3.5" /> 검수완료
+                  <ClipboardCheck className="w-3.5 h-3.5" /> 検収完了
                 </Button>
               </div>
 
               <StatusFlowStepper
                 steps={[
-                  { code: "S00", label: "작성중" },
-                  { code: "S01", label: "신청중" },
-                  { code: "A00", label: "승인중" },
-                  { code: "A01", label: "승인완료" },
-                  { code: "P01", label: "견적중" },
-                  { code: "P02", label: "발주완료" },
-                  { code: "P03", label: "분납중" },
-                  { code: "P04", label: "입고완료" },
-                  { code: "I00", label: "검수완료" },
+                  { code: "S00", label: "作成中" },
+                  { code: "S01", label: "申請中" },
+                  { code: "A00", label: "承認中" },
+                  { code: "A01", label: "承認済" },
+                  { code: "P01", label: "見積中" },
+                  { code: "P02", label: "発注済" },
+                  { code: "P03", label: "分納中" },
+                  { code: "P04", label: "入庫済" },
+                  { code: "I00", label: "検収済" },
                 ]}
                 currentStatus={currentStatus}
               />
@@ -324,52 +323,52 @@ const ProductionExecution = () => {
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <FileText className="w-4 h-4 text-primary" />
-              전표 헤더 정보
+              伝票ヘッダ情報
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">전표번호</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票番号</label>
                 <Input value="SLP20240307-001" readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">전표상태</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票ステータス</label>
                 <div className="h-8 flex items-center">
                   <Badge className={`text-xs ${statusInfo.color}`}>{statusInfo.label}</Badge>
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">신청일자</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請日</label>
                 <Input type="date" defaultValue="2024-03-07" disabled={currentStatus !== "S00"} className="h-8 text-xs border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">신청자(부서)</label>
-                <Input value="김민수 (제조1팀)" readOnly className="h-8 text-xs bg-muted/50 border-border" />
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請者（部署）</label>
+                <Input value="田中 太郎（製造1課）" readOnly className="h-8 text-xs bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">희망발주처</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">希望発注先</label>
                 <Select disabled={currentStatus !== "P01"}>
                   <SelectTrigger className="h-8 text-xs border-border">
-                    <SelectValue placeholder="도쿄반도체(주)" />
+                    <SelectValue placeholder="東京半導体(株)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="tokyo">도쿄반도체(주)</SelectItem>
-                    <SelectItem value="osaka">오사카정밀(주)</SelectItem>
+                    <SelectItem value="tokyo">東京半導体(株)</SelectItem>
+                    <SelectItem value="osaka">大阪精密(株)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">확정발주처</label>
-                <Input value="도쿄반도체(주)" readOnly={currentStatus !== "P02"} className="h-8 text-xs bg-muted/50 border-border" />
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">確定発注先</label>
+                <Input value="東京半導体(株)" readOnly={currentStatus !== "P02"} className="h-8 text-xs bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">총 합계금액</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">合計金額</label>
                 <Input value="¥68,750,000" readOnly className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">비고</label>
-                <Input defaultValue="Q2 생산라인 증설 관련 긴급 자재" disabled={!["S00", "S01", "P01", "P02"].includes(currentStatus)} className="h-8 text-xs border-border" />
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">備考</label>
+                <Input defaultValue="Q2 生産ライン増設関連 緊急資材" disabled={!["S00", "S01", "P01", "P02"].includes(currentStatus)} className="h-8 text-xs border-border" />
               </div>
             </div>
           </CardContent>
@@ -379,9 +378,9 @@ const ProductionExecution = () => {
         <Card className="border-border bg-card">
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold">상세 품목 일람</CardTitle>
+              <CardTitle className="text-sm font-semibold">明細品目一覧</CardTitle>
               <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7" disabled={currentStatus !== "S00"}>
-                <Plus className="w-3 h-3" /> 품목 추가
+                <Plus className="w-3 h-3" /> 品目追加
               </Button>
             </div>
           </CardHeader>
@@ -390,16 +389,16 @@ const ProductionExecution = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-border">
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">품목코드</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">품목명</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">규격</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">단위</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">발주수량</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">입고누계</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">이번입고</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">단가</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">공급가액</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">LOT번호</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">品目コード</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">品目名</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">規格</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">単位</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">発注数量</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">入庫累計</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">今回入庫</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">単価</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">供給価額</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">LOT番号</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -441,7 +440,7 @@ const ProductionExecution = () => {
             </div>
             {/* Total Row */}
             <div className="flex justify-end items-center gap-4 px-4 py-2.5 border-t border-border bg-muted/30">
-              <span className="text-xs text-muted-foreground">합계</span>
+              <span className="text-xs text-muted-foreground">合計</span>
               <span className="text-sm font-mono font-bold text-primary">
                 ¥{mockDetails.reduce((sum, d) => sum + d.supplyAmount, 0).toLocaleString()}
               </span>
@@ -452,18 +451,18 @@ const ProductionExecution = () => {
         {/* Workflow History */}
         <Card className="border-border bg-card">
           <CardHeader className="py-3 px-4">
-            <CardTitle className="text-sm font-semibold">워크플로우 이력</CardTitle>
+            <CardTitle className="text-sm font-semibold">ワークフロー履歴</CardTitle>
           </CardHeader>
           <CardContent className="px-0 pb-0">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-border">
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-16 text-center">순번</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">작업상황</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">작업자</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">권한/직무</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">코멘트</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">처리일시</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-16 text-center">順番</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">処理状況</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">処理者</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">権限・職務</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">コメント</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">処理日時</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -502,9 +501,9 @@ const ProductionExecution = () => {
             </DialogHeader>
             <div className="space-y-3 py-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">메시지</label>
+                <label className="text-xs font-medium text-muted-foreground">メッセージ</label>
                 <Textarea
-                  placeholder={actionModal.type === "approve" ? "승인 메시지를 입력하세요..." : "사유를 입력하세요..."}
+                  placeholder={actionModal.type === "approve" ? "承認メッセージを入力してください..." : "理由を入力してください..."}
                   value={actionMessage}
                   onChange={(e) => setActionMessage(e.target.value)}
                   className="min-h-[100px] text-sm"
@@ -513,14 +512,14 @@ const ProductionExecution = () => {
             </div>
             <DialogFooter className="gap-2 sm:gap-0">
               <Button variant="outline" onClick={() => setActionModal({ open: false, type: null })}>
-                취소
+                キャンセル
               </Button>
               <Button
                 variant={actionModal.type === "reject" ? "destructive" : "default"}
                 onClick={handleActionConfirm}
                 className={actionModal.type === "return" ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}
               >
-                {getActionTitle(actionModal.type)} 확인
+                {getActionTitle(actionModal.type)} 確認
               </Button>
             </DialogFooter>
           </DialogContent>
