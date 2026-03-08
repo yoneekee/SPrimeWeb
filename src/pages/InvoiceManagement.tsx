@@ -110,9 +110,9 @@ const InvoiceManagement = () => {
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">照会期間</label>
                 <div className="flex items-center gap-2">
-                  <Input type="date" defaultValue="2024-03-01" className="h-8 text-xs border-border w-32" />
+                  <DatePicker value="2024-03-01" className="w-32" />
                   <span className="text-xs text-muted-foreground">~</span>
-                  <Input type="date" defaultValue="2024-03-31" className="h-8 text-xs border-border w-32" />
+                  <DatePicker value="2024-03-31" className="w-32" />
                 </div>
               </div>
 

@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileDown, FileText, TrendingUp, TrendingDown } from "lucide-react";
+import { Search, FileDown, FileText, TrendingUp, TrendingDown } from "lucide-react";
 
 // B/S mock data
 const bsAssets = [
