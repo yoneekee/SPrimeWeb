@@ -16,7 +16,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Search, Pencil, Box, AlertTriangle } from "lucide-react";
+import { Plus, Search, Pencil, Box, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Item {
   itemId: number;
