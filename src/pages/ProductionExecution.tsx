@@ -126,6 +126,7 @@ const mockWorkflow: WorkflowEntry[] = [
 ];
 
 const ProductionExecution = () => {
+  const navigate = useNavigate();
   const [currentStatus, setCurrentStatus] = useState("P03");
   const [slipList] = useState([
     { slipNo: "SLP20240307-001", date: "2024-03-07", requester: "김민수", status: "P03", totalAmount: "68,750,000" },
