@@ -39,7 +39,7 @@ const App = () => (
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-          <Route path="/production" element={<ProtectedRoute><PlaceholderPage title="생산 및 제조" description="생산 및 제조 관리 화면입니다." /></ProtectedRoute>} />
+          <Route path="/production" element={<ProtectedRoute><PlaceholderPage title="生産・製造" description="生産および製造管理画面です。" /></ProtectedRoute>} />
           <Route path="/production/execution" element={<ProtectedRoute><ProductionExecution /></ProtectedRoute>} />
           <Route path="/production/execution/new" element={<ProtectedRoute><ProductionSlipCreate /></ProtectedRoute>} />
           <Route path="/production/shipping" element={<ProtectedRoute><ShipmentManagement /></ProtectedRoute>} />
