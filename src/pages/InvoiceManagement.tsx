@@ -175,14 +175,14 @@ const InvoiceManagement = () => {
                       <TableCell className="px-3 py-2 text-xs font-medium text-foreground">{doc.partner}</TableCell>
                       <TableCell className="px-3 py-2 text-xs text-muted-foreground truncate max-w-[160px]">{doc.itemSummary}</TableCell>
                       <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">¥{(doc.totalAmount + doc.taxAmount).toLocaleString()}</TableCell>
-                      <TableCell className="px-3 py-2 text-center">
+                      <TableCell className="px-3 py-2 text-center whitespace-nowrap">
                         {doc.printed ? (
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-success/10 text-success border-success/30">
-                            <CheckCircle2 className="w-3 h-3 mr-0.5" /> 出力済
+                            <CheckCircle2 className="w-3 h-3 mr-0.5" /> 済
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-warning/10 text-warning border-warning/30">
-                            <Clock className="w-3 h-3 mr-0.5" /> 未出力
+                            <Clock className="w-3 h-3 mr-0.5" /> 未
                           </Badge>
                         )}
                       </TableCell>
