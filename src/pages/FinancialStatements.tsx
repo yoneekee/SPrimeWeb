@@ -197,7 +197,7 @@ const FinancialStatements = () => {
               <CardHeader className="py-3 px-4">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <FileText className="w-4 h-4 text-primary" />
-                  {reportType === "bs" ? "대차대조표 (貸借対照表)" : "손익계산서 (損益計算書)"}
+                  {reportType === "bs" ? "貸借対照表（B/S）" : "損益計算書（P/L）"}
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 ml-2 text-muted-foreground">
                     {startDate} ~ {endDate}
                   </Badge>
