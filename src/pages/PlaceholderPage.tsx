@@ -11,7 +11,7 @@ const PlaceholderPage = ({ title, description }: PlaceholderPageProps) => {
       <div className="flex items-center justify-center h-[60vh]">
         <div className="text-center space-y-2">
           <h1 className="text-lg font-bold text-foreground">{title}</h1>
-          <p className="text-sm text-muted-foreground">{description || "페이지 준비 중입니다."}</p>
+          <p className="text-sm text-muted-foreground">{description || "ページ準備中です。"}</p>
         </div>
       </div>
     </ERPLayout>
