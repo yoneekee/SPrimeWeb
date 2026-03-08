@@ -63,11 +63,15 @@ const ItemMaster = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const openNew = () => { setEditingItem(null); setDialogOpen(true); };
   const openEdit = (item: Item) => { setEditingItem(item); setDialogOpen(true); };
 
   const filtered = typeFilter === "all" ? mockItems : mockItems.filter(i => i.itemType === typeFilter);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <ERPLayout>
