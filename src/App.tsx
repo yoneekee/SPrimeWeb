@@ -21,6 +21,7 @@ import ProductionSlipCreate from "./pages/ProductionSlipCreate";
 import ShipmentSlipCreate from "./pages/ShipmentSlipCreate";
 import BomSlipCreate from "./pages/BomSlipCreate";
 import CompanyIntro from "./pages/CompanyIntro";
+import SlipListPage from "./pages/SlipListPage";
 
 const queryClient = new QueryClient();
 
