@@ -150,7 +150,7 @@ const ShipmentManagement = () => {
               완제품 출고 신청부터 매출 확정 및 재고 조정까지의 전체 프로세스를 관리합니다
             </p>
           </div>
-          <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button size="sm" onClick={() => navigate("/production/shipping/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="w-3.5 h-3.5" />
             신규 출고전표
           </Button>
