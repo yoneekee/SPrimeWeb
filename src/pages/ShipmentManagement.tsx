@@ -112,6 +112,7 @@ const mockWorkflow: WorkflowEntry[] = [
 ];
 
 const ShipmentManagement = () => {
+  const navigate = useNavigate();
   const [currentStatus, setCurrentStatus] = useState("T01");
   const [slipList] = useState([
     { slipNo: "SHP20240310-001", date: "2024-03-10", customer: "삼성전자(주)", status: "T01", totalAmount: "245,000,000" },
