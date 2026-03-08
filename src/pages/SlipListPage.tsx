@@ -208,13 +208,33 @@ const SlipListPage = () => {
               {/* Date From */}
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">依頼日（FROM）</label>
-                <Input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }} className="h-8 text-xs border-border" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("h-8 w-full justify-start text-left text-xs font-normal border-border", !dateFrom && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-1.5 h-3 w-3" />
+                      {dateFrom ? format(dateFrom, "yyyy/MM/dd") : "日付選択"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={dateFrom} onSelect={(d) => { setDateFrom(d); setCurrentPage(1); }} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Date To */}
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">依頼日（TO）</label>
-                <Input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }} className="h-8 text-xs border-border" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("h-8 w-full justify-start text-left text-xs font-normal border-border", !dateTo && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-1.5 h-3 w-3" />
+                      {dateTo ? format(dateTo, "yyyy/MM/dd") : "日付選択"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={dateTo} onSelect={(d) => { setDateTo(d); setCurrentPage(1); }} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Requester */}
