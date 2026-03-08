@@ -16,7 +16,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Search, Pencil, Users } from "lucide-react";
+import { Plus, Search, Pencil, Users, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Employee {
   empId: number;
