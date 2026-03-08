@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import ERPSidebar from "./ERPSidebar";
-import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X } from "lucide-react";
+import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X, LogIn, LogOut, Settings, UserCircle } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
