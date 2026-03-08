@@ -49,7 +49,7 @@ interface MenuItem {
 
 const companyItem: MenuItem = {
   id: "company",
-  label: "プログラムグラム紹介",
+  label: "プログラム紹介",
   icon: Building2,
   path: "/company",
 };
