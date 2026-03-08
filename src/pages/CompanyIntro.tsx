@@ -643,6 +643,22 @@ const CompanyIntro = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Navigate Confirm Dialog */}
+      <Dialog open={!!navigateTarget} onOpenChange={(open) => !open && setNavigateTarget(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-sm">해당 화면으로 이동하시겠습니까?</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground">
+            <strong className="text-foreground">{navigateTarget?.title}</strong> 화면으로 이동합니다.
+          </p>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" size="sm" onClick={() => setNavigateTarget(null)}>취소</Button>
+            <Button size="sm" onClick={() => { if (navigateTarget) navigate(navigateTarget.path); setNavigateTarget(null); }}>이동</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </ERPLayout>
   );
 };
