@@ -178,8 +178,8 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                           <UserCircle className="w-5 h-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-foreground">관리자</p>
-                          <p className="text-[11px] text-muted-foreground truncate">admin@example.com</p>
+                          <p className="text-xs font-medium text-foreground">{user?.name || "사용자"}</p>
+                          <p className="text-[11px] text-muted-foreground truncate">{user?.email || ""}</p>
                         </div>
                       </div>
                     </div>
