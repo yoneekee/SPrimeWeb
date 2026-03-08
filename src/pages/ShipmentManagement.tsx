@@ -42,6 +42,8 @@ import {
   Plus,
   Search,
   FileText,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
 
@@ -129,8 +131,18 @@ const ShipmentManagement = () => {
     { slipNo: "SHP20240308-002", date: "2024-03-08", customer: "SCREEN HD(株)", status: "T03", totalAmount: "156,000,000" },
     { slipNo: "SHP20240306-001", date: "2024-03-06", customer: "ディスコ(株)", status: "T02", totalAmount: "89,500,000" },
     { slipNo: "SHP20240303-003", date: "2024-03-03", customer: "TSMC Japan", status: "T04", totalAmount: "12,800,000" },
+    { slipNo: "SHP20240228-002", date: "2024-02-28", customer: "キヤノン(株)", status: "T03", totalAmount: "178,200,000" },
+    { slipNo: "SHP20240225-001", date: "2024-02-25", customer: "ニコン(株)", status: "A01", totalAmount: "67,400,000" },
+    { slipNo: "SHP20240222-004", date: "2024-02-22", customer: "アドバンテスト(株)", status: "T02", totalAmount: "34,600,000" },
+    { slipNo: "SHP20240220-002", date: "2024-02-20", customer: "ルネサス(株)", status: "S01", totalAmount: "52,100,000" },
+    { slipNo: "SHP20240218-003", date: "2024-02-18", customer: "東京エレクトロン(株)", status: "A02", totalAmount: "91,300,000" },
+    { slipNo: "SHP20240215-001", date: "2024-02-15", customer: "SCREEN HD(株)", status: "T03", totalAmount: "124,700,000" },
+    { slipNo: "SHP20240212-002", date: "2024-02-12", customer: "ディスコ(株)", status: "T01", totalAmount: "43,800,000" },
+    { slipNo: "SHP20240210-001", date: "2024-02-10", customer: "TSMC Japan", status: "S00", totalAmount: "0" },
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SHP20240310-001");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const [actionModal, setActionModal] = useState<{
     open: boolean;
@@ -213,32 +225,58 @@ const ShipmentManagement = () => {
               </div>
             </CardHeader>
             <CardContent className="px-2 pb-2">
-              <div className="space-y-1 max-h-[180px] overflow-y-auto">
-                {slipList.map((slip) => {
-                  const st = STATUS_MAP[slip.status];
+              <div className="space-y-1">
+                {(() => {
+                  const totalPages = Math.ceil(slipList.length / itemsPerPage);
+                  const paged = slipList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
                   return (
-                    <div
-                      key={slip.slipNo}
-                      onClick={() => setSelectedSlip(slip.slipNo)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-xs ${
-                        selectedSlip === slip.slipNo
-                          ? "bg-primary/10 border border-primary/30"
-                          : "hover:bg-secondary border border-transparent"
-                      }`}
-                    >
-                      <div className="space-y-0.5">
-                        <div className="font-mono font-medium text-foreground">{slip.slipNo}</div>
-                        <div className="text-muted-foreground">{slip.date} · {slip.customer}</div>
+                    <>
+                      {paged.map((slip) => {
+                        const st = STATUS_MAP[slip.status];
+                        return (
+                          <div
+                            key={slip.slipNo}
+                            onClick={() => setSelectedSlip(slip.slipNo)}
+                            className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-xs ${
+                              selectedSlip === slip.slipNo
+                                ? "bg-primary/10 border border-primary/30"
+                                : "hover:bg-secondary border border-transparent"
+                            }`}
+                          >
+                            <div className="space-y-0.5">
+                              <div className="font-mono font-medium text-foreground">{slip.slipNo}</div>
+                              <div className="text-muted-foreground">{slip.date} · {slip.customer}</div>
+                            </div>
+                            <div className="text-right space-y-0.5">
+                              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st?.color || ""}`}>
+                                {st?.label.split(" ")[0] || slip.status}
+                              </Badge>
+                              <div className="text-muted-foreground">¥{slip.totalAmount}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div className="flex items-center justify-between pt-2 px-1">
+                        <span className="text-xs text-muted-foreground">
+                          {slipList.length}件中 {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, slipList.length)}件
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </Button>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <Button key={page} variant={currentPage === page ? "default" : "outline"} size="icon" className="h-7 w-7 text-xs" onClick={() => setCurrentPage(page)}>
+                              {page}
+                            </Button>
+                          ))}
+                          <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="text-right space-y-0.5">
-                        <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st?.color || ""}`}>
-                          {st?.label.split(" ")[0] || slip.status}
-                        </Badge>
-                        <div className="text-muted-foreground">¥{slip.totalAmount}</div>
-                      </div>
-                    </div>
+                    </>
                   );
-                })}
+                })()}
               </div>
             </CardContent>
           </Card>
