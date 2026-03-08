@@ -479,7 +479,7 @@ const CompanyIntro = () => {
                   <TableRow className="bg-secondary/50">
                     <TableHead className="text-[11px] font-semibold w-16">区分</TableHead>
                     <TableHead className="text-[11px] font-semibold w-40">勘定科目</TableHead>
-                    <TableHead className="text-[11px] font-semibold w-16">コード</TableHead>
+                    <TableHead className="text-[11px] font-semibold w-24">コード</TableHead>
                     <TableHead className="text-[11px] font-semibold">説明</TableHead>
                   </TableRow>
                 </TableHeader>
