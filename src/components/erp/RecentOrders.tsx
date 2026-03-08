@@ -18,18 +18,18 @@ const RecentOrders = () => {
     <div className="card-glow border-glow rounded-lg bg-card p-4 animate-slide-up" style={{ animationDelay: "500ms" }}>
       <div className="flex items-center gap-2 mb-4">
         <ShoppingCart className="w-4 h-4 text-primary" />
-        <h3 className="text-sm font-semibold text-foreground">최근 수주 현황</h3>
+        <h3 className="text-sm font-semibold text-foreground">最近の受注状況</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-border">
-              <th className="text-[10px] text-muted-foreground font-medium text-left py-2 pr-4">주문번호</th>
-              <th className="text-[10px] text-muted-foreground font-medium text-left py-2 pr-4">거래처</th>
-              <th className="text-[10px] text-muted-foreground font-medium text-left py-2 pr-4">제품</th>
-              <th className="text-[10px] text-muted-foreground font-medium text-right py-2 pr-4">수량</th>
-              <th className="text-[10px] text-muted-foreground font-medium text-right py-2 pr-4">금액</th>
-              <th className="text-[10px] text-muted-foreground font-medium text-center py-2">상태</th>
+              <th className="text-[10px] text-muted-foreground font-medium text-left py-2 pr-4">注文番号</th>
+              <th className="text-[10px] text-muted-foreground font-medium text-left py-2 pr-4">取引先</th>
+              <th className="text-[10px] text-muted-foreground font-medium text-left py-2 pr-4">製品</th>
+              <th className="text-[10px] text-muted-foreground font-medium text-right py-2 pr-4">数量</th>
+              <th className="text-[10px] text-muted-foreground font-medium text-right py-2 pr-4">金額</th>
+              <th className="text-[10px] text-muted-foreground font-medium text-center py-2">ステータス</th>
             </tr>
           </thead>
           <tbody>

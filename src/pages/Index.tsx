@@ -16,18 +16,18 @@ const Index = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-foreground">전체 대시보드</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">반도체 정밀 기기 통합 관리 시스템</p>
+            <h1 className="text-lg font-bold text-foreground">全体ダッシュボード</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">半導体精密機器 統合管理システム</p>
           </div>
           <div className="data-text text-[11px] text-muted-foreground">
-            최종 업데이트: {new Date().toLocaleString("ja-JP")}
+            最終更新: {new Date().toLocaleString("ja-JP")}
           </div>
         </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <KPICard
-            title="월간 생산량"
+            title="月間生産量"
             value="12,345"
             change="+8.2%"
             trend="up"
@@ -35,7 +35,7 @@ const Index = () => {
             delay={0}
           />
           <KPICard
-            title="재고 회전율"
+            title="在庫回転率"
             value="4.8回"
             change="+1.2%"
             trend="up"
@@ -43,7 +43,7 @@ const Index = () => {
             delay={50}
           />
           <KPICard
-            title="월간 매출"
+            title="月間売上"
             value="¥5.53億"
             change="+12.5%"
             trend="up"
@@ -51,7 +51,7 @@ const Index = () => {
             delay={100}
           />
           <KPICard
-            title="불량률"
+            title="不良率"
             value="1.23%"
             change="-0.5%"
             trend="down"

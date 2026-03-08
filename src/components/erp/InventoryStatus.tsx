@@ -1,12 +1,12 @@
 import { Package } from "lucide-react";
 
 const inventoryData = [
-  { name: "실리콘 웨이퍼 (8\")", stock: 1240, max: 2000, unit: "매" },
-  { name: "포토마스크", stock: 85, max: 100, unit: "EA" },
-  { name: "에칭 용액 (BOE)", stock: 320, max: 500, unit: "L" },
-  { name: "CVD 가스 (SiH₄)", stock: 45, max: 200, unit: "kg" },
-  { name: "리드프레임", stock: 8500, max: 10000, unit: "EA" },
-  { name: "다이싱 블레이드", stock: 12, max: 50, unit: "EA" },
+  { name: "シリコンウェーハ (8\")", stock: 1240, max: 2000, unit: "枚" },
+  { name: "フォトマスク", stock: 85, max: 100, unit: "EA" },
+  { name: "エッチング液 (BOE)", stock: 320, max: 500, unit: "L" },
+  { name: "CVDガス (SiH₄)", stock: 45, max: 200, unit: "kg" },
+  { name: "リードフレーム", stock: 8500, max: 10000, unit: "EA" },
+  { name: "ダイシングブレード", stock: 12, max: 50, unit: "EA" },
 ];
 
 const getBarColor = (ratio: number) => {
@@ -20,7 +20,7 @@ const InventoryStatus = () => {
     <div className="card-glow border-glow rounded-lg bg-card p-4 h-full animate-slide-up" style={{ animationDelay: "300ms" }}>
       <div className="flex items-center gap-2 mb-4">
         <Package className="w-4 h-4 text-primary" />
-        <h3 className="text-sm font-semibold text-foreground">주요 자재 재고</h3>
+        <h3 className="text-sm font-semibold text-foreground">主要資材在庫</h3>
       </div>
       <div className="space-y-3">
         {inventoryData.map((item, i) => {
