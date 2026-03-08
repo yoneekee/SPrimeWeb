@@ -119,7 +119,7 @@ const BomProductionSlip = () => {
             <Button size="sm" variant="outline" className="gap-1.5 text-xs" disabled={checkedSlips.length === 0}>
               <FileDown className="w-3.5 h-3.5" /> 일괄 출력 ({checkedSlips.length})
             </Button>
-            <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs">
+            <Button size="sm" onClick={() => navigate("/documents/bom/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs">
               <Plus className="w-3.5 h-3.5" /> 신규 생산 기안
             </Button>
           </div>
