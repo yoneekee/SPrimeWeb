@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Table,
   TableBody,
@@ -401,7 +402,7 @@ const ProductionExecution = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請日</label>
-                <Input type="date" defaultValue="2024-03-07" disabled={currentStatus !== "S00"} className="h-8 text-xs border-border" />
+                <DatePicker value="2024-03-07" disabled={currentStatus !== "S00"} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請者（部署）</label>

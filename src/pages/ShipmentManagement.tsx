@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Table,
   TableBody,
@@ -356,7 +357,7 @@ const ShipmentManagement = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">出庫希望日</label>
-                <Input type="date" defaultValue="2024-03-15" disabled={currentStatus !== "S00"} className="h-8 text-xs border-border" />
+                <DatePicker value="2024-03-15" disabled={currentStatus !== "S00"} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">得意先名</label>

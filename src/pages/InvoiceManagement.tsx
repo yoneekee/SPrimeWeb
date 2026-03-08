@@ -3,10 +3,10 @@ import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Table,
   TableBody,
@@ -110,9 +110,9 @@ const InvoiceManagement = () => {
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">照会期間</label>
                 <div className="flex items-center gap-2">
-                  <Input type="date" defaultValue="2024-03-01" className="h-8 text-xs border-border w-32" />
+                  <DatePicker value="2024-03-01" className="w-32" />
                   <span className="text-xs text-muted-foreground">~</span>
-                  <Input type="date" defaultValue="2024-03-31" className="h-8 text-xs border-border w-32" />
+                  <DatePicker value="2024-03-31" className="w-32" />
                 </div>
               </div>
 
