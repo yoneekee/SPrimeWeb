@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -87,11 +87,12 @@ const menuItems: MenuItem[] = [
 ];
 
 const ERPSidebar = () => {
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
   const [openGroups, setOpenGroups] = useState<string[]>(["dashboard"]);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toggleGroup = (id: string) => {
     setOpenGroups((prev) =>
@@ -101,11 +102,42 @@ const ERPSidebar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const handleMouseEnter = () => {
+    if (collapsed) {
+      hoverTimeoutRef.current = setTimeout(() => {
+        toggleSidebar();
+      }, 200);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    if (!collapsed) {
+      toggleSidebar();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
+    <Sidebar
+      collapsible="icon"
+      className="border-r border-border transition-all duration-300"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <SidebarHeader className="p-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-md bg-primary/20 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-md bg-primary/20 flex items-center justify-center cursor-pointer">
             <Cpu className="w-5 h-5 text-primary" />
           </div>
           {!collapsed && (
