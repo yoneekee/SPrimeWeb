@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
+import ItemSelectModal, { CatalogItem } from "@/components/erp/ItemSelectModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +48,7 @@ interface ShipmentDetailItem {
   lotNo: string;
 }
 
-const PRODUCT_CATALOG = [
+const PRODUCT_CATALOG: CatalogItem[] = [
   { code: "FIN-ETCH-500", name: "플라즈마 에칭 장비 PE-500", stockQty: 12, unit: "EA", price: 45000000 },
   { code: "FIN-CVD-300", name: "CVD 증착기 CV-300", stockQty: 8, unit: "EA", price: 78000000 },
   { code: "FIN-SPUT-200", name: "스퍼터링 장비 SP-200", stockQty: 5, unit: "EA", price: 62000000 },
@@ -94,15 +95,9 @@ const ShipmentSlipCreate = () => {
   const [remark, setRemark] = useState("");
   const [details, setDetails] = useState<ShipmentDetailItem[]>([]);
   const [nextId, setNextId] = useState(1);
-  const [itemSearch, setItemSearch] = useState("");
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
 
-  const filteredCatalog = PRODUCT_CATALOG.filter(
-    (item) =>
-      item.code.toLowerCase().includes(itemSearch.toLowerCase()) ||
-      item.name.toLowerCase().includes(itemSearch.toLowerCase())
-  );
-
-  const addItem = (catalogItem: typeof PRODUCT_CATALOG[0]) => {
+  const addItem = (catalogItem: CatalogItem) => {
     const existing = details.find((d) => d.itemCode === catalogItem.code);
     if (existing) {
       toast.error("이미 추가된 품목입니다.");
@@ -114,7 +109,7 @@ const ShipmentSlipCreate = () => {
         id: nextId,
         itemCode: catalogItem.code,
         itemName: catalogItem.name,
-        stockQty: catalogItem.stockQty,
+        stockQty: catalogItem.stockQty || 0,
         shipQty: 1,
         unitPrice: catalogItem.price,
         salesAmount: catalogItem.price,
@@ -123,7 +118,7 @@ const ShipmentSlipCreate = () => {
       },
     ]);
     setNextId((n) => n + 1);
-    setItemSearch("");
+    toast.success(`${catalogItem.name} 추가됨`);
   };
 
   const removeItem = (id: number) => {
@@ -296,52 +291,33 @@ const ShipmentSlipCreate = () => {
           </CardContent>
         </Card>
 
-        {/* Item Search & Add */}
+        {/* Item Add Button */}
         <Card className="border-border bg-card">
           <CardHeader className="py-3 px-4">
-            <CardTitle className="text-sm font-semibold">품목 검색 및 추가</CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex items-center gap-1.5 bg-secondary rounded-md px-2.5 py-1.5 flex-1 max-w-sm">
-                <Search className="w-3.5 h-3.5 text-muted-foreground" />
-                <input
-                  className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-full"
-                  placeholder="품목코드 또는 품목명으로 검색..."
-                  value={itemSearch}
-                  onChange={(e) => setItemSearch(e.target.value)}
-                />
-              </div>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold">품목 추가</CardTitle>
+              <Button
+                size="sm"
+                onClick={() => setIsItemModalOpen(true)}
+                className="gap-1.5 text-xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                품목 선택
+              </Button>
             </div>
-            {itemSearch && (
-              <div className="border border-border rounded-md overflow-hidden max-h-[180px] overflow-y-auto">
-                {filteredCatalog.length === 0 ? (
-                  <div className="px-3 py-4 text-xs text-muted-foreground text-center">
-                    검색 결과가 없습니다
-                  </div>
-                ) : (
-                  filteredCatalog.map((item) => (
-                    <div
-                      key={item.code}
-                      onClick={() => addItem(item)}
-                      className="flex items-center justify-between px-3 py-2 hover:bg-secondary cursor-pointer border-b border-border last:border-b-0 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono text-primary">{item.code}</span>
-                        <span className="text-xs font-medium text-foreground">{item.name}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] text-muted-foreground">재고: {item.stockQty}</span>
-                        <span className="text-xs font-mono text-foreground">¥{item.price.toLocaleString()}</span>
-                        <Plus className="w-3.5 h-3.5 text-primary" />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </CardContent>
+          </CardHeader>
         </Card>
+
+        {/* Item Select Modal */}
+        <ItemSelectModal
+          open={isItemModalOpen}
+          onOpenChange={setIsItemModalOpen}
+          items={PRODUCT_CATALOG}
+          onSelect={addItem}
+          selectedCodes={details.map((d) => d.itemCode)}
+          showStock={true}
+          title="출고 품목 선택"
+        />
 
         {/* Detail Items */}
         <Card className="border-border bg-card">
