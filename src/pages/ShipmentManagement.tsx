@@ -34,6 +34,7 @@ import {
   Search,
   FileText,
 } from "lucide-react";
+import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   S00: { label: "작성중 (Draft)", color: "bg-muted text-muted-foreground" },
