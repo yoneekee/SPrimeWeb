@@ -101,8 +101,8 @@ const SlipListPage = () => {
   const [requesterFilter, setRequesterFilter] = useState("all");
   const [approverFilter, setApproverFilter] = useState("all");
   const [handlerFilter, setHandlerFilter] = useState("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [searchText, setSearchText] = useState("");
 
   // Pagination
