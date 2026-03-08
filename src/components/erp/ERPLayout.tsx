@@ -118,7 +118,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 </Button>
 
                 {notifOpen && (
-                  <div className="absolute right-0 top-9 w-80 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-slide-up" style={{ opacity: 1, backdropFilter: "none" }}>
+                  <div className="absolute right-0 top-9 w-80 border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-slide-up bg-background" style={{ opacity: 1 }}>
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
                       <span className="text-xs font-semibold text-foreground">알림</span>
                       <div className="flex items-center gap-2">
@@ -139,8 +139,8 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                         notifications.map((n) => (
                           <div
                             key={n.id}
-                            className={`flex items-start gap-2.5 px-4 py-2.5 border-b border-border last:border-b-0 transition-colors cursor-pointer hover:bg-secondary/50 ${
-                              !n.read ? "bg-primary/5" : ""
+                            className={`flex items-start gap-2.5 px-4 py-2.5 border-b border-border last:border-b-0 transition-colors cursor-pointer hover:bg-muted ${
+                              !n.read ? "bg-accent" : "bg-background"
                             }`}
                             onClick={() =>
                               setNotifications((prev) =>
@@ -175,7 +175,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-9 w-64 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden animate-slide-up">
+                  <div className="absolute right-0 top-9 w-64 bg-background border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-slide-up">
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
                       <span className="text-xs font-semibold text-foreground">내 계정</span>
                       <button onClick={() => setUserMenuOpen(false)} className="text-muted-foreground hover:text-foreground">
