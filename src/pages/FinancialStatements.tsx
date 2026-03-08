@@ -247,28 +247,28 @@ const FinancialStatements = () => {
                         {/* Revenue */}
                         <TableRow className="border-border bg-primary/5 hover:bg-primary/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-primary">
-                            【수익의 부 (収益の部)】
+                            【収益の部】
                           </TableCell>
                         </TableRow>
                         {plRevenue.map(renderAccountRow)}
-                        {renderSummaryRow("수익 합계", revenueTotal, true)}
+                        {renderSummaryRow("収益合計", revenueTotal, true)}
 
                         {/* Expenses */}
                         <TableRow className="border-border bg-destructive/5 hover:bg-destructive/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-destructive">
-                            【비용의 부 (費用の部)】
+                            【費用の部】
                           </TableCell>
                         </TableRow>
                         {plExpenses.map(renderAccountRow)}
-                        {renderSummaryRow("비용 합계", expenseTotal)}
+                        {renderSummaryRow("費用合計", expenseTotal)}
 
                         {/* Net Income */}
                         <TableRow className="border-border bg-success/5 hover:bg-success/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-success">
-                            【당기순이익 (当期純利益)】
+                            【当期純利益】
                           </TableCell>
                         </TableRow>
-                        {renderSummaryRow("당기순이익 (수익 - 비용)", netIncome, true)}
+                        {renderSummaryRow("当期純利益（収益 − 費用）", netIncome, true)}
                       </>
                     )}
                   </TableBody>
