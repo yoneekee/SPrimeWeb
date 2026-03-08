@@ -1,8 +1,8 @@
 import * as React from "react";
-import { format, parse } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -14,35 +14,87 @@ interface DatePickerProps {
   className?: string;
 }
 
-export function DatePicker({ value, onChange, placeholder = "日付選択", disabled = false, className }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder = "yyyy/mm/dd", disabled = false, className }: DatePickerProps) {
+  const [open, setOpen] = React.useState(false);
+  const [inputValue, setInputValue] = React.useState("");
+
   const dateValue = React.useMemo(() => {
     if (!value) return undefined;
     if (value instanceof Date) return value;
-    // parse string like "2024-03-07"
     try { return parse(value, "yyyy-MM-dd", new Date()); } catch { return undefined; }
   }, [value]);
 
+  // Sync inputValue when dateValue changes externally
+  React.useEffect(() => {
+    setInputValue(dateValue ? format(dateValue, "yyyy/MM/dd") : "");
+  }, [dateValue]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value;
+    setInputValue(raw);
+
+    // Auto-format: insert slashes
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length === 8) {
+      const formatted = `${digits.slice(0, 4)}/${digits.slice(4, 6)}/${digits.slice(6, 8)}`;
+      setInputValue(formatted);
+      const parsed = parse(formatted, "yyyy/MM/dd", new Date());
+      if (isValid(parsed)) {
+        onChange?.(parsed);
+      }
+    }
+  };
+
+  const handleInputBlur = () => {
+    if (!inputValue) {
+      onChange?.(undefined);
+      return;
+    }
+    // Try parsing various formats
+    for (const fmt of ["yyyy/MM/dd", "yyyy-MM-dd", "yyyy.MM.dd"]) {
+      const parsed = parse(inputValue, fmt, new Date());
+      if (isValid(parsed) && parsed.getFullYear() > 1900) {
+        onChange?.(parsed);
+        setInputValue(format(parsed, "yyyy/MM/dd"));
+        return;
+      }
+    }
+    // Invalid input — revert
+    setInputValue(dateValue ? format(dateValue, "yyyy/MM/dd") : "");
+  };
+
+  const handleCalendarSelect = (date: Date | undefined) => {
+    onChange?.(date);
+    setOpen(false);
+  };
+
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
+    <Popover open={open} onOpenChange={setOpen}>
+      <div className={cn("relative flex items-center", className)}>
+        <Input
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleInputBlur}
+          placeholder={placeholder}
           disabled={disabled}
-          className={cn(
-            "h-8 w-full justify-start text-left text-xs font-normal border-border",
-            !dateValue && "text-muted-foreground",
-            className
-          )}
-        >
-          <CalendarIcon className="mr-1.5 h-3 w-3" />
-          {dateValue ? format(dateValue, "yyyy/MM/dd") : placeholder}
-        </Button>
-      </PopoverTrigger>
+          className="h-8 text-xs border-border pr-8 font-normal"
+        />
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            disabled={disabled}
+            className="absolute right-1.5 text-muted-foreground hover:text-foreground disabled:opacity-50"
+            onClick={() => setOpen(!open)}
+          >
+            <CalendarIcon className="h-3.5 w-3.5" />
+          </button>
+        </PopoverTrigger>
+      </div>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
           selected={dateValue}
-          onSelect={onChange}
+          onSelect={handleCalendarSelect}
           initialFocus
           className="p-3 pointer-events-auto"
         />
