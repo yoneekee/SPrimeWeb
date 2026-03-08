@@ -91,8 +91,29 @@ const ERPSidebar = () => {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
-  const [openGroups, setOpenGroups] = useState<string[]>(["dashboard"]);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-expand parent groups based on current route
+  const getInitialOpenGroups = () => {
+    const groups: string[] = [];
+    menuItems.forEach((item) => {
+      if (item.children?.some((sub) => location.pathname.startsWith(sub.path))) {
+        groups.push(item.id);
+      }
+    });
+    return groups.length > 0 ? groups : ["dashboard"];
+  };
+
+  const [openGroups, setOpenGroups] = useState<string[]>(getInitialOpenGroups);
+
+  // Update open groups when route changes
+  useEffect(() => {
+    menuItems.forEach((item) => {
+      if (item.children?.some((sub) => location.pathname.startsWith(sub.path))) {
+        setOpenGroups((prev) => (prev.includes(item.id) ? prev : [...prev, item.id]));
+      }
+    });
+  }, [location.pathname]);
 
   const toggleGroup = (id: string) => {
     setOpenGroups((prev) =>
@@ -104,7 +125,10 @@ const ERPSidebar = () => {
     setOpenGroups((prev) => (prev.includes(id) ? prev : [...prev, id]));
   };
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
 
   const handleMouseEnter = () => {
     if (collapsed) {
