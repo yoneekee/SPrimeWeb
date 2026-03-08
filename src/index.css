@@ -128,6 +128,15 @@
     font-family: 'BIZ UDGothic', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
+
+  /* 일본어 가독성: 10~13px 고정 크기를 text-xs(14px)로 강제 */
+  [class*="text-\[10px\]"],
+  [class*="text-\[11px\]"],
+  [class*="text-\[12px\]"],
+  [class*="text-\[13px\]"] {
+    font-size: 0.875rem !important;
+    line-height: 1.375rem !important;
+  }
 }
 
 @layer utilities {
