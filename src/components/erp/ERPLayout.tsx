@@ -175,7 +175,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-9 w-64 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden animate-slide-up">
+                  <div className="absolute right-0 top-9 w-64 bg-background border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-slide-up">
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
                       <span className="text-xs font-semibold text-foreground">내 계정</span>
                       <button onClick={() => setUserMenuOpen(false)} className="text-muted-foreground hover:text-foreground">
