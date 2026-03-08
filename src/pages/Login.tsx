@@ -104,7 +104,7 @@ const Login = () => {
           </form>
 
           <p className="text-[11px] text-muted-foreground text-center mt-6">
-            아무 이메일/비밀번호로 로그인 가능합니다 (데모)
+            아무 아이디/비밀번호로 로그인 가능합니다 (데모)
           </p>
         </div>
       </div>
