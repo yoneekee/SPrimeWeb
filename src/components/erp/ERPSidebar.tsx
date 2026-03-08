@@ -159,7 +159,7 @@ const ERPSidebar = () => {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r border-border transition-all duration-300"
+      className="border-r border-border"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
