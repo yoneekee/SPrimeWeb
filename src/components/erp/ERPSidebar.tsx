@@ -192,6 +192,21 @@ const ERPSidebar = () => {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* 회사 소개 - top item */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate(companyItem.path)}
+                  className={`group flex items-center gap-3 px-4 py-2.5 rounded-md transition-all duration-200 ${
+                    isActive(companyItem.path)
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  }`}
+                >
+                  <companyItem.icon className={`w-4 h-4 flex-shrink-0 ${isActive(companyItem.path) ? "text-primary" : ""}`} />
+                  {!collapsed && <span className="text-sm flex-1 truncate">{companyItem.label}</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {!collapsed && <div className="mx-4 my-1.5 border-b border-border/50" />}
               {menuItems.map((item) => (
                 <div key={item.id}>
                   <SidebarMenuItem>
