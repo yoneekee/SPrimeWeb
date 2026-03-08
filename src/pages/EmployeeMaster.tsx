@@ -32,28 +32,28 @@ interface Employee {
 }
 
 const mockEmployees: Employee[] = [
-  { empId: 1001, loginId: "kim.ms", empName: "김민수", deptCode: "MFG1", deptName: "제조1팀", roleType: "PROD", roleName: "제조담당", email: "kim.ms@sprime.co.jp", isActive: true, remarks: "" },
-  { empId: 1002, loginId: "park.jy", empName: "박지영", deptCode: "MGT", deptName: "경영관리팀", roleType: "APPROVER", roleName: "승인자", email: "park.jy@sprime.co.jp", isActive: true, remarks: "1차 승인 권한" },
-  { empId: 1003, loginId: "lee.dh", empName: "이동훈", deptCode: "MGT", deptName: "경영관리팀", roleType: "APPROVER", roleName: "승인자", email: "lee.dh@sprime.co.jp", isActive: true, remarks: "2차 승인 권한" },
-  { empId: 1004, loginId: "choi.yj", empName: "최유진", deptCode: "MFG2", deptName: "제조2팀", roleType: "PROD", roleName: "제조담당", email: "choi.yj@sprime.co.jp", isActive: true, remarks: "" },
-  { empId: 1005, loginId: "jung.sh", empName: "정수현", deptCode: "LOG", deptName: "물류팀", roleType: "PROD", roleName: "물류담당", email: "jung.sh@sprime.co.jp", isActive: true, remarks: "" },
-  { empId: 1006, loginId: "han.jw", empName: "한정우", deptCode: "QC", deptName: "품질관리팀", roleType: "INSP", roleName: "검수담당", email: "han.jw@sprime.co.jp", isActive: true, remarks: "" },
-  { empId: 1007, loginId: "sato.tk", empName: "佐藤 拓也", deptCode: "MFG1", deptName: "제조1팀", roleType: "PROD", roleName: "제조담당", email: "sato.tk@sprime.co.jp", isActive: false, remarks: "2024.02 퇴사" },
+  { empId: 1001, loginId: "tanaka.t", empName: "田中 太郎", deptCode: "MFG1", deptName: "製造1課", roleType: "PROD", roleName: "製造担当", email: "tanaka.t@sprime.co.jp", isActive: true, remarks: "" },
+  { empId: 1002, loginId: "suzuki.h", empName: "鈴木 花子", deptCode: "MGT", deptName: "経営管理課", roleType: "APPROVER", roleName: "承認者", email: "suzuki.h@sprime.co.jp", isActive: true, remarks: "一次承認権限" },
+  { empId: 1003, loginId: "sato.k", empName: "佐藤 健一", deptCode: "MGT", deptName: "経営管理課", roleType: "APPROVER", roleName: "承認者", email: "sato.k@sprime.co.jp", isActive: true, remarks: "二次承認権限" },
+  { empId: 1004, loginId: "yamada.y", empName: "山田 裕子", deptCode: "MFG2", deptName: "製造2課", roleType: "PROD", roleName: "製造担当", email: "yamada.y@sprime.co.jp", isActive: true, remarks: "" },
+  { empId: 1005, loginId: "ito.m", empName: "伊藤 真一", deptCode: "LOG", deptName: "物流課", roleType: "PROD", roleName: "物流担当", email: "ito.m@sprime.co.jp", isActive: true, remarks: "" },
+  { empId: 1006, loginId: "watanabe.r", empName: "渡辺 涼介", deptCode: "QC", deptName: "品質管理課", roleType: "INSP", roleName: "検収担当", email: "watanabe.r@sprime.co.jp", isActive: true, remarks: "" },
+  { empId: 1007, loginId: "kobayashi.a", empName: "小林 明", deptCode: "MFG1", deptName: "製造1課", roleType: "PROD", roleName: "製造担当", email: "kobayashi.a@sprime.co.jp", isActive: false, remarks: "2024.02 退職" },
 ];
 
 const DEPT_OPTIONS = [
-  { code: "MFG1", name: "제조1팀" },
-  { code: "MFG2", name: "제조2팀" },
-  { code: "MGT", name: "경영관리팀" },
-  { code: "LOG", name: "물류팀" },
-  { code: "QC", name: "품질관리팀" },
-  { code: "ACC", name: "회계팀" },
+  { code: "MFG1", name: "製造1課" },
+  { code: "MFG2", name: "製造2課" },
+  { code: "MGT", name: "経営管理課" },
+  { code: "LOG", name: "物流課" },
+  { code: "QC", name: "品質管理課" },
+  { code: "ACC", name: "経理課" },
 ];
 
 const ROLE_OPTIONS = [
-  { code: "APPROVER", name: "승인자" },
-  { code: "PROD", name: "제조담당" },
-  { code: "INSP", name: "검수담당" },
+  { code: "APPROVER", name: "承認者" },
+  { code: "PROD", name: "製造担当" },
+  { code: "INSP", name: "検収担当" },
 ];
 
 const EmployeeMaster = () => {
@@ -71,11 +71,11 @@ const EmployeeMaster = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-foreground">직원 마스터</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">직원 정보 등록 및 권한 관리</p>
+            <h1 className="text-lg font-bold text-foreground">社員マスタ</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">社員情報の登録および権限管理</p>
           </div>
           <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs" onClick={openNew}>
-            <Plus className="w-3.5 h-3.5" /> 직원 신규 추가
+            <Plus className="w-3.5 h-3.5" /> 社員新規追加
           </Button>
         </div>
 
@@ -84,26 +84,26 @@ const EmployeeMaster = () => {
           <CardContent className="px-4 py-3">
             <div className="flex flex-wrap items-end gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">사번/이름</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">社員番号/氏名</label>
                 <div className="flex items-center gap-1.5 bg-secondary rounded-md px-2.5 py-1 h-8">
                   <Search className="w-3 h-3 text-muted-foreground" />
-                  <input className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-28" placeholder="사번 또는 이름" />
+                  <input className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-28" placeholder="社員番号または氏名" />
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">부서</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">部署</label>
                 <Select value={deptFilter} onValueChange={setDeptFilter}>
                   <SelectTrigger className="h-8 text-xs border-border w-28">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">전체</SelectItem>
+                    <SelectItem value="all">全件</SelectItem>
                     {DEPT_OPTIONS.map(d => <SelectItem key={d.code} value={d.code}>{d.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <Button size="sm" className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground">
-                <Search className="w-3 h-3" /> 조회
+                <Search className="w-3 h-3" /> 照会
               </Button>
             </div>
           </CardContent>
@@ -114,21 +114,21 @@ const EmployeeMaster = () => {
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Users className="w-4 h-4 text-primary" />
-              직원 일람
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground ml-1">{filtered.length}명</Badge>
+              社員一覧
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground ml-1">{filtered.length}名</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="px-0 pb-0">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-border">
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">사번</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">로그인 ID</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">성명</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">부서명</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">권한 유형</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">재직 상태</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">수정</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">社員番号</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">ログインID</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">氏名</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">部署名</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">権限種別</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">在籍状態</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">編集</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -149,9 +149,9 @@ const EmployeeMaster = () => {
                     </TableCell>
                     <TableCell className="px-3 py-2 text-center">
                       {emp.isActive ? (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-success/10 text-success border-success/30">재직</Badge>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-success/10 text-success border-success/30">在籍</Badge>
                       ) : (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-destructive/10 text-destructive border-destructive/30">퇴사</Badge>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-destructive/10 text-destructive border-destructive/30">退職</Badge>
                       )}
                     </TableCell>
                     <TableCell className="px-3 py-2 text-center">
@@ -171,30 +171,30 @@ const EmployeeMaster = () => {
           <DialogContent className="sm:max-w-lg bg-card border-border">
             <DialogHeader>
               <DialogTitle className="text-sm font-semibold text-foreground">
-                {editingEmp ? "직원 정보 수정" : "직원 신규 등록"}
+                {editingEmp ? "社員情報編集" : "社員新規登録"}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-3 py-2">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">로그인 ID <span className="text-destructive">*</span></Label>
-                  <Input defaultValue={editingEmp?.loginId || ""} disabled={!!editingEmp} className="h-8 text-xs border-border" placeholder="예: kim.ms" />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">ログインID <span className="text-destructive">*</span></Label>
+                  <Input defaultValue={editingEmp?.loginId || ""} disabled={!!editingEmp} className="h-8 text-xs border-border" placeholder="例: tanaka.t" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">비밀번호 <span className="text-destructive">*</span></Label>
-                  <Input type="password" className="h-8 text-xs border-border" placeholder={editingEmp ? "변경 시에만 입력" : "비밀번호 입력"} />
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">パスワード <span className="text-destructive">*</span></Label>
+                  <Input type="password" className="h-8 text-xs border-border" placeholder={editingEmp ? "変更時のみ入力" : "パスワード入力"} />
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">성명 <span className="text-destructive">*</span></Label>
-                <Input defaultValue={editingEmp?.empName || ""} className="h-8 text-xs border-border" placeholder="직원 성명" />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">氏名 <span className="text-destructive">*</span></Label>
+                <Input defaultValue={editingEmp?.empName || ""} className="h-8 text-xs border-border" placeholder="社員氏名" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">부서 코드 <span className="text-destructive">*</span></Label>
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">部署コード <span className="text-destructive">*</span></Label>
                   <Select defaultValue={editingEmp?.deptCode || ""}>
                     <SelectTrigger className="h-8 text-xs border-border">
-                      <SelectValue placeholder="부서 선택" />
+                      <SelectValue placeholder="部署選択" />
                     </SelectTrigger>
                     <SelectContent>
                       {DEPT_OPTIONS.map(d => <SelectItem key={d.code} value={d.code}>{d.name}</SelectItem>)}
@@ -202,10 +202,10 @@ const EmployeeMaster = () => {
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">권한 유형 <span className="text-destructive">*</span></Label>
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">権限種別 <span className="text-destructive">*</span></Label>
                   <Select defaultValue={editingEmp?.roleType || ""}>
                     <SelectTrigger className="h-8 text-xs border-border">
-                      <SelectValue placeholder="권한 선택" />
+                      <SelectValue placeholder="権限選択" />
                     </SelectTrigger>
                     <SelectContent>
                       {ROLE_OPTIONS.map(r => <SelectItem key={r.code} value={r.code}>{r.name}</SelectItem>)}
@@ -214,26 +214,26 @@ const EmployeeMaster = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">이메일</Label>
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">メールアドレス</Label>
                 <Input defaultValue={editingEmp?.email || ""} className="h-8 text-xs border-border" placeholder="email@sprime.co.jp" />
               </div>
               <div className="flex items-center justify-between">
-                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">재직 상태</Label>
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">在籍状態</Label>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">퇴사</span>
+                  <span className="text-xs text-muted-foreground">退職</span>
                   <Switch defaultChecked={editingEmp?.isActive ?? true} />
-                  <span className="text-xs text-foreground">재직</span>
+                  <span className="text-xs text-foreground">在籍</span>
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">비고</Label>
-                <Textarea defaultValue={editingEmp?.remarks || ""} className="text-xs border-border min-h-[60px]" placeholder="특이사항 기록" />
+                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">備考</Label>
+                <Textarea defaultValue={editingEmp?.remarks || ""} className="text-xs border-border min-h-[60px]" placeholder="特記事項を記入" />
               </div>
             </div>
             <DialogFooter className="gap-2">
-              <Button variant="outline" size="sm" className="text-xs" onClick={() => setDialogOpen(false)}>취소</Button>
+              <Button variant="outline" size="sm" className="text-xs" onClick={() => setDialogOpen(false)}>キャンセル</Button>
               <Button size="sm" className="text-xs bg-primary text-primary-foreground" onClick={() => setDialogOpen(false)}>
-                {editingEmp ? "수정 저장" : "등록"}
+                {editingEmp ? "更新保存" : "登録"}
               </Button>
             </DialogFooter>
           </DialogContent>
