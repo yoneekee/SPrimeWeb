@@ -139,8 +139,8 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                         notifications.map((n) => (
                           <div
                             key={n.id}
-                            className={`flex items-start gap-2.5 px-4 py-2.5 border-b border-border last:border-b-0 transition-colors cursor-pointer hover:bg-secondary/50 ${
-                              !n.read ? "bg-primary/5" : ""
+                            className={`flex items-start gap-2.5 px-4 py-2.5 border-b border-border last:border-b-0 transition-colors cursor-pointer hover:bg-muted ${
+                              !n.read ? "bg-accent" : "bg-background"
                             }`}
                             onClick={() =>
                               setNotifications((prev) =>
