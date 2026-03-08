@@ -35,9 +35,9 @@ const mockPO: DocItem[] = [
 ];
 
 const mockInvoice: DocItem[] = [
-  { slipNo: "INV-20240311-001", partner: "삼성전자(주)", itemSummary: "플라즈마 에칭 장비 PE-500 외 2건", totalAmount: 269500000, taxAmount: 26950000, issueDate: "2024-03-11", printed: true },
-  { slipNo: "INV-20240308-002", partner: "SK하이닉스(주)", itemSummary: "CVD 증착기 CV-300", totalAmount: 171600000, taxAmount: 17160000, issueDate: "2024-03-08", printed: true },
-  { slipNo: "INV-20240306-001", partner: "도쿄일렉트론(주)", itemSummary: "정밀 웨이퍼 척 모듈 외 1건", totalAmount: 98450000, taxAmount: 9845000, issueDate: "2024-03-06", printed: false },
+  { slipNo: "INV-20240311-001", partner: "東京エレクトロン(株)", itemSummary: "플라즈마 에칭 장비 PE-500 외 2건", totalAmount: 269500000, taxAmount: 26950000, issueDate: "2024-03-11", printed: true },
+  { slipNo: "INV-20240308-002", partner: "SCREEN HD(株)", itemSummary: "CVD 증착기 CV-300", totalAmount: 171600000, taxAmount: 17160000, issueDate: "2024-03-08", printed: true },
+  { slipNo: "INV-20240306-001", partner: "ディスコ(株)", itemSummary: "정밀 웨이퍼 척 모듈 외 1건", totalAmount: 98450000, taxAmount: 9845000, issueDate: "2024-03-06", printed: false },
 ];
 
 const InvoiceManagement = () => {
