@@ -201,29 +201,32 @@ const ERPSidebar = () => {
                   {/* Sub items */}
                   {!collapsed && item.children && (
                     <div
-                      className="ml-4 pl-4 border-l border-border/50 space-y-0.5 overflow-hidden transition-all duration-300 ease-in-out"
+                      className="ml-4 pl-4 border-l border-border/50 overflow-hidden"
                       style={{
-                        maxHeight: openGroups.includes(item.id) ? `${item.children.length * 40}px` : "0px",
-                        opacity: openGroups.includes(item.id) ? 1 : 0,
-                        marginTop: openGroups.includes(item.id) ? "4px" : "0px",
-                        marginBottom: openGroups.includes(item.id) ? "8px" : "0px",
+                        display: "grid",
+                        gridTemplateRows: openGroups.includes(item.id) ? "1fr" : "0fr",
+                        transition: "grid-template-rows 250ms ease",
                       }}
                     >
-                      {item.children.map((sub) => (
-                        <SidebarMenuItem key={sub.id}>
-                          <SidebarMenuButton
-                            onClick={() => navigate(sub.path)}
-                            className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-all duration-200 ${
-                              isActive(sub.path)
-                                ? "bg-primary/10 text-primary"
-                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                            }`}
-                          >
-                            <sub.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="truncate">{sub.label}</span>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
+                      <div className="min-h-0 overflow-hidden">
+                        <div className="space-y-0.5 py-1">
+                          {item.children.map((sub) => (
+                            <SidebarMenuItem key={sub.id}>
+                              <SidebarMenuButton
+                                onClick={() => navigate(sub.path)}
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-colors duration-200 ${
+                                  isActive(sub.path)
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                }`}
+                              >
+                                <sub.icon className="w-3.5 h-3.5 flex-shrink-0" />
+                                <span className="truncate">{sub.label}</span>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
