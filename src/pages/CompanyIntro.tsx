@@ -484,24 +484,16 @@ const CompanyIntro = () => {
 
             {/* Table list */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-              {[
-                { name: "tran_history", desc: "수불이력 (전표 기본 정보)" },
-                { name: "tran_detail_history", desc: "수불상세 (전표 내 상세 품목)" },
-                { name: "stock_spec_history", desc: "입고명세 (분납 입고 이력)" },
-                { name: "workflow", desc: "워크플로우 (전표 별 승인)" },
-                { name: "bom_spec", desc: "BOM (부품 구성표)" },
-                { name: "account_entry", desc: "회계 분개" },
-                { name: "item_mst", desc: "품목 마스터" },
-                { name: "warehouse_mst", desc: "창고거점 마스터" },
-                { name: "customer_mst", desc: "거래처 마스터" },
-                { name: "emp_mst", desc: "직원 마스터" },
-                { name: "general_mst", desc: "범용 마스터" },
-              ].map((t) => (
-                <div key={t.name} className="flex items-center gap-2 px-3 py-2 rounded-md bg-muted/50 border border-border/30">
+              {tableList.map((t) => (
+                <button
+                  key={t.name}
+                  onClick={() => setSelectedTable(t.name)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md bg-muted/50 border border-border/30 hover:bg-primary/10 hover:border-primary/30 transition-colors text-left cursor-pointer"
+                >
                   <Database className="w-3 h-3 text-primary flex-shrink-0" />
                   <span className="text-[11px] font-mono text-primary">{t.name}</span>
                   <span className="text-[10px] text-muted-foreground">— {t.desc}</span>
-                </div>
+                </button>
               ))}
             </div>
           </CardContent>
