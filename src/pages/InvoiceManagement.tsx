@@ -244,8 +244,8 @@ const InvoiceManagement = () => {
                   <div className="border-t border-border pt-2">
                     <div className="font-medium text-foreground mb-1">
                       {docType === "po"
-                        ? "도쿄반도체(주) 御中"
-                        : "삼성전자(주) 御中"}
+                        ? "東京半導体(株) 御中"
+                        : "東京エレクトロン(株) 御中"}
                     </div>
                     {docType === "invoice" && (
                       <div className="text-muted-foreground text-[10px]">

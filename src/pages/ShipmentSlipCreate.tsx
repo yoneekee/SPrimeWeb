@@ -59,11 +59,11 @@ const PRODUCT_CATALOG = [
 ];
 
 const CUSTOMERS = [
-  { value: "samsung", label: "삼성전자(주)" },
-  { value: "sk", label: "SK하이닉스(주)" },
-  { value: "tokyo-electron", label: "도쿄일렉트론(주)" },
+  { value: "tel", label: "東京エレクトロン(株)" },
+  { value: "screen", label: "SCREEN HD(株)" },
+  { value: "disco", label: "ディスコ(株)" },
   { value: "tsmc", label: "TSMC Japan" },
-  { value: "intel", label: "인텔코리아(주)" },
+  { value: "renesas", label: "ルネサス(株)" },
 ];
 
 const WAREHOUSES = [
