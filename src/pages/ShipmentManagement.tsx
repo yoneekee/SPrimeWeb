@@ -288,7 +288,7 @@ const ShipmentManagement = () => {
               </div>
               <div className="space-y-1 md:col-span-2">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">배송지 주소</label>
-                <Input value="경기도 평택시 삼남면 삼성로 1길 30 (FAB동 B2F)" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
+                <Input value="〒212-0032 神奈川県川崎市幸区新川崎7-1" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">출발지 창고</label>
