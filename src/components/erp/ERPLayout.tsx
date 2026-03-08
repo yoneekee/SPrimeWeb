@@ -3,6 +3,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import ERPSidebar from "./ERPSidebar";
 import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X, LogIn, LogOut, Settings, UserCircle } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
+import { useAuth } from "@/hooks/use-auth";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
