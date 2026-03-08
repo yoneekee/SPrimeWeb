@@ -48,7 +48,7 @@ interface ShipmentDetailItem {
   lotNo: string;
 }
 
-const PRODUCT_CATALOG = [
+const PRODUCT_CATALOG: CatalogItem[] = [
   { code: "FIN-ETCH-500", name: "플라즈마 에칭 장비 PE-500", stockQty: 12, unit: "EA", price: 45000000 },
   { code: "FIN-CVD-300", name: "CVD 증착기 CV-300", stockQty: 8, unit: "EA", price: 78000000 },
   { code: "FIN-SPUT-200", name: "스퍼터링 장비 SP-200", stockQty: 5, unit: "EA", price: 62000000 },
@@ -95,15 +95,9 @@ const ShipmentSlipCreate = () => {
   const [remark, setRemark] = useState("");
   const [details, setDetails] = useState<ShipmentDetailItem[]>([]);
   const [nextId, setNextId] = useState(1);
-  const [itemSearch, setItemSearch] = useState("");
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
 
-  const filteredCatalog = PRODUCT_CATALOG.filter(
-    (item) =>
-      item.code.toLowerCase().includes(itemSearch.toLowerCase()) ||
-      item.name.toLowerCase().includes(itemSearch.toLowerCase())
-  );
-
-  const addItem = (catalogItem: typeof PRODUCT_CATALOG[0]) => {
+  const addItem = (catalogItem: CatalogItem) => {
     const existing = details.find((d) => d.itemCode === catalogItem.code);
     if (existing) {
       toast.error("이미 추가된 품목입니다.");
@@ -115,7 +109,7 @@ const ShipmentSlipCreate = () => {
         id: nextId,
         itemCode: catalogItem.code,
         itemName: catalogItem.name,
-        stockQty: catalogItem.stockQty,
+        stockQty: catalogItem.stockQty || 0,
         shipQty: 1,
         unitPrice: catalogItem.price,
         salesAmount: catalogItem.price,
@@ -124,7 +118,7 @@ const ShipmentSlipCreate = () => {
       },
     ]);
     setNextId((n) => n + 1);
-    setItemSearch("");
+    toast.success(`${catalogItem.name} 추가됨`);
   };
 
   const removeItem = (id: number) => {
