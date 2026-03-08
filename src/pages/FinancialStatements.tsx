@@ -207,10 +207,10 @@ const FinancialStatements = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-border">
-                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-20">코드</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">계정과목</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">금액 (JPY)</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right w-24">비율 (%)</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-20">コード</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">勘定科目</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">金額（JPY）</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right w-24">構成比（%）</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
