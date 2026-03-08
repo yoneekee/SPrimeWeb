@@ -284,7 +284,7 @@ const ShipmentManagement = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">고객사 명</label>
-                <Input value="삼성전자(주) 평택캠퍼스" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
+                <Input value="東京エレクトロン(株) 川崎事業所" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
               </div>
               <div className="space-y-1 md:col-span-2">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">배송지 주소</label>
