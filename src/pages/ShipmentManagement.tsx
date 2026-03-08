@@ -225,32 +225,58 @@ const ShipmentManagement = () => {
               </div>
             </CardHeader>
             <CardContent className="px-2 pb-2">
-              <div className="space-y-1 max-h-[180px] overflow-y-auto">
-                {slipList.map((slip) => {
-                  const st = STATUS_MAP[slip.status];
+              <div className="space-y-1">
+                {(() => {
+                  const totalPages = Math.ceil(slipList.length / itemsPerPage);
+                  const paged = slipList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
                   return (
-                    <div
-                      key={slip.slipNo}
-                      onClick={() => setSelectedSlip(slip.slipNo)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-xs ${
-                        selectedSlip === slip.slipNo
-                          ? "bg-primary/10 border border-primary/30"
-                          : "hover:bg-secondary border border-transparent"
-                      }`}
-                    >
-                      <div className="space-y-0.5">
-                        <div className="font-mono font-medium text-foreground">{slip.slipNo}</div>
-                        <div className="text-muted-foreground">{slip.date} · {slip.customer}</div>
+                    <>
+                      {paged.map((slip) => {
+                        const st = STATUS_MAP[slip.status];
+                        return (
+                          <div
+                            key={slip.slipNo}
+                            onClick={() => setSelectedSlip(slip.slipNo)}
+                            className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors text-xs ${
+                              selectedSlip === slip.slipNo
+                                ? "bg-primary/10 border border-primary/30"
+                                : "hover:bg-secondary border border-transparent"
+                            }`}
+                          >
+                            <div className="space-y-0.5">
+                              <div className="font-mono font-medium text-foreground">{slip.slipNo}</div>
+                              <div className="text-muted-foreground">{slip.date} · {slip.customer}</div>
+                            </div>
+                            <div className="text-right space-y-0.5">
+                              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st?.color || ""}`}>
+                                {st?.label.split(" ")[0] || slip.status}
+                              </Badge>
+                              <div className="text-muted-foreground">¥{slip.totalAmount}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div className="flex items-center justify-between pt-2 px-1">
+                        <span className="text-xs text-muted-foreground">
+                          {slipList.length}件中 {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, slipList.length)}件
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </Button>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <Button key={page} variant={currentPage === page ? "default" : "outline"} size="icon" className="h-7 w-7 text-xs" onClick={() => setCurrentPage(page)}>
+                              {page}
+                            </Button>
+                          ))}
+                          <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="text-right space-y-0.5">
-                        <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st?.color || ""}`}>
-                          {st?.label.split(" ")[0] || slip.status}
-                        </Badge>
-                        <div className="text-muted-foreground">¥{slip.totalAmount}</div>
-                      </div>
-                    </div>
+                    </>
                   );
-                })}
+                })()}
               </div>
             </CardContent>
           </Card>
