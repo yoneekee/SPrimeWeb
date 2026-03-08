@@ -98,7 +98,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 onClick={toggleTheme}
                 className="h-7 px-2.5 gap-1.5 relative rounded-full bg-secondary ring-1 ring-border shadow-sm hover:bg-secondary/80 hover:opacity-90 text-xs"
               >
-                {theme === "dark" ? <Sun className="w-3.5 h-3.5 text-warning" /> : <Moon className="w-3.5 h-3.5 text-primary" />}
+                {theme === "dark" ? <Moon className="w-3.5 h-3.5 text-primary" /> : <Sun className="w-3.5 h-3.5 text-warning" />}
                 <span className="text-[10px] font-medium">{theme === "dark" ? "ダーク" : "ライト"}</span>
               </Button>
 
