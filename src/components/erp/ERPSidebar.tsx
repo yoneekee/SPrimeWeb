@@ -16,6 +16,7 @@ import {
   Warehouse,
   Cpu,
   Building2,
+  List,
 } from "lucide-react";
 import {
   Sidebar,
@@ -66,6 +67,7 @@ const menuItems: MenuItem[] = [
     icon: Factory,
     path: "/production",
     children: [
+      { id: "prod-list", label: "生産出庫依頼一覧", icon: List, path: "/production/slips" },
       { id: "prod-exec", label: "製品生産および実行", icon: PackageOpen, path: "/production/execution" },
       { id: "prod-ship", label: "出庫および在庫調整", icon: ClipboardList, path: "/production/shipping" },
     ],

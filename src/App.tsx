@@ -21,6 +21,7 @@ import ProductionSlipCreate from "./pages/ProductionSlipCreate";
 import ShipmentSlipCreate from "./pages/ShipmentSlipCreate";
 import BomSlipCreate from "./pages/BomSlipCreate";
 import CompanyIntro from "./pages/CompanyIntro";
+import SlipListPage from "./pages/SlipListPage";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/production" element={<ProtectedRoute><PlaceholderPage title="生産・製造" description="生産および製造管理画面です。" /></ProtectedRoute>} />
+          <Route path="/production/slips" element={<ProtectedRoute><SlipListPage /></ProtectedRoute>} />
           <Route path="/production/execution" element={<ProtectedRoute><ProductionExecution /></ProtectedRoute>} />
           <Route path="/production/execution/new" element={<ProtectedRoute><ProductionSlipCreate /></ProtectedRoute>} />
           <Route path="/production/shipping" element={<ProtectedRoute><ShipmentManagement /></ProtectedRoute>} />
