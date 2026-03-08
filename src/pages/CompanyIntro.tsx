@@ -595,7 +595,7 @@ const CompanyIntro = () => {
 
       {/* Table Schema Modal */}
       <Dialog open={!!selectedTable} onOpenChange={(open) => !open && setSelectedTable(null)}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-sm font-mono flex items-center gap-2">
               <Database className="w-4 h-4 text-primary" />

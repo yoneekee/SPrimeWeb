@@ -159,7 +159,7 @@ const WarehouseMaster = () => {
 
         {/* Detail Modal */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-lg bg-card border-border">
+          <DialogContent className="sm:max-w-xl bg-card border-border">
             <DialogHeader>
               <DialogTitle className="text-sm font-semibold text-foreground">
                 {editingLoc ? "拠点情報編集" : "拠点新規登録"}
