@@ -132,6 +132,13 @@ const ShipmentManagement = () => {
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SHP20240310-001");
 
+  // Modal state for approval/reject actions
+  const [actionModal, setActionModal] = useState<{
+    open: boolean;
+    type: "approve" | "reject" | null;
+  }>({ open: false, type: null });
+  const [actionMessage, setActionMessage] = useState("");
+
   const statusInfo = STATUS_MAP[currentStatus] || STATUS_MAP.S00;
 
   const isButtonActive = (btn: string) => {
@@ -145,6 +152,33 @@ const ShipmentManagement = () => {
       case "adjust": return true; // 어느 단계에서든 가능
       default: return false;
     }
+  };
+
+  const getActionTitle = (type: "approve" | "reject" | null) => {
+    switch (type) {
+      case "approve": return "승인";
+      case "reject": return "부인";
+      default: return "";
+    }
+  };
+
+  const getActionDescription = (type: "approve" | "reject" | null) => {
+    switch (type) {
+      case "approve": return "해당 출고 전표를 승인합니다. 승인 메시지를 입력해주세요.";
+      case "reject": return "해당 출고 전표를 부인합니다. 부인 사유를 입력해주세요.";
+      default: return "";
+    }
+  };
+
+  const handleActionConfirm = () => {
+    console.log(`Action: ${actionModal.type}, Message: ${actionMessage}`);
+    setActionModal({ open: false, type: null });
+    setActionMessage("");
+  };
+
+  const openActionModal = (type: "approve" | "reject") => {
+    setActionModal({ open: true, type });
+    setActionMessage("");
   };
 
   const statusFlow = ["S00", "S01", "A00", "A01", "T01", "T02", "T03"];
