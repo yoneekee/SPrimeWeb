@@ -42,6 +42,8 @@ import {
   Plus,
   Search,
   FileText,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
 
