@@ -1,7 +1,9 @@
+import { useState } from "react";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Cpu,
   Database,
@@ -72,6 +74,142 @@ const techStack = [
   { icon: CloudCog, label: "Infrastructure", value: "Azure Cloud Services" },
 ];
 
+interface TableColumn {
+  name: string;
+  type: string;
+  constraint: string;
+  desc: string;
+}
+
+const tableSchemas: Record<string, TableColumn[]> = {
+  tran_history: [
+    { name: "slip_no", type: "VARCHAR(20)", constraint: "PK", desc: "전표 번호 (예: SLP20240307-001)" },
+    { name: "slip_date", type: "DATE", constraint: "NOT NULL", desc: "전표 작성일" },
+    { name: "request_emp_id", type: "INTEGER", constraint: "FK", desc: "기안자 ID (Employees 참조)" },
+    { name: "status_code", type: "VARCHAR(10)", constraint: "FK", desc: "현재 전표 상태" },
+    { name: "slip_type", type: "VARCHAR(10)", constraint: "NOT NULL", desc: "전표 구분 (PRODUCTION/SHIPMENT)" },
+    { name: "from_loc_id", type: "INTEGER", constraint: "-", desc: "출발지 거점 ID" },
+    { name: "to_loc_id", type: "INTEGER", constraint: "-", desc: "도착지 거점 ID" },
+    { name: "total_amount", type: "NUMERIC(18,2)", constraint: "-", desc: "전표 총 합계 금액" },
+    { name: "remarks", type: "TEXT", constraint: "-", desc: "비고(특이사항)" },
+    { name: "partner_id", type: "INTEGER", constraint: "FK", desc: "거래처 ID" },
+  ],
+  tran_detail_history: [
+    { name: "detail_id", type: "SERIAL", constraint: "PK", desc: "상세 행 고유 번호" },
+    { name: "slip_no", type: "VARCHAR(20)", constraint: "FK", desc: "부모 전표 번호" },
+    { name: "item_id", type: "INTEGER", constraint: "NOT NULL", desc: "품목 ID" },
+    { name: "order_qty", type: "NUMERIC(12,2)", constraint: "-", desc: "발주(신청) 수량" },
+    { name: "inbound_qty", type: "NUMERIC(12,2)", constraint: "-", desc: "실제 입고 수량" },
+    { name: "unit_price", type: "NUMERIC(18,2)", constraint: "-", desc: "단가" },
+    { name: "supply_amount", type: "NUMERIC(18,2)", constraint: "-", desc: "공급가액 (수량 × 단가)" },
+    { name: "lot_no", type: "VARCHAR(30)", constraint: "-", desc: "반도체 부품 LOT 번호" },
+  ],
+  stock_spec_history: [
+    { name: "receiving_id", type: "SERIAL", constraint: "PK", desc: "입고 명세 고유 번호" },
+    { name: "slip_no", type: "VARCHAR(20)", constraint: "FK", desc: "원천 전표 번호" },
+    { name: "detail_id", type: "INTEGER", constraint: "FK", desc: "전표 상세 행 참조" },
+    { name: "receive_date", type: "DATE", constraint: "NOT NULL", desc: "실제 입고 일자" },
+    { name: "receive_qty", type: "NUMERIC(12,2)", constraint: "NOT NULL", desc: "이번 입고 수량" },
+    { name: "receive_amount", type: "NUMERIC(18,2)", constraint: "-", desc: "이번 입고 금액" },
+    { name: "lot_no", type: "VARCHAR(30)", constraint: "-", desc: "입고 LOT 번호" },
+    { name: "loc_id", type: "INTEGER", constraint: "FK", desc: "입고 거점 ID" },
+    { name: "inspect_note", type: "VARCHAR(255)", constraint: "-", desc: "입고 시 특이사항" },
+    { name: "proc_emp_id", type: "INTEGER", constraint: "FK", desc: "입고 처리자 ID" },
+  ],
+  workflow: [
+    { name: "wf_id", type: "SERIAL", constraint: "PK", desc: "워크플로우 기록 ID" },
+    { name: "slip_no", type: "VARCHAR(20)", constraint: "FK", desc: "대상 전표 번호" },
+    { name: "proc_emp_id", type: "INTEGER", constraint: "FK", desc: "처리자 ID" },
+    { name: "proc_status", type: "VARCHAR(10)", constraint: "NOT NULL", desc: "처리 상태 (승인, 반려, 부인 등)" },
+    { name: "proc_comment", type: "TEXT", constraint: "-", desc: "반려 사유 혹은 승인 의견" },
+    { name: "proc_at", type: "TIMESTAMP", constraint: "DEFAULT NOW()", desc: "처리 일시" },
+    { name: "step_no", type: "INTEGER", constraint: "-", desc: "결재 순서 (1차, 2차 등)" },
+  ],
+  bom_spec: [
+    { name: "bom_id", type: "SERIAL", constraint: "PK", desc: "BOM 행 고유 번호" },
+    { name: "parent_item_id", type: "INTEGER", constraint: "FK", desc: "산출 품목 (반제품/완제품)" },
+    { name: "child_item_id", type: "INTEGER", constraint: "FK", desc: "투입 품목 (원재료/반제품)" },
+    { name: "required_qty", type: "NUMERIC(12,4)", constraint: "NOT NULL", desc: "1단위 생산 시 필요 수량" },
+    { name: "loss_rate", type: "NUMERIC(5,2)", constraint: "DEFAULT 0", desc: "로스율 (%)" },
+    { name: "sort_order", type: "INTEGER", constraint: "-", desc: "투입 순서 (공정 순서)" },
+    { name: "is_active", type: "BOOLEAN", constraint: "DEFAULT TRUE", desc: "사용 여부" },
+  ],
+  account_entry: [
+    { name: "journal_id", type: "SERIAL", constraint: "PK", desc: "분개 고유 번호" },
+    { name: "slip_no", type: "VARCHAR(20)", constraint: "FK", desc: "원천 수불 전표 번호" },
+    { name: "shiwake_code", type: "VARCHAR(1)", constraint: "NOT NULL", desc: "차변(0) 대변(1) 기타(9)" },
+    { name: "account_code", type: "VARCHAR(10)", constraint: "NOT NULL", desc: "계정과목 코드" },
+    { name: "amount", type: "NUMERIC(18,2)", constraint: "DEFAULT 0", desc: "금액" },
+    { name: "entry_date", type: "TIMESTAMP", constraint: "DEFAULT NOW()", desc: "분개 발생 일시" },
+    { name: "description", type: "VARCHAR(255)", constraint: "-", desc: "적요 (내용 요약)" },
+  ],
+  item_mst: [
+    { name: "item_id", type: "SERIAL", constraint: "PK", desc: "품목 고유 번호" },
+    { name: "item_code", type: "VARCHAR(20)", constraint: "UNIQUE", desc: "품목 코드" },
+    { name: "item_name", type: "VARCHAR(100)", constraint: "NOT NULL", desc: "품목 명칭" },
+    { name: "item_type", type: "VARCHAR(10)", constraint: "-", desc: "분류 (RAW, SEMI, FIN)" },
+    { name: "spec", type: "VARCHAR(100)", constraint: "-", desc: "상세 규격/사양" },
+    { name: "unit", type: "VARCHAR(10)", constraint: "-", desc: "관리 단위 (EA, SET, KG)" },
+    { name: "std_price", type: "NUMERIC(18,2)", constraint: "-", desc: "표준 단가" },
+    { name: "plan_qty", type: "NUMERIC(12,2)", constraint: "DEFAULT 0", desc: "예상재고" },
+    { name: "stock_qty", type: "NUMERIC(12,2)", constraint: "DEFAULT 0", desc: "실재고" },
+    { name: "safety_stock", type: "NUMERIC(12,2)", constraint: "DEFAULT 0", desc: "안전 재고량" },
+    { name: "is_active", type: "BOOLEAN", constraint: "DEFAULT TRUE", desc: "사용 여부" },
+  ],
+  warehouse_mst: [
+    { name: "loc_id", type: "SERIAL", constraint: "PK", desc: "거점 고유 번호" },
+    { name: "loc_name", type: "VARCHAR(50)", constraint: "NOT NULL", desc: "거점 명칭" },
+    { name: "loc_type", type: "VARCHAR(10)", constraint: "NOT NULL", desc: "거점 유형 (FACTORY, STORE, TRANSIT, VENDOR)" },
+    { name: "postal_code", type: "VARCHAR(10)", constraint: "-", desc: "우편번호" },
+    { name: "address", type: "VARCHAR(255)", constraint: "-", desc: "주소 정보" },
+    { name: "contact_info", type: "VARCHAR(50)", constraint: "-", desc: "담당자 연락처" },
+    { name: "is_active", type: "BOOLEAN", constraint: "DEFAULT TRUE", desc: "사용 여부" },
+  ],
+  customer_mst: [
+    { name: "partner_id", type: "SERIAL", constraint: "PK", desc: "거래처 고유 번호" },
+    { name: "partner_code", type: "VARCHAR(20)", constraint: "UNIQUE", desc: "거래처 코드" },
+    { name: "partner_name", type: "VARCHAR(100)", constraint: "NOT NULL", desc: "거래처 명칭" },
+    { name: "partner_type", type: "VARCHAR(10)", constraint: "NOT NULL", desc: "구분 (SUPPLIER, CUSTOMER, BOTH)" },
+    { name: "postal_code", type: "VARCHAR(10)", constraint: "-", desc: "우편번호" },
+    { name: "address", type: "VARCHAR(255)", constraint: "-", desc: "주소" },
+    { name: "contact_name", type: "VARCHAR(50)", constraint: "-", desc: "담당자 성명" },
+    { name: "contact_tel", type: "VARCHAR(20)", constraint: "-", desc: "연락처" },
+    { name: "bank_info", type: "VARCHAR(255)", constraint: "-", desc: "은행 계좌 정보" },
+    { name: "is_active", type: "BOOLEAN", constraint: "DEFAULT TRUE", desc: "사용 여부" },
+  ],
+  emp_mst: [
+    { name: "emp_id", type: "SERIAL", constraint: "PK", desc: "직원 고유 번호" },
+    { name: "login_id", type: "VARCHAR(20)", constraint: "UNIQUE", desc: "로그인 아이디" },
+    { name: "password", type: "VARCHAR(255)", constraint: "NOT NULL", desc: "암호화된 비밀번호" },
+    { name: "emp_name", type: "VARCHAR(50)", constraint: "NOT NULL", desc: "성명" },
+    { name: "dept_code", type: "VARCHAR(10)", constraint: "-", desc: "부서 코드" },
+    { name: "role_type", type: "VARCHAR(10)", constraint: "-", desc: "권한 (APPROVER, PROD, INSP)" },
+    { name: "is_active", type: "BOOLEAN", constraint: "DEFAULT TRUE", desc: "재직 여부" },
+    { name: "email", type: "VARCHAR(100)", constraint: "-", desc: "이메일 주소" },
+  ],
+  general_mst: [
+    { name: "code_id", type: "VARCHAR(10)", constraint: "PK", desc: "코드 아이디 (예: S00)" },
+    { name: "group_code", type: "VARCHAR(20)", constraint: "NOT NULL", desc: "그룹 분류" },
+    { name: "code_name", type: "VARCHAR(50)", constraint: "-", desc: "명칭" },
+    { name: "sort_order", type: "INTEGER", constraint: "-", desc: "출력 순서" },
+    { name: "is_use", type: "BOOLEAN", constraint: "DEFAULT TRUE", desc: "사용 여부" },
+  ],
+};
+
+const tableList = [
+  { name: "tran_history", desc: "수불이력 (전표 기본 정보)" },
+  { name: "tran_detail_history", desc: "수불상세 (전표 내 상세 품목)" },
+  { name: "stock_spec_history", desc: "입고명세 (분납 입고 이력)" },
+  { name: "workflow", desc: "워크플로우 (전표 별 승인)" },
+  { name: "bom_spec", desc: "BOM (부품 구성표)" },
+  { name: "account_entry", desc: "회계 분개" },
+  { name: "item_mst", desc: "품목 마스터" },
+  { name: "warehouse_mst", desc: "창고거점 마스터" },
+  { name: "customer_mst", desc: "거래처 마스터" },
+  { name: "emp_mst", desc: "직원 마스터" },
+  { name: "general_mst", desc: "범용 마스터" },
+];
+
 const SectionTitle = ({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) => (
   <div className="flex items-center gap-2.5 mb-4">
     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -82,6 +220,8 @@ const SectionTitle = ({ icon: Icon, children }: { icon: React.ElementType; child
 );
 
 const CompanyIntro = () => {
+  const [selectedTable, setSelectedTable] = useState<string | null>(null);
+
   return (
     <ERPLayout>
       <div className="max-w-5xl mx-auto space-y-6">
@@ -344,24 +484,16 @@ const CompanyIntro = () => {
 
             {/* Table list */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-              {[
-                { name: "tran_history", desc: "수불이력 (전표 기본 정보)" },
-                { name: "tran_detail_history", desc: "수불상세 (전표 내 상세 품목)" },
-                { name: "stock_spec_history", desc: "입고명세 (분납 입고 이력)" },
-                { name: "workflow", desc: "워크플로우 (전표 별 승인)" },
-                { name: "bom_spec", desc: "BOM (부품 구성표)" },
-                { name: "account_entry", desc: "회계 분개" },
-                { name: "item_mst", desc: "품목 마스터" },
-                { name: "warehouse_mst", desc: "창고거점 마스터" },
-                { name: "customer_mst", desc: "거래처 마스터" },
-                { name: "emp_mst", desc: "직원 마스터" },
-                { name: "general_mst", desc: "범용 마스터" },
-              ].map((t) => (
-                <div key={t.name} className="flex items-center gap-2 px-3 py-2 rounded-md bg-muted/50 border border-border/30">
+              {tableList.map((t) => (
+                <button
+                  key={t.name}
+                  onClick={() => setSelectedTable(t.name)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md bg-muted/50 border border-border/30 hover:bg-primary/10 hover:border-primary/30 transition-colors text-left cursor-pointer"
+                >
                   <Database className="w-3 h-3 text-primary flex-shrink-0" />
                   <span className="text-[11px] font-mono text-primary">{t.name}</span>
                   <span className="text-[10px] text-muted-foreground">— {t.desc}</span>
-                </div>
+                </button>
               ))}
             </div>
           </CardContent>
@@ -406,6 +538,57 @@ const CompanyIntro = () => {
           </p>
         </div>
       </div>
+
+      {/* Table Schema Modal */}
+      <Dialog open={!!selectedTable} onOpenChange={(open) => !open && setSelectedTable(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-mono flex items-center gap-2">
+              <Database className="w-4 h-4 text-primary" />
+              {selectedTable}
+              <Badge variant="outline" className="text-[9px] ml-1">
+                {tableList.find((t) => t.name === selectedTable)?.desc}
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTable && tableSchemas[selectedTable] && (
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-secondary/50">
+                    <TableHead className="text-[10px] font-semibold">컬럼명</TableHead>
+                    <TableHead className="text-[10px] font-semibold">데이터 타입</TableHead>
+                    <TableHead className="text-[10px] font-semibold">제약</TableHead>
+                    <TableHead className="text-[10px] font-semibold">설명</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tableSchemas[selectedTable].map((col) => (
+                    <TableRow key={col.name}>
+                      <TableCell className="text-[11px] font-mono text-primary font-medium">{col.name}</TableCell>
+                      <TableCell className="text-[11px] font-mono text-muted-foreground">{col.type}</TableCell>
+                      <TableCell className="text-[11px]">
+                        <Badge
+                          variant="outline"
+                          className={`text-[9px] ${
+                            col.constraint === "PK" ? "border-primary/40 text-primary" :
+                            col.constraint === "FK" ? "border-warning/40 text-warning" :
+                            col.constraint === "NOT NULL" ? "border-destructive/40 text-destructive" :
+                            "text-muted-foreground"
+                          }`}
+                        >
+                          {col.constraint}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-[11px] text-muted-foreground">{col.desc}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </ERPLayout>
   );
 };
