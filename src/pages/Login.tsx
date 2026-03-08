@@ -9,6 +9,7 @@ import { Lock, User as UserIcon, Eye, EyeOff, Factory, Sun, Moon } from "lucide-
 
 const Login = () => {
   const { login } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
