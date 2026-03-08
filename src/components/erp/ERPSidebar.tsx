@@ -16,6 +16,7 @@ import {
   Warehouse,
   Cpu,
   Building2,
+  List,
 } from "lucide-react";
 import {
   Sidebar,
