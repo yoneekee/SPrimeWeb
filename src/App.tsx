@@ -39,18 +39,18 @@ const App = () => (
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-          <Route path="/production" element={<ProtectedRoute><PlaceholderPage title="생산 및 제조" description="생산 및 제조 관리 화면입니다." /></ProtectedRoute>} />
+          <Route path="/production" element={<ProtectedRoute><PlaceholderPage title="生産・製造" description="生産および製造管理画面です。" /></ProtectedRoute>} />
           <Route path="/production/execution" element={<ProtectedRoute><ProductionExecution /></ProtectedRoute>} />
           <Route path="/production/execution/new" element={<ProtectedRoute><ProductionSlipCreate /></ProtectedRoute>} />
           <Route path="/production/shipping" element={<ProtectedRoute><ShipmentManagement /></ProtectedRoute>} />
           <Route path="/production/shipping/new" element={<ProtectedRoute><ShipmentSlipCreate /></ProtectedRoute>} />
-          <Route path="/documents" element={<ProtectedRoute><PlaceholderPage title="전표 및 서류" description="전표 및 서류 관리 화면입니다." /></ProtectedRoute>} />
+          <Route path="/documents" element={<ProtectedRoute><PlaceholderPage title="伝票・書類" description="伝票および書類管理画面です。" /></ProtectedRoute>} />
           <Route path="/documents/finance" element={<ProtectedRoute><FinancialStatements /></ProtectedRoute>} />
           <Route path="/documents/bom" element={<ProtectedRoute><BomProductionSlip /></ProtectedRoute>} />
           <Route path="/documents/bom/new" element={<ProtectedRoute><BomSlipCreate /></ProtectedRoute>} />
           <Route path="/documents/invoice" element={<ProtectedRoute><InvoiceManagement /></ProtectedRoute>} />
           <Route path="/company" element={<ProtectedRoute><CompanyIntro /></ProtectedRoute>} />
-          <Route path="/master" element={<ProtectedRoute><PlaceholderPage title="마스터 관리" description="마스터 데이터 관리 화면입니다." /></ProtectedRoute>} />
+          <Route path="/master" element={<ProtectedRoute><PlaceholderPage title="マスタ管理" description="マスタデータ管理画面です。" /></ProtectedRoute>} />
           <Route path="/master/employee" element={<ProtectedRoute><EmployeeMaster /></ProtectedRoute>} />
           <Route path="/master/item" element={<ProtectedRoute><ItemMaster /></ProtectedRoute>} />
           <Route path="/master/warehouse" element={<ProtectedRoute><WarehouseMaster /></ProtectedRoute>} />

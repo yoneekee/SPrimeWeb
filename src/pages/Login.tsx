@@ -19,7 +19,7 @@ const Login = () => {
     e.preventDefault();
     setError("");
     if (!username || !password) {
-      setError("아이디와 비밀번호를 입력해주세요.");
+      setError("IDとパスワードを入力してください。");
       return;
     }
     setLoading(true);
@@ -28,7 +28,7 @@ const Login = () => {
     if (ok) {
       navigate("/", { replace: true });
     } else {
-      setError("로그인에 실패했습니다.");
+      setError("ログインに失敗しました。");
     }
   };
 
@@ -46,17 +46,17 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
             <Factory className="w-7 h-7 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">스마트 ERP</h1>
-          <p className="text-sm text-muted-foreground mt-1">통합 생산·재고·물류 관리 시스템</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">S-PRIME ERP</h1>
+          <p className="text-sm text-muted-foreground mt-1">統合 生産・在庫・物流 管理システム</p>
         </div>
 
         {/* Login Card */}
         <div className="bg-card border border-border rounded-xl shadow-lg p-8">
-          <h2 className="text-lg font-semibold text-foreground mb-6">로그인</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-6">ログイン</h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-xs font-medium text-foreground">아이디</Label>
+              <Label htmlFor="username" className="text-xs font-medium text-foreground">ユーザーID</Label>
               <div className="relative">
                 <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -72,7 +72,7 @@ const Login = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-xs font-medium text-foreground">비밀번호</Label>
+              <Label htmlFor="password" className="text-xs font-medium text-foreground">パスワード</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -99,12 +99,12 @@ const Login = () => {
             )}
 
             <Button type="submit" className="w-full h-10" disabled={loading}>
-              {loading ? "로그인 중..." : "로그인"}
+              {loading ? "ログイン中..." : "ログイン"}
             </Button>
           </form>
 
           <p className="text-[11px] text-muted-foreground text-center mt-6">
-            아무 아이디/비밀번호로 로그인 가능합니다 (데모)
+            任意のID/パスワードでログイン可能です（デモ）
           </p>
         </div>
       </div>
