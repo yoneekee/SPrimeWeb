@@ -188,9 +188,6 @@ const ERPSidebar = () => {
                 <div key={item.id}>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onMouseEnter={() => {
-                        if (item.children) openGroup(item.id);
-                      }}
                       onClick={() => {
                         if (item.children) {
                           toggleGroup(item.id);
