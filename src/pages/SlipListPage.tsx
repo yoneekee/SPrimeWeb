@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -97,8 +101,8 @@ const SlipListPage = () => {
   const [requesterFilter, setRequesterFilter] = useState("all");
   const [approverFilter, setApproverFilter] = useState("all");
   const [handlerFilter, setHandlerFilter] = useState("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [searchText, setSearchText] = useState("");
 
   // Pagination
@@ -112,8 +116,8 @@ const SlipListPage = () => {
     if (requesterFilter !== "all" && s.requester !== requesterFilter) return false;
     if (approverFilter !== "all" && s.approver !== approverFilter) return false;
     if (handlerFilter !== "all" && s.handler !== handlerFilter) return false;
-    if (dateFrom && s.date < dateFrom) return false;
-    if (dateTo && s.date > dateTo) return false;
+    if (dateFrom && s.date < format(dateFrom, "yyyy-MM-dd")) return false;
+    if (dateTo && s.date > format(dateTo, "yyyy-MM-dd")) return false;
     if (searchText) {
       const q = searchText.toLowerCase();
       if (!s.slipNo.toLowerCase().includes(q) && !s.partner.toLowerCase().includes(q)) return false;
@@ -130,8 +134,8 @@ const SlipListPage = () => {
     setRequesterFilter("all");
     setApproverFilter("all");
     setHandlerFilter("all");
-    setDateFrom("");
-    setDateTo("");
+    setDateFrom(undefined);
+    setDateTo(undefined);
     setSearchText("");
     setCurrentPage(1);
   };
@@ -204,13 +208,33 @@ const SlipListPage = () => {
               {/* Date From */}
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">依頼日（FROM）</label>
-                <Input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }} className="h-8 text-xs border-border" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("h-8 w-full justify-start text-left text-xs font-normal border-border", !dateFrom && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-1.5 h-3 w-3" />
+                      {dateFrom ? format(dateFrom, "yyyy/MM/dd") : "日付選択"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={dateFrom} onSelect={(d) => { setDateFrom(d); setCurrentPage(1); }} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Date To */}
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">依頼日（TO）</label>
-                <Input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }} className="h-8 text-xs border-border" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("h-8 w-full justify-start text-left text-xs font-normal border-border", !dateTo && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-1.5 h-3 w-3" />
+                      {dateTo ? format(dateTo, "yyyy/MM/dd") : "日付選択"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={dateTo} onSelect={(d) => { setDateTo(d); setCurrentPage(1); }} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Requester */}
