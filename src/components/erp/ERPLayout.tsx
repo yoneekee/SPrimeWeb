@@ -39,6 +39,8 @@ interface ERPLayoutProps {
 
 const ERPLayout = ({ children }: ERPLayoutProps) => {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(mockNotifications);
