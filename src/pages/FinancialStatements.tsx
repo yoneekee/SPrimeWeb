@@ -19,27 +19,27 @@ import { Search, FileDown, FileText, TrendingUp, TrendingDown } from "lucide-rea
 
 // B/S mock data
 const bsAssets = [
-  { code: "1101", name: "원재료 (原材料)", amount: 128500000, ratio: 18.2 },
-  { code: "1102", name: "반제품 (半製品)", amount: 95200000, ratio: 13.5 },
-  { code: "1103", name: "완제품 (完成品)", amount: 312000000, ratio: 44.2 },
-  { code: "1104", name: "미착품 (未着品)", amount: 45600000, ratio: 6.5 },
-  { code: "1105", name: "적송품 (積送品)", amount: 78300000, ratio: 11.1 },
-  { code: "1106", name: "매출채권 (売掛金)", amount: 46200000, ratio: 6.5 },
+  { code: "1101", name: "原材料", amount: 128500000, ratio: 18.2 },
+  { code: "1102", name: "半製品（仕掛品）", amount: 95200000, ratio: 13.5 },
+  { code: "1103", name: "製品（完成品）", amount: 312000000, ratio: 44.2 },
+  { code: "1104", name: "未着品", amount: 45600000, ratio: 6.5 },
+  { code: "1105", name: "積送品", amount: 78300000, ratio: 11.1 },
+  { code: "1106", name: "売掛金", amount: 46200000, ratio: 6.5 },
 ];
 
 const bsLiabilities = [
-  { code: "2101", name: "매입채무 (買掛金)", amount: 89400000, ratio: 62.3 },
-  { code: "2102", name: "미지급금 (未払金)", amount: 54100000, ratio: 37.7 },
+  { code: "2101", name: "買掛金", amount: 89400000, ratio: 62.3 },
+  { code: "2102", name: "未払金", amount: 54100000, ratio: 37.7 },
 ];
 
 // P/L mock data
 const plRevenue = [
-  { code: "4101", name: "매출 (売上)", amount: 542000000, ratio: 100.0 },
+  { code: "4101", name: "売上高", amount: 542000000, ratio: 100.0 },
 ];
 
 const plExpenses = [
-  { code: "5101", name: "매출원가 (売上原価)", amount: 378500000, ratio: 69.8 },
-  { code: "5102", name: "재고감모손실 (棚卸減耗損)", amount: 4200000, ratio: 0.8 },
+  { code: "5101", name: "売上原価", amount: 378500000, ratio: 69.8 },
+  { code: "5102", name: "棚卸減耗損", amount: 4200000, ratio: 0.8 },
 ];
 
 const FinancialStatements = () => {
