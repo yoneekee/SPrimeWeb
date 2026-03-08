@@ -158,7 +158,7 @@ const SlipListPage = () => {
       <div className="space-y-4">
         {/* Header */}
         <div>
-          <h1 className="text-lg font-bold text-foreground">生産出庫依頼一覧</h1>
+          <h1 className="text-lg font-bold text-foreground">生産出庫伝票一覧</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             製造購買および出庫に関する全伝票を横断的に検索・照会します
           </p>
