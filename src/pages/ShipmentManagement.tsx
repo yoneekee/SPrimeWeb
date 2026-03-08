@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -111,6 +112,7 @@ const mockWorkflow: WorkflowEntry[] = [
 ];
 
 const ShipmentManagement = () => {
+  const navigate = useNavigate();
   const [currentStatus, setCurrentStatus] = useState("T01");
   const [slipList] = useState([
     { slipNo: "SHP20240310-001", date: "2024-03-10", customer: "삼성전자(주)", status: "T01", totalAmount: "245,000,000" },
@@ -148,7 +150,7 @@ const ShipmentManagement = () => {
               완제품 출고 신청부터 매출 확정 및 재고 조정까지의 전체 프로세스를 관리합니다
             </p>
           </div>
-          <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button size="sm" onClick={() => navigate("/production/shipping/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="w-3.5 h-3.5" />
             신규 출고전표
           </Button>
