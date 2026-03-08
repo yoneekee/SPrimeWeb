@@ -170,19 +170,19 @@ const FinancialStatements = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">매출 총계</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">売上合計</div>
                     <div className="text-lg font-mono font-bold text-primary">¥{revenueTotal.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">비용 총계</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">費用合計</div>
                     <div className="text-lg font-mono font-bold text-destructive">¥{expenseTotal.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">당기순이익</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">当期純利益</div>
                     <div className={`text-lg font-mono font-bold flex items-center gap-1.5 ${netIncome >= 0 ? "text-success" : "text-destructive"}`}>
                       ¥{netIncome.toLocaleString()}
                       {netIncome >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
