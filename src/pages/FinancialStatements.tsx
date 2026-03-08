@@ -110,7 +110,7 @@ const FinancialStatements = () => {
 
               {/* Report Type */}
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">보고서 종류</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">帳票種別</label>
                 <RadioGroup
                   value={reportType}
                   onValueChange={(v) => setReportType(v as "bs" | "pl")}
@@ -118,11 +118,11 @@ const FinancialStatements = () => {
                 >
                   <div className="flex items-center gap-1.5">
                     <RadioGroupItem value="bs" id="bs" />
-                    <Label htmlFor="bs" className="text-xs cursor-pointer">대차대조표 (B/S)</Label>
+                    <Label htmlFor="bs" className="text-xs cursor-pointer">貸借対照表（B/S）</Label>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <RadioGroupItem value="pl" id="pl" />
-                    <Label htmlFor="pl" className="text-xs cursor-pointer">손익계산서 (P/L)</Label>
+                    <Label htmlFor="pl" className="text-xs cursor-pointer">損益計算書（P/L）</Label>
                   </div>
                 </RadioGroup>
               </div>
