@@ -38,8 +38,10 @@ interface ERPLayoutProps {
 const ERPLayout = ({ children }: ERPLayoutProps) => {
   const { theme, toggleTheme } = useTheme();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(mockNotifications);
   const panelRef = useRef<HTMLDivElement>(null);
+  const userPanelRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
