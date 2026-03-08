@@ -10,6 +10,7 @@ import ProductionExecution from "./pages/ProductionExecution";
 import ShipmentManagement from "./pages/ShipmentManagement";
 import FinancialStatements from "./pages/FinancialStatements";
 import BomProductionSlip from "./pages/BomProductionSlip";
+import InvoiceManagement from "./pages/InvoiceManagement";
 
 const queryClient = new QueryClient();
 
