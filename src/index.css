@@ -120,9 +120,12 @@
   * {
     @apply border-border;
   }
+  html {
+    font-size: 15px;
+  }
   body {
     @apply bg-background text-foreground;
-    font-family: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 }
