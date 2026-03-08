@@ -75,6 +75,12 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    id: "company",
+    label: "회사 소개",
+    icon: Building2,
+    path: "/company",
+  },
+  {
     id: "master",
     label: "마스터 관리",
     icon: Database,
