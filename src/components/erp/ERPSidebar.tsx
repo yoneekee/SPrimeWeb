@@ -170,8 +170,9 @@ const ERPSidebar = () => {
                       onClick={() => {
                         if (item.children) {
                           toggleGroup(item.id);
+                        } else {
+                          navigate(item.path);
                         }
-                        navigate(item.path);
                       }}
                       className={`group flex items-center gap-3 px-4 py-2.5 rounded-md transition-all duration-200 ${
                         isActive(item.path)
