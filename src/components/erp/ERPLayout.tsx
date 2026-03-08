@@ -3,6 +3,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import ERPSidebar from "./ERPSidebar";
 import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X, LogIn, LogOut, Settings, UserCircle } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
+import { useAuth } from "@/hooks/use-auth";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,6 +39,8 @@ interface ERPLayoutProps {
 
 const ERPLayout = ({ children }: ERPLayoutProps) => {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(mockNotifications);
@@ -174,8 +178,8 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                           <UserCircle className="w-5 h-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-foreground">관리자</p>
-                          <p className="text-[11px] text-muted-foreground truncate">admin@example.com</p>
+                          <p className="text-xs font-medium text-foreground">{user?.name || "사용자"}</p>
+                          <p className="text-[11px] text-muted-foreground truncate">{user?.email || ""}</p>
                         </div>
                       </div>
                     </div>
@@ -184,7 +188,10 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                         <Settings className="w-3.5 h-3.5 text-muted-foreground" />
                         설정
                       </button>
-                      <button className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-destructive hover:bg-secondary/50 transition-colors">
+                      <button
+                        onClick={() => { logout(); navigate("/login", { replace: true }); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-destructive hover:bg-secondary/50 transition-colors"
+                      >
                         <LogOut className="w-3.5 h-3.5" />
                         로그아웃
                       </button>
