@@ -16,6 +16,7 @@ import ItemMaster from "./pages/ItemMaster";
 import WarehouseMaster from "./pages/WarehouseMaster";
 import ProductionSlipCreate from "./pages/ProductionSlipCreate";
 import ShipmentSlipCreate from "./pages/ShipmentSlipCreate";
+import BomSlipCreate from "./pages/BomSlipCreate";
 
 const queryClient = new QueryClient();
 
