@@ -1,7 +1,9 @@
+import { useState } from "react";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Cpu,
   Database,
