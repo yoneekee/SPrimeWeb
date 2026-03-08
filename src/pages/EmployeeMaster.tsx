@@ -136,7 +136,7 @@ const EmployeeMaster = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((emp) => (
+                {paged.map((emp) => (
                   <TableRow key={emp.empId} className="border-border hover:bg-secondary/50">
                     <TableCell className="px-3 py-2 text-xs font-mono text-muted-foreground">{emp.empId}</TableCell>
                     <TableCell className="px-3 py-2 text-xs font-mono text-primary">{emp.loginId}</TableCell>
@@ -168,6 +168,26 @@ const EmployeeMaster = () => {
               </TableBody>
             </Table>
           </CardContent>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+              <span className="text-xs text-muted-foreground">
+                {filtered.length}件中 {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filtered.length)}件
+              </span>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button key={page} variant={currentPage === page ? "default" : "outline"} size="icon" className="h-7 w-7 text-xs" onClick={() => setCurrentPage(page)}>
+                    {page}
+                  </Button>
+                ))}
+                <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Detail Modal */}
