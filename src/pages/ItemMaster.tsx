@@ -185,7 +185,7 @@ const ItemMaster = () => {
 
         {/* Detail Modal */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-lg bg-card border-border">
+          <DialogContent className="sm:max-w-xl bg-card border-border">
             <DialogHeader>
               <DialogTitle className="text-sm font-semibold text-foreground">
                 {editingItem ? "品目情報編集" : "品目新規登録"}
