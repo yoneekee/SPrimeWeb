@@ -100,6 +100,10 @@ const ERPSidebar = () => {
     );
   };
 
+  const openGroup = (id: string) => {
+    setOpenGroups((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  };
+
   const isActive = (path: string) => location.pathname === path;
 
   const handleMouseEnter = () => {
@@ -160,6 +164,9 @@ const ERPSidebar = () => {
                 <div key={item.id}>
                   <SidebarMenuItem>
                     <SidebarMenuButton
+                      onMouseEnter={() => {
+                        if (item.children) openGroup(item.id);
+                      }}
                       onClick={() => {
                         if (item.children) {
                           toggleGroup(item.id);
