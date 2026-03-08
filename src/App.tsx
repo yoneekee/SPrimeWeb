@@ -20,6 +20,7 @@ import WarehouseMaster from "./pages/WarehouseMaster";
 import ProductionSlipCreate from "./pages/ProductionSlipCreate";
 import ShipmentSlipCreate from "./pages/ShipmentSlipCreate";
 import BomSlipCreate from "./pages/BomSlipCreate";
+import CompanyIntro from "./pages/CompanyIntro";
 
 const queryClient = new QueryClient();
 
