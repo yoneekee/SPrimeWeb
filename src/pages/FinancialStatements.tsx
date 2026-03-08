@@ -93,18 +93,16 @@ const FinancialStatements = () => {
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">照会期間</label>
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="h-8 text-xs border-border w-36"
+                    onChange={(d) => setStartDate(d ? format(d, "yyyy-MM-dd") : "")}
+                    className="w-36"
                   />
                   <span className="text-xs text-muted-foreground">~</span>
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="h-8 text-xs border-border w-36"
+                    onChange={(d) => setEndDate(d ? format(d, "yyyy-MM-dd") : "")}
+                    className="w-36"
                   />
                 </div>
               </div>

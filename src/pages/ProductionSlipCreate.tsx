@@ -193,11 +193,9 @@ const ProductionSlipCreate = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請日</label>
-                <Input
-                  type="date"
+                <DatePicker
                   value={reqDate}
-                  onChange={(e) => setReqDate(e.target.value)}
-                  className="h-8 text-xs border-border"
+                  onChange={(d) => setReqDate(d ? format(d, "yyyy-MM-dd") : "")}
                 />
               </div>
               <div className="space-y-1">

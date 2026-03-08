@@ -226,11 +226,9 @@ const ShipmentSlipCreate = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">出庫希望日</label>
-                <Input
-                  type="date"
+                <DatePicker
                   value={shipDate}
-                  onChange={(e) => setShipDate(e.target.value)}
-                  className="h-8 text-xs border-border"
+                  onChange={(d) => setShipDate(d ? format(d, "yyyy-MM-dd") : "")}
                 />
               </div>
               <div className="space-y-1">
