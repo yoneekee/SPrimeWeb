@@ -485,6 +485,46 @@ const ProductionExecution = () => {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Action Modal for Approve/Reject/Return */}
+        <Dialog open={actionModal.open} onOpenChange={(open) => setActionModal({ open, type: open ? actionModal.type : null })}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {actionModal.type === "approve" && <CheckCircle2 className="w-5 h-5 text-success" />}
+                {actionModal.type === "reject" && <XCircle className="w-5 h-5 text-destructive" />}
+                {actionModal.type === "return" && <RotateCcw className="w-5 h-5 text-warning" />}
+                {getActionTitle(actionModal.type)}
+              </DialogTitle>
+              <DialogDescription>
+                {getActionDescription(actionModal.type)}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">메시지</label>
+                <Textarea
+                  placeholder={actionModal.type === "approve" ? "승인 메시지를 입력하세요..." : "사유를 입력하세요..."}
+                  value={actionMessage}
+                  onChange={(e) => setActionMessage(e.target.value)}
+                  className="min-h-[100px] text-sm"
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setActionModal({ open: false, type: null })}>
+                취소
+              </Button>
+              <Button
+                variant={actionModal.type === "reject" ? "destructive" : "default"}
+                onClick={handleActionConfirm}
+                className={actionModal.type === "return" ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}
+              >
+                {getActionTitle(actionModal.type)} 확인
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ERPLayout>
   );
