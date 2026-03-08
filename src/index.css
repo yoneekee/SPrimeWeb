@@ -131,7 +131,10 @@
 
   /* 일본어 가독성: 10~13px 고정 크기를 text-xs(14px)로 강제 */
   [class*="text-\[8px\]"],
-  [class*="text-\[9px\]"],
+  [class*="text-\[9px\]"] {
+    font-size: 0.75rem !important;
+    line-height: 1.125rem !important;
+  }
   [class*="text-\[10px\]"],
   [class*="text-\[11px\]"],
   [class*="text-\[12px\]"],
