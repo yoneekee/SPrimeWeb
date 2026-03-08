@@ -18,12 +18,12 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!email || !password) {
-      setError("이메일과 비밀번호를 입력해주세요.");
+    if (!username || !password) {
+      setError("아이디와 비밀번호를 입력해주세요.");
       return;
     }
     setLoading(true);
-    const ok = await login(email, password);
+    const ok = await login(username, password);
     setLoading(false);
     if (ok) {
       navigate("/", { replace: true });
