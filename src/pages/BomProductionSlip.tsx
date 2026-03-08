@@ -86,6 +86,7 @@ const mockBom: BomItem[] = [
 ];
 
 const BomProductionSlip = () => {
+  const navigate = useNavigate();
   const [selectedSlip, setSelectedSlip] = useState("SLP20240307-001");
   const [statusFilter, setStatusFilter] = useState("all");
   const [checkedSlips, setCheckedSlips] = useState<string[]>([]);
