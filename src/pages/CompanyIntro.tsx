@@ -571,7 +571,8 @@ const CompanyIntro = () => {
               ].map((screen) => (
                 <div
                   key={screen.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-default"
+                  onClick={() => setNavigateTarget({ title: screen.title, path: screen.path })}
+                  className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-secondary/30 hover:bg-primary/10 hover:border-primary/30 transition-colors cursor-pointer"
                 >
                   <Badge variant="outline" className="text-[10px] font-mono mt-0.5 flex-shrink-0">{screen.id}</Badge>
                   <div>
