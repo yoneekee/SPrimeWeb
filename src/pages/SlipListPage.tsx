@@ -134,8 +134,8 @@ const SlipListPage = () => {
     setRequesterFilter("all");
     setApproverFilter("all");
     setHandlerFilter("all");
-    setDateFrom("");
-    setDateTo("");
+    setDateFrom(undefined);
+    setDateTo(undefined);
     setSearchText("");
     setCurrentPage(1);
   };
