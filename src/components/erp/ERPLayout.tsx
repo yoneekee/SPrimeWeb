@@ -7,6 +7,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 interface Notification {
   id: string;
@@ -43,6 +47,12 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
   const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsForm, setSettingsForm] = useState({
+    displayName: user?.name || "",
+    phone: "",
+    department: "",
+  });
   const [notifications, setNotifications] = useState(mockNotifications);
   const panelRef = useRef<HTMLDivElement>(null);
   const userPanelRef = useRef<HTMLDivElement>(null);
@@ -184,7 +194,10 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                       </div>
                     </div>
                     <div className="py-1">
-                      <button className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-foreground hover:bg-secondary/50 transition-colors">
+                      <button
+                        onClick={() => { setUserMenuOpen(false); setSettingsOpen(true); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2 text-xs text-foreground hover:bg-secondary/50 transition-colors"
+                      >
                         <Settings className="w-3.5 h-3.5 text-muted-foreground" />
                         설정
                       </button>
@@ -207,6 +220,80 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
           </main>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">사용자 설정</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            {/* Profile section */}
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
+                <UserCircle className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">{user?.name || "사용자"}</p>
+                <p className="text-xs text-muted-foreground">ID: {user?.email || ""}</p>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Form */}
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">표시 이름</Label>
+                <Input
+                  value={settingsForm.displayName}
+                  onChange={(e) => setSettingsForm((f) => ({ ...f, displayName: e.target.value }))}
+                  className="h-9 text-sm"
+                  placeholder="이름을 입력하세요"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">연락처</Label>
+                <Input
+                  value={settingsForm.phone}
+                  onChange={(e) => setSettingsForm((f) => ({ ...f, phone: e.target.value }))}
+                  className="h-9 text-sm"
+                  placeholder="010-0000-0000"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">부서</Label>
+                <Input
+                  value={settingsForm.department}
+                  onChange={(e) => setSettingsForm((f) => ({ ...f, department: e.target.value }))}
+                  className="h-9 text-sm"
+                  placeholder="소속 부서"
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Theme */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-foreground">테마</p>
+                <p className="text-[11px] text-muted-foreground">화면 밝기를 변경합니다</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={toggleTheme} className="h-8 text-xs gap-1.5">
+                {theme === "dark" ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                {theme === "dark" ? "라이트 모드" : "다크 모드"}
+              </Button>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={() => setSettingsOpen(false)}>취소</Button>
+              <Button size="sm" onClick={() => setSettingsOpen(false)}>저장</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 };
