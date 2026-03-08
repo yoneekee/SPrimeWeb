@@ -20,7 +20,7 @@ const InventoryStatus = () => {
     <div className="card-glow border-glow rounded-lg bg-card p-4 h-full animate-slide-up" style={{ animationDelay: "300ms" }}>
       <div className="flex items-center gap-2 mb-4">
         <Package className="w-4 h-4 text-primary" />
-        <h3 className="text-sm font-semibold text-foreground">主要資材在庫</h3>
+        <h3 className="text-base font-semibold text-foreground">主要資材在庫</h3>
       </div>
       <div className="space-y-3">
         {inventoryData.map((item, i) => {
