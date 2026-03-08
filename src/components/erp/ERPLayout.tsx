@@ -47,6 +47,12 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
   const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsForm, setSettingsForm] = useState({
+    displayName: user?.name || "",
+    phone: "",
+    department: "",
+  });
   const [notifications, setNotifications] = useState(mockNotifications);
   const panelRef = useRef<HTMLDivElement>(null);
   const userPanelRef = useRef<HTMLDivElement>(null);
