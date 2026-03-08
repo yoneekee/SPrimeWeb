@@ -1,12 +1,16 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import ERPSidebar from "./ERPSidebar";
-import { Bell, Search, User } from "lucide-react";
+import { Bell, Search, User, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
+import { Button } from "@/components/ui/button";
 
 interface ERPLayoutProps {
   children: React.ReactNode;
 }
 
 const ERPLayout = ({ children }: ERPLayoutProps) => {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full">
@@ -21,7 +25,19 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 <span className="text-xs text-muted-foreground">검색...</span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleTheme}
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </Button>
               <div className="relative">
                 <Bell className="w-4 h-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-destructive" />
