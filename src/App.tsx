@@ -10,6 +10,7 @@ import ProductionExecution from "./pages/ProductionExecution";
 import ShipmentManagement from "./pages/ShipmentManagement";
 import FinancialStatements from "./pages/FinancialStatements";
 import BomProductionSlip from "./pages/BomProductionSlip";
+import InvoiceManagement from "./pages/InvoiceManagement";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +28,7 @@ const App = () => (
           <Route path="/documents" element={<PlaceholderPage title="전표 및 서류" description="전표 및 서류 관리 화면입니다." />} />
           <Route path="/documents/finance" element={<FinancialStatements />} />
           <Route path="/documents/bom" element={<BomProductionSlip />} />
-          <Route path="/documents/invoice" element={<PlaceholderPage title="청구서 / 발주서" />} />
+          <Route path="/documents/invoice" element={<InvoiceManagement />} />
           <Route path="/master" element={<PlaceholderPage title="마스터 관리" description="마스터 데이터 관리 화면입니다." />} />
           <Route path="/master/employee" element={<PlaceholderPage title="직원 마스터" />} />
           <Route path="/master/item" element={<PlaceholderPage title="품목 마스터" />} />
