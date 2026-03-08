@@ -9,7 +9,7 @@ import { Lock, User as UserIcon, Eye, EyeOff, Factory } from "lucide-react";
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
