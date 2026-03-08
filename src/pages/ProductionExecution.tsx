@@ -145,6 +145,13 @@ const ProductionExecution = () => {
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SLP20240307-001");
 
+  // Modal state for approval/reject/return actions
+  const [actionModal, setActionModal] = useState<{
+    open: boolean;
+    type: "approve" | "reject" | "return" | null;
+  }>({ open: false, type: null });
+  const [actionMessage, setActionMessage] = useState("");
+
   const statusInfo = STATUS_MAP[currentStatus] || STATUS_MAP.S00;
 
   const isButtonActive = (btn: string) => {
@@ -159,6 +166,36 @@ const ProductionExecution = () => {
       case "inspect": return currentStatus === "P04";
       default: return false;
     }
+  };
+
+  const getActionTitle = (type: "approve" | "reject" | "return" | null) => {
+    switch (type) {
+      case "approve": return "승인";
+      case "reject": return "부인";
+      case "return": return "반려";
+      default: return "";
+    }
+  };
+
+  const getActionDescription = (type: "approve" | "reject" | "return" | null) => {
+    switch (type) {
+      case "approve": return "해당 전표를 승인합니다. 승인 메시지를 입력해주세요.";
+      case "reject": return "해당 전표를 부인합니다. 부인 사유를 입력해주세요.";
+      case "return": return "해당 전표를 반려합니다. 반려 사유를 입력해주세요.";
+      default: return "";
+    }
+  };
+
+  const handleActionConfirm = () => {
+    // Here you would typically send the action to the backend
+    console.log(`Action: ${actionModal.type}, Message: ${actionMessage}`);
+    setActionModal({ open: false, type: null });
+    setActionMessage("");
+  };
+
+  const openActionModal = (type: "approve" | "reject" | "return") => {
+    setActionModal({ open: true, type });
+    setActionMessage("");
   };
 
   return (
