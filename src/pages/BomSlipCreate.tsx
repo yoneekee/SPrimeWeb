@@ -36,39 +36,39 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-// 완제품 카탈로그 (BOM 대상)
+// 完成品カタログ（BOM対象）
 const FINISHED_PRODUCTS = [
-  { code: "FIN-ETCH-500", name: "플라즈마 에칭 장비 PE-500" },
-  { code: "FIN-CVD-300", name: "CVD 증착기 CV-300" },
-  { code: "FIN-SPUT-200", name: "스퍼터링 시스템 SP-200" },
-  { code: "FIN-CMP-100", name: "CMP 연마 장비 CM-100" },
-  { code: "FIN-CLEAN-400", name: "세정 장비 CL-400" },
+  { code: "FIN-ETCH-500", name: "プラズマエッチング装置 PE-500" },
+  { code: "FIN-CVD-300", name: "CVD成膜装置 CV-300" },
+  { code: "FIN-SPUT-200", name: "スパッタリングシステム SP-200" },
+  { code: "FIN-CMP-100", name: "CMP研磨装置 CM-100" },
+  { code: "FIN-CLEAN-400", name: "洗浄装置 CL-400" },
 ];
 
-// BOM 데이터 (완제품별 하위 부품 트리)
+// BOMデータ（完成品別下位部品ツリー）
 const BOM_DATA: Record<string, BomNode[]> = {
   "FIN-ETCH-500": [
-    { level: 1, itemCode: "SEMI-CHAMBER-01", itemName: "진공 챔버 모듈", requiredQty: 1, lossRate: 2, stockQty: 8, warehouse: "본사 제1창고" },
-    { level: 2, itemCode: "RAW-STEEL-SUS", itemName: "SUS316L 스테인리스 판재", requiredQty: 4, lossRate: 2, stockQty: 50, warehouse: "본사 제2창고" },
-    { level: 2, itemCode: "RAW-ORING-VT", itemName: "바이톤 O-링 (Φ300)", requiredQty: 8, lossRate: 0, stockQty: 25, warehouse: "본사 제1창고" },
-    { level: 1, itemCode: "SEMI-RF-GEN", itemName: "RF 발생기 유닛", requiredQty: 1, lossRate: 0, stockQty: 3, warehouse: "본사 제1창고" },
-    { level: 2, itemCode: "RAW-PCB-RF01", itemName: "RF 전력 제어 PCB", requiredQty: 2, lossRate: 3, stockQty: 15, warehouse: "시부야 물류센터" },
-    { level: 2, itemCode: "RAW-CAP-HV", itemName: "고압 세라믹 커패시터", requiredQty: 12, lossRate: 1, stockQty: 40, warehouse: "본사 제2창고" },
-    { level: 1, itemCode: "SEMI-GAS-SYS", itemName: "가스 공급 시스템", requiredQty: 1, lossRate: 0, stockQty: 6, warehouse: "본사 제1창고" },
-    { level: 2, itemCode: "RAW-VALVE-APC", itemName: "APC 밸브 (자동압력제어)", requiredQty: 3, lossRate: 0, stockQty: 10, warehouse: "본사 제2창고" },
+    { level: 1, itemCode: "SEMI-CHAMBER-01", itemName: "真空チャンバーモジュール", requiredQty: 1, lossRate: 2, stockQty: 8, warehouse: "本社 第1倉庫" },
+    { level: 2, itemCode: "RAW-STEEL-SUS", itemName: "SUS316L ステンレス板材", requiredQty: 4, lossRate: 2, stockQty: 50, warehouse: "本社 第2倉庫" },
+    { level: 2, itemCode: "RAW-ORING-VT", itemName: "バイトン Oリング（Φ300）", requiredQty: 8, lossRate: 0, stockQty: 25, warehouse: "本社 第1倉庫" },
+    { level: 1, itemCode: "SEMI-RF-GEN", itemName: "RF発生器ユニット", requiredQty: 1, lossRate: 0, stockQty: 3, warehouse: "本社 第1倉庫" },
+    { level: 2, itemCode: "RAW-PCB-RF01", itemName: "RF電力制御PCB", requiredQty: 2, lossRate: 3, stockQty: 15, warehouse: "渋谷物流センター" },
+    { level: 2, itemCode: "RAW-CAP-HV", itemName: "高圧セラミックコンデンサ", requiredQty: 12, lossRate: 1, stockQty: 40, warehouse: "本社 第2倉庫" },
+    { level: 1, itemCode: "SEMI-GAS-SYS", itemName: "ガス供給システム", requiredQty: 1, lossRate: 0, stockQty: 6, warehouse: "本社 第1倉庫" },
+    { level: 2, itemCode: "RAW-VALVE-APC", itemName: "APCバルブ（自動圧力制御）", requiredQty: 3, lossRate: 0, stockQty: 10, warehouse: "本社 第2倉庫" },
   ],
   "FIN-CVD-300": [
-    { level: 1, itemCode: "SEMI-HEATER-01", itemName: "히팅 챔버 모듈", requiredQty: 1, lossRate: 1, stockQty: 5, warehouse: "본사 제1창고" },
-    { level: 2, itemCode: "RAW-QUARTZ-01", itemName: "석영 튜브 (Φ200)", requiredQty: 2, lossRate: 5, stockQty: 12, warehouse: "본사 제2창고" },
-    { level: 2, itemCode: "RAW-HEATER-EL", itemName: "SiC 히팅 엘리먼트", requiredQty: 6, lossRate: 2, stockQty: 20, warehouse: "본사 제1창고" },
-    { level: 1, itemCode: "SEMI-GAS-MIX", itemName: "가스 혼합 유닛", requiredQty: 1, lossRate: 0, stockQty: 4, warehouse: "본사 제1창고" },
-    { level: 2, itemCode: "RAW-MFC-01", itemName: "MFC (Mass Flow Controller)", requiredQty: 4, lossRate: 0, stockQty: 18, warehouse: "시부야 물류센터" },
+    { level: 1, itemCode: "SEMI-HEATER-01", itemName: "加熱チャンバーモジュール", requiredQty: 1, lossRate: 1, stockQty: 5, warehouse: "本社 第1倉庫" },
+    { level: 2, itemCode: "RAW-QUARTZ-01", itemName: "石英チューブ（Φ200）", requiredQty: 2, lossRate: 5, stockQty: 12, warehouse: "本社 第2倉庫" },
+    { level: 2, itemCode: "RAW-HEATER-EL", itemName: "SiCヒーティングエレメント", requiredQty: 6, lossRate: 2, stockQty: 20, warehouse: "本社 第1倉庫" },
+    { level: 1, itemCode: "SEMI-GAS-MIX", itemName: "ガス混合ユニット", requiredQty: 1, lossRate: 0, stockQty: 4, warehouse: "本社 第1倉庫" },
+    { level: 2, itemCode: "RAW-MFC-01", itemName: "MFC（マスフローコントローラ）", requiredQty: 4, lossRate: 0, stockQty: 18, warehouse: "渋谷物流センター" },
   ],
   "FIN-SPUT-200": [
-    { level: 1, itemCode: "SEMI-TARGET-01", itemName: "스퍼터 타겟 모듈", requiredQty: 1, lossRate: 0, stockQty: 7, warehouse: "본사 제1창고" },
-    { level: 2, itemCode: "RAW-TI-DISK", itemName: "티타늄 디스크 (Φ300)", requiredQty: 1, lossRate: 0, stockQty: 10, warehouse: "본사 제2창고" },
-    { level: 2, itemCode: "RAW-MAG-ASY", itemName: "마그네트론 어셈블리", requiredQty: 1, lossRate: 0, stockQty: 4, warehouse: "본사 제1창고" },
-    { level: 1, itemCode: "SEMI-PUMP-TMP", itemName: "터보분자펌프 유닛", requiredQty: 1, lossRate: 0, stockQty: 3, warehouse: "본사 제1창고" },
+    { level: 1, itemCode: "SEMI-TARGET-01", itemName: "スパッタターゲットモジュール", requiredQty: 1, lossRate: 0, stockQty: 7, warehouse: "本社 第1倉庫" },
+    { level: 2, itemCode: "RAW-TI-DISK", itemName: "チタンディスク（Φ300）", requiredQty: 1, lossRate: 0, stockQty: 10, warehouse: "本社 第2倉庫" },
+    { level: 2, itemCode: "RAW-MAG-ASY", itemName: "マグネトロンアセンブリ", requiredQty: 1, lossRate: 0, stockQty: 4, warehouse: "本社 第1倉庫" },
+    { level: 1, itemCode: "SEMI-PUMP-TMP", itemName: "ターボ分子ポンプユニット", requiredQty: 1, lossRate: 0, stockQty: 3, warehouse: "本社 第1倉庫" },
   ],
 };
 
@@ -100,13 +100,13 @@ const BomSlipCreate = () => {
   const navigate = useNavigate();
   const [slipNo] = useState(generateSlipNo());
   const [reqDate, setReqDate] = useState(new Date().toISOString().split("T")[0]);
-  const [requester] = useState("김민수");
-  const [department] = useState("제조1팀");
+  const [requester] = useState("田中 太郎");
+  const [department] = useState("製造1課");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [targetQty, setTargetQty] = useState(1);
   const [remark, setRemark] = useState("");
 
-  // BOM 전개 결과
+  // BOM展開結果
   const bomRows: ExpandedBomRow[] = (() => {
     if (!selectedProduct) return [];
     const nodes = BOM_DATA[selectedProduct] || [];
@@ -126,30 +126,30 @@ const BomSlipCreate = () => {
 
   const handleSave = () => {
     if (!selectedProduct) {
-      toast.error("생산 대상 완제품을 선택해주세요.");
+      toast.error("生産対象の完成品を選択してください。");
       return;
     }
     if (targetQty < 1) {
-      toast.error("생산 목표량은 1 이상이어야 합니다.");
+      toast.error("生産目標数は1以上である必要があります。");
       return;
     }
-    toast.success("BOM 생산전표가 저장되었습니다 (작성중 상태)");
+    toast.success("BOM生産伝票が保存されました（作成中ステータス）");
     navigate("/documents/bom");
   };
 
   const handleSubmit = () => {
     if (!selectedProduct) {
-      toast.error("생산 대상 완제품을 선택해주세요.");
+      toast.error("生産対象の完成品を選択してください。");
       return;
     }
     if (targetQty < 1) {
-      toast.error("생산 목표량은 1 이상이어야 합니다.");
+      toast.error("生産目標数は1以上である必要があります。");
       return;
     }
     if (shortageCount > 0) {
-      toast.warning(`부족 부품이 ${shortageCount}건 있습니다. 그래도 신청하시겠습니까?`);
+      toast.warning(`不足部品が${shortageCount}件あります。それでも申請しますか？`);
     }
-    toast.success("BOM 생산전표가 신청되었습니다");
+    toast.success("BOM生産伝票が申請されました");
     navigate("/documents/bom");
   };
 
@@ -166,18 +166,18 @@ const BomSlipCreate = () => {
               className="gap-1.5 text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-4 h-4" />
-              목록
+              一覧
             </Button>
             <Separator orientation="vertical" className="h-6" />
             <div>
-              <h1 className="text-lg font-bold text-foreground">신규 BOM 생산전표 작성</h1>
+              <h1 className="text-lg font-bold text-foreground">新規BOM生産伝票作成</h1>
               <p className="text-xs text-muted-foreground mt-0.5">
-                완제품 생산 계획을 수립하고 BOM 기반 부품 과부족을 확인합니다
+                完成品の生産計画を立案し、BOM基準の部品過不足を確認します
               </p>
             </div>
           </div>
           <Badge className="bg-muted text-muted-foreground text-xs px-2.5 py-0.5">
-            작성중 (Draft)
+            作成中（Draft）
           </Badge>
         </div>
 
@@ -186,17 +186,17 @@ const BomSlipCreate = () => {
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <FileText className="w-4 h-4 text-primary" />
-              전표 헤더 정보
+              伝票ヘッダー情報
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">전표번호</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票番号</label>
                 <Input value={slipNo} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">작성일자</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">作成日付</label>
                 <Input
                   type="date"
                   value={reqDate}
@@ -205,11 +205,11 @@ const BomSlipCreate = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">기안자(부서)</label>
-                <Input value={`${requester} (${department})`} readOnly className="h-8 text-xs bg-muted/50 border-border" />
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">起案者（部署）</label>
+                <Input value={`${requester}（${department}）`} readOnly className="h-8 text-xs bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">생산 목표량</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">生産目標数</label>
                 <Input
                   type="number"
                   min={1}
@@ -219,10 +219,10 @@ const BomSlipCreate = () => {
                 />
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">생산 대상 완제품</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">生産対象完成品</label>
                 <Select value={selectedProduct} onValueChange={setSelectedProduct}>
                   <SelectTrigger className="h-8 text-xs border-border">
-                    <SelectValue placeholder="완제품을 선택하세요" />
+                    <SelectValue placeholder="完成品を選択してください" />
                   </SelectTrigger>
                   <SelectContent>
                     {FINISHED_PRODUCTS.map((p) => (
@@ -235,11 +235,11 @@ const BomSlipCreate = () => {
                 </Select>
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">비고</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">備考</label>
                 <Textarea
                   value={remark}
                   onChange={(e) => setRemark(e.target.value)}
-                  placeholder="생산 전표에 대한 비고사항을 입력하세요"
+                  placeholder="生産伝票に関する備考事項を入力してください"
                   className="text-xs border-border min-h-[60px] resize-none"
                 />
               </div>
@@ -253,7 +253,7 @@ const BomSlipCreate = () => {
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <Layers className="w-4 h-4 text-primary" />
-                BOM 전개 결과
+                BOM展開結果
                 {productInfo && (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono text-primary">
                     {productInfo.code}
@@ -263,10 +263,10 @@ const BomSlipCreate = () => {
               {bomRows.length > 0 && (
                 <div className="flex items-center gap-3 text-[10px]">
                   <span className="flex items-center gap-1 text-success">
-                    <CheckCircle2 className="w-3 h-3" /> 충족 {sufficientCount}건
+                    <CheckCircle2 className="w-3 h-3" /> 充足 {sufficientCount}件
                   </span>
                   <span className="flex items-center gap-1 text-destructive">
-                    <AlertTriangle className="w-3 h-3" /> 부족 {shortageCount}건
+                    <AlertTriangle className="w-3 h-3" /> 不足 {shortageCount}件
                   </span>
                 </div>
               )}
@@ -276,23 +276,23 @@ const BomSlipCreate = () => {
             {!selectedProduct ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <Layers className="w-8 h-8 mb-2 opacity-40" />
-                <p className="text-xs">생산 대상 완제품을 선택하면 BOM이 자동 전개됩니다</p>
+                <p className="text-xs">生産対象の完成品を選択するとBOMが自動展開されます</p>
               </div>
             ) : bomRows.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <AlertTriangle className="w-8 h-8 mb-2 opacity-40" />
-                <p className="text-xs">해당 완제품의 BOM 데이터가 없습니다</p>
+                <p className="text-xs">該当完成品のBOMデータが存在しません</p>
               </div>
             ) : (
               <>
-                {/* 완제품 요약 */}
+                {/* 完成品サマリー */}
                 <div className="px-4 py-2.5 bg-primary/5 border-b border-border flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/50 text-primary">L0</Badge>
                     <span className="text-xs font-mono text-primary">{selectedProduct}</span>
                     <span className="text-xs font-bold text-foreground">{productInfo?.name}</span>
                   </div>
-                  <span className="text-xs font-mono text-foreground">목표: {targetQty}대</span>
+                  <span className="text-xs font-mono text-foreground">目標: {targetQty}台</span>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -300,14 +300,14 @@ const BomSlipCreate = () => {
                     <TableHeader>
                       <TableRow className="hover:bg-transparent border-border">
                         <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-14">Lvl</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">품목코드</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">품목명칭</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">단위소요량</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">로스율</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">총 필요수량</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">현재 실재고</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">과부족</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">창고위치</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">品目コード</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">品目名称</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">単位所要量</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">ロス率</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">総必要数量</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">現在実在庫</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">過不足</TableHead>
+                        <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">倉庫位置</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -357,12 +357,12 @@ const BomSlipCreate = () => {
                 {/* Summary */}
                 <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-muted/30">
                   <div className="flex items-center gap-4 text-xs">
-                    <span className="text-muted-foreground">부품 총 {bomRows.length}건</span>
+                    <span className="text-muted-foreground">部品 計 {bomRows.length}件</span>
                     <span className="flex items-center gap-1 text-destructive">
-                      <AlertTriangle className="w-3 h-3" /> 부족 {shortageCount}건
+                      <AlertTriangle className="w-3 h-3" /> 不足 {shortageCount}件
                     </span>
                     <span className="flex items-center gap-1 text-success">
-                      <CheckCircle2 className="w-3 h-3" /> 충족 {sufficientCount}건
+                      <CheckCircle2 className="w-3 h-3" /> 充足 {sufficientCount}件
                     </span>
                   </div>
                 </div>
@@ -379,7 +379,7 @@ const BomSlipCreate = () => {
             onClick={() => navigate("/documents/bom")}
             className="gap-1.5 text-xs"
           >
-            취소
+            キャンセル
           </Button>
           <Button
             variant="outline"
@@ -388,7 +388,7 @@ const BomSlipCreate = () => {
             className="gap-1.5 text-xs"
           >
             <Save className="w-3.5 h-3.5" />
-            임시저장
+            一時保存
           </Button>
           <Button
             size="sm"
@@ -396,7 +396,7 @@ const BomSlipCreate = () => {
             className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Send className="w-3.5 h-3.5" />
-            생산 신청
+            生産申請
           </Button>
         </div>
       </div>

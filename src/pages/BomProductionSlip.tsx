@@ -34,13 +34,13 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  S00: { label: "작성중", color: "bg-muted text-muted-foreground" },
-  S01: { label: "신청중", color: "bg-info/20 text-info" },
-  A01: { label: "승인완료", color: "bg-success/20 text-success" },
-  P02: { label: "발주완료", color: "bg-primary/20 text-primary" },
-  P03: { label: "분납중", color: "bg-info/20 text-info" },
-  P04: { label: "입고완료", color: "bg-success/20 text-success" },
-  I00: { label: "검수완료", color: "bg-success/20 text-success" },
+  S00: { label: "作成中", color: "bg-muted text-muted-foreground" },
+  S01: { label: "申請中", color: "bg-info/20 text-info" },
+  A01: { label: "承認済", color: "bg-success/20 text-success" },
+  P02: { label: "発注済", color: "bg-primary/20 text-primary" },
+  P03: { label: "分納中", color: "bg-info/20 text-info" },
+  P04: { label: "入庫完了", color: "bg-success/20 text-success" },
+  I00: { label: "検収完了", color: "bg-success/20 text-success" },
 };
 
 interface SlipItem {
@@ -65,24 +65,24 @@ interface BomItem {
 }
 
 const mockSlips: SlipItem[] = [
-  { slipNo: "SLP20240307-001", targetItem: "플라즈마 에칭 장비 PE-500", targetQty: 5, status: "P03", date: "2024-03-07", selected: false },
-  { slipNo: "SLP20240305-003", targetItem: "CVD 증착기 CV-300", targetQty: 3, status: "A01", date: "2024-03-05", selected: false },
-  { slipNo: "SLP20240304-002", targetItem: "정밀 웨이퍼 척 모듈 WC-100", targetQty: 20, status: "I00", date: "2024-03-04", selected: false },
-  { slipNo: "SLP20240301-001", targetItem: "스퍼터링 시스템 SP-200", targetQty: 2, status: "S00", date: "2024-03-01", selected: false },
+  { slipNo: "SLP20240307-001", targetItem: "プラズマエッチング装置 PE-500", targetQty: 5, status: "P03", date: "2024-03-07", selected: false },
+  { slipNo: "SLP20240305-003", targetItem: "CVD成膜装置 CV-300", targetQty: 3, status: "A01", date: "2024-03-05", selected: false },
+  { slipNo: "SLP20240304-002", targetItem: "精密ウェーハチャックモジュール WC-100", targetQty: 20, status: "I00", date: "2024-03-04", selected: false },
+  { slipNo: "SLP20240301-001", targetItem: "スパッタリングシステム SP-200", targetQty: 2, status: "S00", date: "2024-03-01", selected: false },
 ];
 
 const mockBom: BomItem[] = [
-  { level: 0, itemCode: "FIN-ETCH-500", itemName: "플라즈마 에칭 장비 PE-500", requiredQty: 1, totalQty: 5, lossRate: 0, stockQty: 2, shortage: -3, warehouse: "본사 제1창고" },
-  { level: 1, itemCode: "SEMI-CHAMBER-01", itemName: "진공 챔버 모듈", requiredQty: 1, totalQty: 5, lossRate: 2, stockQty: 8, shortage: 3, warehouse: "본사 제1창고" },
-  { level: 2, itemCode: "RAW-STEEL-SUS", itemName: "SUS316L 스테인리스 판재", requiredQty: 4, totalQty: 20.4, lossRate: 2, stockQty: 50, shortage: 29.6, warehouse: "본사 제2창고" },
-  { level: 2, itemCode: "RAW-ORING-VT", itemName: "바이톤 O-링 (Φ300)", requiredQty: 8, totalQty: 40, lossRate: 0, stockQty: 25, shortage: -15, warehouse: "본사 제1창고" },
-  { level: 1, itemCode: "SEMI-RF-GEN", itemName: "RF 발생기 유닛", requiredQty: 1, totalQty: 5, lossRate: 0, stockQty: 3, shortage: -2, warehouse: "본사 제1창고" },
-  { level: 2, itemCode: "RAW-PCB-RF01", itemName: "RF 전력 제어 PCB", requiredQty: 2, totalQty: 10, lossRate: 3, stockQty: 15, shortage: 5, warehouse: "시부야 물류센터" },
-  { level: 2, itemCode: "RAW-CAP-HV", itemName: "고압 세라믹 커패시터", requiredQty: 12, totalQty: 60, lossRate: 1, stockQty: 40, shortage: -20, warehouse: "본사 제2창고" },
-  { level: 1, itemCode: "SEMI-WAFER-01", itemName: "실리콘 웨이퍼 300mm (테스트용)", requiredQty: 10, totalQty: 50, lossRate: 5, stockQty: 300, shortage: 250, warehouse: "본사 제1창고" },
-  { level: 1, itemCode: "SEMI-GAS-SYS", itemName: "가스 공급 시스템", requiredQty: 1, totalQty: 5, lossRate: 0, stockQty: 6, shortage: 1, warehouse: "본사 제1창고" },
-  { level: 2, itemCode: "RAW-VALVE-APC", itemName: "APC 밸브 (자동압력제어)", requiredQty: 3, totalQty: 15, lossRate: 0, stockQty: 10, shortage: -5, warehouse: "본사 제2창고" },
-  { level: 2, itemCode: "RAW-PIPE-EP", itemName: "EP 처리 SUS 배관 (1/4\")", requiredQty: 6, totalQty: 30, lossRate: 0, stockQty: 80, shortage: 50, warehouse: "본사 제2창고" },
+  { level: 0, itemCode: "FIN-ETCH-500", itemName: "プラズマエッチング装置 PE-500", requiredQty: 1, totalQty: 5, lossRate: 0, stockQty: 2, shortage: -3, warehouse: "本社 第1倉庫" },
+  { level: 1, itemCode: "SEMI-CHAMBER-01", itemName: "真空チャンバーモジュール", requiredQty: 1, totalQty: 5, lossRate: 2, stockQty: 8, shortage: 3, warehouse: "本社 第1倉庫" },
+  { level: 2, itemCode: "RAW-STEEL-SUS", itemName: "SUS316L ステンレス板材", requiredQty: 4, totalQty: 20.4, lossRate: 2, stockQty: 50, shortage: 29.6, warehouse: "本社 第2倉庫" },
+  { level: 2, itemCode: "RAW-ORING-VT", itemName: "バイトン Oリング（Φ300）", requiredQty: 8, totalQty: 40, lossRate: 0, stockQty: 25, shortage: -15, warehouse: "本社 第1倉庫" },
+  { level: 1, itemCode: "SEMI-RF-GEN", itemName: "RF発生器ユニット", requiredQty: 1, totalQty: 5, lossRate: 0, stockQty: 3, shortage: -2, warehouse: "本社 第1倉庫" },
+  { level: 2, itemCode: "RAW-PCB-RF01", itemName: "RF電力制御PCB", requiredQty: 2, totalQty: 10, lossRate: 3, stockQty: 15, shortage: 5, warehouse: "渋谷物流センター" },
+  { level: 2, itemCode: "RAW-CAP-HV", itemName: "高圧セラミックコンデンサ", requiredQty: 12, totalQty: 60, lossRate: 1, stockQty: 40, shortage: -20, warehouse: "本社 第2倉庫" },
+  { level: 1, itemCode: "SEMI-WAFER-01", itemName: "シリコンウェーハ 300mm（テスト用）", requiredQty: 10, totalQty: 50, lossRate: 5, stockQty: 300, shortage: 250, warehouse: "本社 第1倉庫" },
+  { level: 1, itemCode: "SEMI-GAS-SYS", itemName: "ガス供給システム", requiredQty: 1, totalQty: 5, lossRate: 0, stockQty: 6, shortage: 1, warehouse: "本社 第1倉庫" },
+  { level: 2, itemCode: "RAW-VALVE-APC", itemName: "APCバルブ（自動圧力制御）", requiredQty: 3, totalQty: 15, lossRate: 0, stockQty: 10, shortage: -5, warehouse: "本社 第2倉庫" },
+  { level: 2, itemCode: "RAW-PIPE-EP", itemName: "EP処理SUS配管（1/4\"）", requiredQty: 6, totalQty: 30, lossRate: 0, stockQty: 80, shortage: 50, warehouse: "本社 第2倉庫" },
 ];
 
 const BomProductionSlip = () => {
@@ -110,17 +110,17 @@ const BomProductionSlip = () => {
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-foreground">BOM 생산전표</h1>
+            <h1 className="text-lg font-bold text-foreground">BOM生産伝票</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              BOM 기반 생산 전표를 조회하고 부품 과부족 현황을 확인합니다
+              BOM基準の生産伝票を照会し、部品の過不足状況を確認します
             </p>
           </div>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" className="gap-1.5 text-xs" disabled={checkedSlips.length === 0}>
-              <FileDown className="w-3.5 h-3.5" /> 일괄 출력 ({checkedSlips.length})
+              <FileDown className="w-3.5 h-3.5" /> 一括出力 ({checkedSlips.length})
             </Button>
             <Button size="sm" onClick={() => navigate("/documents/bom/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs">
-              <Plus className="w-3.5 h-3.5" /> 신규 생산 기안
+              <Plus className="w-3.5 h-3.5" /> 新規生産起案
             </Button>
           </div>
         </div>
@@ -130,18 +130,18 @@ const BomProductionSlip = () => {
           <CardContent className="px-4 py-3">
             <div className="flex flex-wrap items-end gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">전표번호</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票番号</label>
                 <div className="flex items-center gap-1.5 bg-secondary rounded-md px-2.5 py-1 h-8">
                   <Search className="w-3 h-3 text-muted-foreground" />
-                  <input className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-28" placeholder="전표번호 검색" />
+                  <input className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-28" placeholder="伝票番号検索" />
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">생산 품목</label>
-                <Input className="h-8 text-xs border-border w-40" placeholder="품목명 검색" />
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">生産品目</label>
+                <Input className="h-8 text-xs border-border w-40" placeholder="品目名検索" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">기간</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">期間</label>
                 <div className="flex items-center gap-2">
                   <Input type="date" defaultValue="2024-03-01" className="h-8 text-xs border-border w-32" />
                   <span className="text-xs text-muted-foreground">~</span>
@@ -149,22 +149,22 @@ const BomProductionSlip = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">상태</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">ステータス</label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="h-8 text-xs border-border w-28">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">전체</SelectItem>
-                    <SelectItem value="S00">작성중</SelectItem>
-                    <SelectItem value="A01">승인완료</SelectItem>
-                    <SelectItem value="P03">분납중</SelectItem>
-                    <SelectItem value="I00">검수완료</SelectItem>
+                    <SelectItem value="all">全件</SelectItem>
+                    <SelectItem value="S00">作成中</SelectItem>
+                    <SelectItem value="A01">承認済</SelectItem>
+                    <SelectItem value="P03">分納中</SelectItem>
+                    <SelectItem value="I00">検収完了</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <Button size="sm" className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground">
-                <Search className="w-3 h-3" /> 조회
+                <Search className="w-3 h-3" /> 照会
               </Button>
             </div>
           </CardContent>
@@ -175,7 +175,7 @@ const BomProductionSlip = () => {
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <FileText className="w-4 h-4 text-primary" />
-              생산 전표 일람
+              生産伝票一覧
             </CardTitle>
           </CardHeader>
           <CardContent className="px-0 pb-0">
@@ -183,11 +183,11 @@ const BomProductionSlip = () => {
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-border">
                   <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-10"></TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">전표번호</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">목표 품목</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">생산 목표량</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">현재 상태</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">작성일</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">伝票番号</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">対象品目</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">生産目標数</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">現在ステータス</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">作成日</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -232,12 +232,12 @@ const BomProductionSlip = () => {
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                BOM 상세 내역
+                BOM明細内訳
                 <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono text-primary">{selectedSlip}</Badge>
               </CardTitle>
               <div className="flex items-center gap-3 text-[10px]">
-                <span className="flex items-center gap-1 text-success"><CheckCircle2 className="w-3 h-3" /> 충족</span>
-                <span className="flex items-center gap-1 text-destructive"><AlertTriangle className="w-3 h-3" /> 부족</span>
+                <span className="flex items-center gap-1 text-success"><CheckCircle2 className="w-3 h-3" /> 充足</span>
+                <span className="flex items-center gap-1 text-destructive"><AlertTriangle className="w-3 h-3" /> 不足</span>
               </div>
             </div>
           </CardHeader>
@@ -247,14 +247,14 @@ const BomProductionSlip = () => {
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-border">
                     <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-14">Lvl</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">품목코드</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">품목명칭</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">단위소요량</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">로스율</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">총 필요수량</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">현재 실재고</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">과부족</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">창고위치</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">品目コード</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">品目名称</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">単位所要量</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">ロス率</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">総必要数量</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">現在実在庫</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">過不足</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">倉庫位置</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -296,18 +296,18 @@ const BomProductionSlip = () => {
             {/* Summary */}
             <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-muted/30">
               <div className="flex items-center gap-4 text-xs">
-                <span className="text-muted-foreground">부품 총 {mockBom.filter(b => b.level > 0).length}건</span>
+                <span className="text-muted-foreground">部品 計 {mockBom.filter(b => b.level > 0).length}件</span>
                 <span className="flex items-center gap-1 text-destructive">
                   <MinusCircle className="w-3 h-3" />
-                  부족 {mockBom.filter(b => b.shortage < 0).length}건
+                  不足 {mockBom.filter(b => b.shortage < 0).length}件
                 </span>
                 <span className="flex items-center gap-1 text-success">
                   <CheckCircle2 className="w-3 h-3" />
-                  충족 {mockBom.filter(b => b.shortage >= 0).length}건
+                  充足 {mockBom.filter(b => b.shortage >= 0).length}件
                 </span>
               </div>
               <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7">
-                <FileDown className="w-3 h-3" /> PDF 출력
+                <FileDown className="w-3 h-3" /> PDF出力
               </Button>
             </div>
           </CardContent>
