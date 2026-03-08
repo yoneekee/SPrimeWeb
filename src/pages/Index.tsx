@@ -42,7 +42,7 @@ const Index = () => {
           />
           <KPICard
             title="월간 매출"
-            value="₩5.53억"
+            value="¥5.53億"
             change="+12.5%"
             trend="up"
             icon={TrendingUp}
