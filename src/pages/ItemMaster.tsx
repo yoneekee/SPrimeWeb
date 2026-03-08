@@ -16,7 +16,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Search, Pencil, Box, AlertTriangle } from "lucide-react";
+import { Plus, Search, Pencil, Box, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Item {
   itemId: number;
@@ -63,11 +63,15 @@ const ItemMaster = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const openNew = () => { setEditingItem(null); setDialogOpen(true); };
   const openEdit = (item: Item) => { setEditingItem(item); setDialogOpen(true); };
 
   const filtered = typeFilter === "all" ? mockItems : mockItems.filter(i => i.itemType === typeFilter);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <ERPLayout>
@@ -138,7 +142,7 @@ const ItemMaster = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((item) => {
+                  {paged.map((item) => {
                     const belowSafety = item.stockQty < item.safetyStock;
                     return (
                       <TableRow key={item.itemId} className="border-border hover:bg-secondary/50">
@@ -181,6 +185,26 @@ const ItemMaster = () => {
               </Table>
             </div>
           </CardContent>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+              <span className="text-xs text-muted-foreground">
+                {filtered.length}件中 {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filtered.length)}件
+              </span>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button key={page} variant={currentPage === page ? "default" : "outline"} size="icon" className="h-7 w-7 text-xs" onClick={() => setCurrentPage(page)}>
+                    {page}
+                  </Button>
+                ))}
+                <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Detail Modal */}
