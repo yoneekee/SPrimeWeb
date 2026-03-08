@@ -291,52 +291,33 @@ const ShipmentSlipCreate = () => {
           </CardContent>
         </Card>
 
-        {/* Item Search & Add */}
+        {/* Item Add Button */}
         <Card className="border-border bg-card">
           <CardHeader className="py-3 px-4">
-            <CardTitle className="text-sm font-semibold">품목 검색 및 추가</CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex items-center gap-1.5 bg-secondary rounded-md px-2.5 py-1.5 flex-1 max-w-sm">
-                <Search className="w-3.5 h-3.5 text-muted-foreground" />
-                <input
-                  className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-full"
-                  placeholder="품목코드 또는 품목명으로 검색..."
-                  value={itemSearch}
-                  onChange={(e) => setItemSearch(e.target.value)}
-                />
-              </div>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold">품목 추가</CardTitle>
+              <Button
+                size="sm"
+                onClick={() => setIsItemModalOpen(true)}
+                className="gap-1.5 text-xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                품목 선택
+              </Button>
             </div>
-            {itemSearch && (
-              <div className="border border-border rounded-md overflow-hidden max-h-[180px] overflow-y-auto">
-                {filteredCatalog.length === 0 ? (
-                  <div className="px-3 py-4 text-xs text-muted-foreground text-center">
-                    검색 결과가 없습니다
-                  </div>
-                ) : (
-                  filteredCatalog.map((item) => (
-                    <div
-                      key={item.code}
-                      onClick={() => addItem(item)}
-                      className="flex items-center justify-between px-3 py-2 hover:bg-secondary cursor-pointer border-b border-border last:border-b-0 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono text-primary">{item.code}</span>
-                        <span className="text-xs font-medium text-foreground">{item.name}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] text-muted-foreground">재고: {item.stockQty}</span>
-                        <span className="text-xs font-mono text-foreground">¥{item.price.toLocaleString()}</span>
-                        <Plus className="w-3.5 h-3.5 text-primary" />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </CardContent>
+          </CardHeader>
         </Card>
+
+        {/* Item Select Modal */}
+        <ItemSelectModal
+          open={isItemModalOpen}
+          onOpenChange={setIsItemModalOpen}
+          items={PRODUCT_CATALOG}
+          onSelect={addItem}
+          selectedCodes={details.map((d) => d.itemCode)}
+          showStock={true}
+          title="출고 품목 선택"
+        />
 
         {/* Detail Items */}
         <Card className="border-border bg-card">
