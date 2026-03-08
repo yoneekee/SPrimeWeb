@@ -46,6 +46,13 @@ interface MenuItem {
   children?: SubItem[];
 }
 
+const companyItem: MenuItem = {
+  id: "company",
+  label: "회사 소개",
+  icon: Building2,
+  path: "/company",
+};
+
 const menuItems: MenuItem[] = [
   {
     id: "dashboard",
@@ -73,12 +80,6 @@ const menuItems: MenuItem[] = [
       { id: "doc-bom", label: "BOM 생산전표", icon: Receipt, path: "/documents/bom" },
       { id: "doc-invoice", label: "청구서 / 발주서", icon: FileText, path: "/documents/invoice" },
     ],
-  },
-  {
-    id: "company",
-    label: "회사 소개",
-    icon: Building2,
-    path: "/company",
   },
   {
     id: "master",
