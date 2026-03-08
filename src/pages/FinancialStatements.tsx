@@ -219,28 +219,28 @@ const FinancialStatements = () => {
                         {/* Assets Section */}
                         <TableRow className="border-border bg-primary/5 hover:bg-primary/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-primary">
-                            【자산의 부 (資産の部)】
+                           【資産の部】
                           </TableCell>
                         </TableRow>
                         {bsAssets.map(renderAccountRow)}
-                        {renderSummaryRow("자산 합계", assetTotal, true)}
+                        {renderSummaryRow("資産合計", assetTotal, true)}
 
                         {/* Liabilities Section */}
                         <TableRow className="border-border bg-destructive/5 hover:bg-destructive/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-destructive">
-                            【부채의 부 (負債の部)】
+                            【負債の部】
                           </TableCell>
                         </TableRow>
                         {bsLiabilities.map(renderAccountRow)}
-                        {renderSummaryRow("부채 합계", liabilityTotal)}
+                        {renderSummaryRow("負債合計", liabilityTotal)}
 
                         {/* Equity */}
                         <TableRow className="border-border bg-success/5 hover:bg-success/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-success">
-                            【순자산의 부 (純資産の部)】
+                            【純資産の部】
                           </TableCell>
                         </TableRow>
-                        {renderSummaryRow("순자산 합계 (자산 - 부채)", equityTotal, true)}
+                        {renderSummaryRow("純資産合計（資産 − 負債）", equityTotal, true)}
                       </>
                     ) : (
                       <>
