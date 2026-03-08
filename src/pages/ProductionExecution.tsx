@@ -163,7 +163,7 @@ const ProductionExecution = () => {
               원재료 조달부터 검수 완료까지의 전체 생산 프로세스를 관리합니다
             </p>
           </div>
-          <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button size="sm" onClick={() => navigate("/production/execution/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="w-3.5 h-3.5" />
             신규 전표
           </Button>

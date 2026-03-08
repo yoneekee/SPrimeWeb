@@ -28,6 +28,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/production" element={<PlaceholderPage title="생산 및 제조" description="생산 및 제조 관리 화면입니다." />} />
           <Route path="/production/execution" element={<ProductionExecution />} />
+          <Route path="/production/execution/new" element={<ProductionSlipCreate />} />
           <Route path="/production/shipping" element={<ShipmentManagement />} />
           <Route path="/documents" element={<PlaceholderPage title="전표 및 서류" description="전표 및 서류 관리 화면입니다." />} />
           <Route path="/documents/finance" element={<FinancialStatements />} />
