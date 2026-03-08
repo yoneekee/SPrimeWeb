@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontSize: {
+        xs: ["0.8125rem", { lineHeight: "1.25rem" }],   // 13px (was 12px)
+        sm: ["0.9375rem", { lineHeight: "1.375rem" }],   // 15px (was 14px)
+      },
       fontFamily: {
         mono: ["'JetBrains Mono'", "monospace"],
       },
