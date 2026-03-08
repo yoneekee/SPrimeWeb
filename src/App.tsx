@@ -9,6 +9,7 @@ import PlaceholderPage from "./pages/PlaceholderPage";
 import ProductionExecution from "./pages/ProductionExecution";
 import ShipmentManagement from "./pages/ShipmentManagement";
 import FinancialStatements from "./pages/FinancialStatements";
+import BomProductionSlip from "./pages/BomProductionSlip";
 
 const queryClient = new QueryClient();
 
