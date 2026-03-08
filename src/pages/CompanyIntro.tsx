@@ -621,7 +621,7 @@ const CompanyIntro = () => {
                           variant="outline"
                           className={`text-[9px] ${
                             col.constraint === "PK" ? "border-primary/40 text-primary" :
-                            col.constraint === "FK" ? "border-warning/40 text-warning" :
+                            col.constraint.startsWith("FK") ? "border-warning/40 text-warning" :
                             col.constraint === "NOT NULL" ? "border-destructive/40 text-destructive" :
                             "text-muted-foreground"
                           }`}
