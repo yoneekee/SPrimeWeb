@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
+import ItemSelectModal, { CatalogItem } from "@/components/erp/ItemSelectModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,6 @@ import {
   Save,
   Send,
   FileText,
-  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -45,7 +45,7 @@ interface NewDetailItem {
   lotNo: string;
 }
 
-const ITEM_CATALOG = [
+const ITEM_CATALOG: CatalogItem[] = [
   { code: "SEMI-WAFER-01", name: "실리콘 웨이퍼 300mm", spec: "300mm / P-type", unit: "EA", price: 85000 },
   { code: "SEMI-WAFER-02", name: "실리콘 웨이퍼 200mm", spec: "200mm / N-type", unit: "EA", price: 62000 },
   { code: "SEMI-CHEM-03", name: "포토레지스트 AZ-5214", spec: "1L / UV-grade", unit: "EA", price: 120000 },
@@ -75,15 +75,9 @@ const ProductionSlipCreate = () => {
   const [remark, setRemark] = useState("");
   const [details, setDetails] = useState<NewDetailItem[]>([]);
   const [nextId, setNextId] = useState(1);
-  const [itemSearch, setItemSearch] = useState("");
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
 
-  const filteredCatalog = ITEM_CATALOG.filter(
-    (item) =>
-      item.code.toLowerCase().includes(itemSearch.toLowerCase()) ||
-      item.name.toLowerCase().includes(itemSearch.toLowerCase())
-  );
-
-  const addItem = (catalogItem: typeof ITEM_CATALOG[0]) => {
+  const addItem = (catalogItem: CatalogItem) => {
     const existing = details.find((d) => d.itemCode === catalogItem.code);
     if (existing) {
       toast.error("이미 추가된 품목입니다.");
@@ -95,7 +89,7 @@ const ProductionSlipCreate = () => {
         id: nextId,
         itemCode: catalogItem.code,
         itemName: catalogItem.name,
-        spec: catalogItem.spec,
+        spec: catalogItem.spec || "",
         unit: catalogItem.unit,
         orderQty: 1,
         unitPrice: catalogItem.price,
@@ -104,7 +98,7 @@ const ProductionSlipCreate = () => {
       },
     ]);
     setNextId((n) => n + 1);
-    setItemSearch("");
+    toast.success(`${catalogItem.name} 추가됨`);
   };
 
   const removeItem = (id: number) => {
