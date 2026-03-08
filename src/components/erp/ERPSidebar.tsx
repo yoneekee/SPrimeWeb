@@ -48,7 +48,7 @@ interface MenuItem {
 
 const companyItem: MenuItem = {
   id: "company",
-  label: "회사 소개",
+  label: "会社紹介",
   icon: Building2,
   path: "/company",
 };
@@ -56,40 +56,40 @@ const companyItem: MenuItem = {
 const menuItems: MenuItem[] = [
   {
     id: "dashboard",
-    label: "전체 대시보드",
+    label: "全体ダッシュボード",
     icon: LayoutDashboard,
     path: "/",
   },
   {
     id: "production",
-    label: "생산 및 제조",
+    label: "生産・製造",
     icon: Factory,
     path: "/production",
     children: [
-      { id: "prod-exec", label: "제품 생산 및 실행", icon: PackageOpen, path: "/production/execution" },
-      { id: "prod-ship", label: "출고 및 재고조정", icon: ClipboardList, path: "/production/shipping" },
+      { id: "prod-exec", label: "製品生産および実行", icon: PackageOpen, path: "/production/execution" },
+      { id: "prod-ship", label: "出庫および在庫調整", icon: ClipboardList, path: "/production/shipping" },
     ],
   },
   {
     id: "documents",
-    label: "전표 및 서류",
+    label: "伝票・書類",
     icon: FileText,
     path: "/documents",
     children: [
-      { id: "doc-finance", label: "재무제표 조회", icon: FileBarChart, path: "/documents/finance" },
-      { id: "doc-bom", label: "BOM 생산전표", icon: Receipt, path: "/documents/bom" },
-      { id: "doc-invoice", label: "청구서 / 발주서", icon: FileText, path: "/documents/invoice" },
+      { id: "doc-finance", label: "財務諸表照会", icon: FileBarChart, path: "/documents/finance" },
+      { id: "doc-bom", label: "BOM生産伝票", icon: Receipt, path: "/documents/bom" },
+      { id: "doc-invoice", label: "請求書・発注書", icon: FileText, path: "/documents/invoice" },
     ],
   },
   {
     id: "master",
-    label: "마스터 관리",
+    label: "マスタ管理",
     icon: Database,
     path: "/master",
     children: [
-      { id: "master-emp", label: "직원 마스터", icon: Users, path: "/master/employee" },
-      { id: "master-item", label: "품목 마스터", icon: Box, path: "/master/item" },
-      { id: "master-wh", label: "창고거점 마스터", icon: Warehouse, path: "/master/warehouse" },
+      { id: "master-emp", label: "社員マスタ", icon: Users, path: "/master/employee" },
+      { id: "master-item", label: "品目マスタ", icon: Box, path: "/master/item" },
+      { id: "master-wh", label: "倉庫拠点マスタ", icon: Warehouse, path: "/master/warehouse" },
     ],
   },
 ];
