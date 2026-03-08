@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import ProductionExecution from "./pages/ProductionExecution";
 import ShipmentManagement from "./pages/ShipmentManagement";
+import FinancialStatements from "./pages/FinancialStatements";
 
 const queryClient = new QueryClient();
 
