@@ -11,6 +11,7 @@ import ShipmentManagement from "./pages/ShipmentManagement";
 import FinancialStatements from "./pages/FinancialStatements";
 import BomProductionSlip from "./pages/BomProductionSlip";
 import InvoiceManagement from "./pages/InvoiceManagement";
+import EmployeeMaster from "./pages/EmployeeMaster";
 
 const queryClient = new QueryClient();
 
