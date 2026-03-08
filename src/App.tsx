@@ -13,6 +13,7 @@ import BomProductionSlip from "./pages/BomProductionSlip";
 import InvoiceManagement from "./pages/InvoiceManagement";
 import EmployeeMaster from "./pages/EmployeeMaster";
 import ItemMaster from "./pages/ItemMaster";
+import WarehouseMaster from "./pages/WarehouseMaster";
 
 const queryClient = new QueryClient();
 
