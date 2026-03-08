@@ -131,8 +131,18 @@ const ShipmentManagement = () => {
     { slipNo: "SHP20240308-002", date: "2024-03-08", customer: "SCREEN HD(株)", status: "T03", totalAmount: "156,000,000" },
     { slipNo: "SHP20240306-001", date: "2024-03-06", customer: "ディスコ(株)", status: "T02", totalAmount: "89,500,000" },
     { slipNo: "SHP20240303-003", date: "2024-03-03", customer: "TSMC Japan", status: "T04", totalAmount: "12,800,000" },
+    { slipNo: "SHP20240228-002", date: "2024-02-28", customer: "キヤノン(株)", status: "T03", totalAmount: "178,200,000" },
+    { slipNo: "SHP20240225-001", date: "2024-02-25", customer: "ニコン(株)", status: "A01", totalAmount: "67,400,000" },
+    { slipNo: "SHP20240222-004", date: "2024-02-22", customer: "アドバンテスト(株)", status: "T02", totalAmount: "34,600,000" },
+    { slipNo: "SHP20240220-002", date: "2024-02-20", customer: "ルネサス(株)", status: "S01", totalAmount: "52,100,000" },
+    { slipNo: "SHP20240218-003", date: "2024-02-18", customer: "東京エレクトロン(株)", status: "A02", totalAmount: "91,300,000" },
+    { slipNo: "SHP20240215-001", date: "2024-02-15", customer: "SCREEN HD(株)", status: "T03", totalAmount: "124,700,000" },
+    { slipNo: "SHP20240212-002", date: "2024-02-12", customer: "ディスコ(株)", status: "T01", totalAmount: "43,800,000" },
+    { slipNo: "SHP20240210-001", date: "2024-02-10", customer: "TSMC Japan", status: "S00", totalAmount: "0" },
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SHP20240310-001");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const [actionModal, setActionModal] = useState<{
     open: boolean;
