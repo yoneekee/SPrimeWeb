@@ -78,9 +78,9 @@ const FinancialStatements = () => {
       <div className="space-y-4">
         {/* Page Header */}
         <div>
-          <h1 className="text-lg font-bold text-foreground">재무제표 조회</h1>
+          <h1 className="text-lg font-bold text-foreground">財務諸表照会</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            대차대조표(B/S) 및 손익계산서(P/L)를 조회하고 PDF로 출력합니다
+            貸借対照表（B/S）および損益計算書（P/L）を照会し、PDFで出力します
           </p>
         </div>
 
