@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   Cpu,
   Database,
@@ -269,7 +271,9 @@ const SectionTitle = ({ icon: Icon, children }: { icon: React.ElementType; child
 );
 
 const CompanyIntro = () => {
+  const navigate = useNavigate();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [navigateTarget, setNavigateTarget] = useState<{ title: string; path: string } | null>(null);
 
   return (
     <ERPLayout>
@@ -567,7 +571,8 @@ const CompanyIntro = () => {
               ].map((screen) => (
                 <div
                   key={screen.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-default"
+                  onClick={() => setNavigateTarget({ title: screen.title, path: screen.path })}
+                  className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-secondary/30 hover:bg-primary/10 hover:border-primary/30 transition-colors cursor-pointer"
                 >
                   <Badge variant="outline" className="text-[10px] font-mono mt-0.5 flex-shrink-0">{screen.id}</Badge>
                   <div>
@@ -636,6 +641,22 @@ const CompanyIntro = () => {
               </Table>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Navigate Confirm Dialog */}
+      <Dialog open={!!navigateTarget} onOpenChange={(open) => !open && setNavigateTarget(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-sm">해당 화면으로 이동하시겠습니까?</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground">
+            <strong className="text-foreground">{navigateTarget?.title}</strong> 화면으로 이동합니다.
+          </p>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" size="sm" onClick={() => setNavigateTarget(null)}>취소</Button>
+            <Button size="sm" onClick={() => { if (navigateTarget) navigate(navigateTarget.path); setNavigateTarget(null); }}>이동</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </ERPLayout>
