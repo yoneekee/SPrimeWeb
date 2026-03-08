@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import ProductionExecution from "./pages/ProductionExecution";
+import ShipmentManagement from "./pages/ShipmentManagement";
 
 const queryClient = new QueryClient();
 
