@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -85,6 +86,7 @@ const mockBom: BomItem[] = [
 ];
 
 const BomProductionSlip = () => {
+  const navigate = useNavigate();
   const [selectedSlip, setSelectedSlip] = useState("SLP20240307-001");
   const [statusFilter, setStatusFilter] = useState("all");
   const [checkedSlips, setCheckedSlips] = useState<string[]>([]);
@@ -117,7 +119,7 @@ const BomProductionSlip = () => {
             <Button size="sm" variant="outline" className="gap-1.5 text-xs" disabled={checkedSlips.length === 0}>
               <FileDown className="w-3.5 h-3.5" /> 일괄 출력 ({checkedSlips.length})
             </Button>
-            <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs">
+            <Button size="sm" onClick={() => navigate("/documents/bom/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs">
               <Plus className="w-3.5 h-3.5" /> 신규 생산 기안
             </Button>
           </div>
