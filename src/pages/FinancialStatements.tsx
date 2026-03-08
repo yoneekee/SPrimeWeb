@@ -19,27 +19,27 @@ import { Search, FileDown, FileText, TrendingUp, TrendingDown } from "lucide-rea
 
 // B/S mock data
 const bsAssets = [
-  { code: "1101", name: "원재료 (原材料)", amount: 128500000, ratio: 18.2 },
-  { code: "1102", name: "반제품 (半製品)", amount: 95200000, ratio: 13.5 },
-  { code: "1103", name: "완제품 (完成品)", amount: 312000000, ratio: 44.2 },
-  { code: "1104", name: "미착품 (未着品)", amount: 45600000, ratio: 6.5 },
-  { code: "1105", name: "적송품 (積送品)", amount: 78300000, ratio: 11.1 },
-  { code: "1106", name: "매출채권 (売掛金)", amount: 46200000, ratio: 6.5 },
+  { code: "1101", name: "原材料", amount: 128500000, ratio: 18.2 },
+  { code: "1102", name: "半製品（仕掛品）", amount: 95200000, ratio: 13.5 },
+  { code: "1103", name: "製品（完成品）", amount: 312000000, ratio: 44.2 },
+  { code: "1104", name: "未着品", amount: 45600000, ratio: 6.5 },
+  { code: "1105", name: "積送品", amount: 78300000, ratio: 11.1 },
+  { code: "1106", name: "売掛金", amount: 46200000, ratio: 6.5 },
 ];
 
 const bsLiabilities = [
-  { code: "2101", name: "매입채무 (買掛金)", amount: 89400000, ratio: 62.3 },
-  { code: "2102", name: "미지급금 (未払金)", amount: 54100000, ratio: 37.7 },
+  { code: "2101", name: "買掛金", amount: 89400000, ratio: 62.3 },
+  { code: "2102", name: "未払金", amount: 54100000, ratio: 37.7 },
 ];
 
 // P/L mock data
 const plRevenue = [
-  { code: "4101", name: "매출 (売上)", amount: 542000000, ratio: 100.0 },
+  { code: "4101", name: "売上高", amount: 542000000, ratio: 100.0 },
 ];
 
 const plExpenses = [
-  { code: "5101", name: "매출원가 (売上原価)", amount: 378500000, ratio: 69.8 },
-  { code: "5102", name: "재고감모손실 (棚卸減耗損)", amount: 4200000, ratio: 0.8 },
+  { code: "5101", name: "売上原価", amount: 378500000, ratio: 69.8 },
+  { code: "5102", name: "棚卸減耗損", amount: 4200000, ratio: 0.8 },
 ];
 
 const FinancialStatements = () => {
@@ -78,9 +78,9 @@ const FinancialStatements = () => {
       <div className="space-y-4">
         {/* Page Header */}
         <div>
-          <h1 className="text-lg font-bold text-foreground">재무제표 조회</h1>
+          <h1 className="text-lg font-bold text-foreground">財務諸表照会</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            대차대조표(B/S) 및 손익계산서(P/L)를 조회하고 PDF로 출력합니다
+            貸借対照表（B/S）および損益計算書（P/L）を照会し、PDFで出力します
           </p>
         </div>
 
@@ -90,7 +90,7 @@ const FinancialStatements = () => {
             <div className="flex flex-wrap items-end gap-4">
               {/* Date Range */}
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">조회 기간</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">照会期間</label>
                 <div className="flex items-center gap-2">
                   <Input
                     type="date"
@@ -110,7 +110,7 @@ const FinancialStatements = () => {
 
               {/* Report Type */}
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">보고서 종류</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">帳票種別</label>
                 <RadioGroup
                   value={reportType}
                   onValueChange={(v) => setReportType(v as "bs" | "pl")}
@@ -118,21 +118,21 @@ const FinancialStatements = () => {
                 >
                   <div className="flex items-center gap-1.5">
                     <RadioGroupItem value="bs" id="bs" />
-                    <Label htmlFor="bs" className="text-xs cursor-pointer">대차대조표 (B/S)</Label>
+                    <Label htmlFor="bs" className="text-xs cursor-pointer">貸借対照表（B/S）</Label>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <RadioGroupItem value="pl" id="pl" />
-                    <Label htmlFor="pl" className="text-xs cursor-pointer">손익계산서 (P/L)</Label>
+                    <Label htmlFor="pl" className="text-xs cursor-pointer">損益計算書（P/L）</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div className="flex gap-2 ml-auto">
                 <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setIsQueried(true)}>
-                  <Search className="w-3.5 h-3.5" /> 조회
+                  <Search className="w-3.5 h-3.5" /> 照会
                 </Button>
                 <Button size="sm" variant="outline" className="gap-1.5 text-xs">
-                  <FileDown className="w-3.5 h-3.5" /> PDF 출력
+                  <FileDown className="w-3.5 h-3.5" /> PDF出力
                 </Button>
               </div>
             </div>
@@ -146,19 +146,19 @@ const FinancialStatements = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">자산 총계</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">資産合計</div>
                     <div className="text-lg font-mono font-bold text-primary">¥{assetTotal.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">부채 총계</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">負債合計</div>
                     <div className="text-lg font-mono font-bold text-destructive">¥{liabilityTotal.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">순자산 (자본)</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">純資産（資本）</div>
                     <div className="text-lg font-mono font-bold text-success flex items-center gap-1.5">
                       ¥{equityTotal.toLocaleString()}
                       <TrendingUp className="w-4 h-4" />
@@ -170,19 +170,19 @@ const FinancialStatements = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">매출 총계</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">売上合計</div>
                     <div className="text-lg font-mono font-bold text-primary">¥{revenueTotal.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">비용 총계</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">費用合計</div>
                     <div className="text-lg font-mono font-bold text-destructive">¥{expenseTotal.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border bg-card">
                   <CardContent className="px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">당기순이익</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">当期純利益</div>
                     <div className={`text-lg font-mono font-bold flex items-center gap-1.5 ${netIncome >= 0 ? "text-success" : "text-destructive"}`}>
                       ¥{netIncome.toLocaleString()}
                       {netIncome >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
@@ -197,7 +197,7 @@ const FinancialStatements = () => {
               <CardHeader className="py-3 px-4">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <FileText className="w-4 h-4 text-primary" />
-                  {reportType === "bs" ? "대차대조표 (貸借対照表)" : "손익계산서 (損益計算書)"}
+                  {reportType === "bs" ? "貸借対照表（B/S）" : "損益計算書（P/L）"}
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 ml-2 text-muted-foreground">
                     {startDate} ~ {endDate}
                   </Badge>
@@ -207,10 +207,10 @@ const FinancialStatements = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-border">
-                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-20">코드</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">계정과목</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">금액 (JPY)</TableHead>
-                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right w-24">비율 (%)</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 w-20">コード</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">勘定科目</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">金額（JPY）</TableHead>
+                      <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right w-24">構成比（%）</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -219,56 +219,56 @@ const FinancialStatements = () => {
                         {/* Assets Section */}
                         <TableRow className="border-border bg-primary/5 hover:bg-primary/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-primary">
-                            【자산의 부 (資産の部)】
+                           【資産の部】
                           </TableCell>
                         </TableRow>
                         {bsAssets.map(renderAccountRow)}
-                        {renderSummaryRow("자산 합계", assetTotal, true)}
+                        {renderSummaryRow("資産合計", assetTotal, true)}
 
                         {/* Liabilities Section */}
                         <TableRow className="border-border bg-destructive/5 hover:bg-destructive/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-destructive">
-                            【부채의 부 (負債の部)】
+                            【負債の部】
                           </TableCell>
                         </TableRow>
                         {bsLiabilities.map(renderAccountRow)}
-                        {renderSummaryRow("부채 합계", liabilityTotal)}
+                        {renderSummaryRow("負債合計", liabilityTotal)}
 
                         {/* Equity */}
                         <TableRow className="border-border bg-success/5 hover:bg-success/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-success">
-                            【순자산의 부 (純資産の部)】
+                            【純資産の部】
                           </TableCell>
                         </TableRow>
-                        {renderSummaryRow("순자산 합계 (자산 - 부채)", equityTotal, true)}
+                        {renderSummaryRow("純資産合計（資産 − 負債）", equityTotal, true)}
                       </>
                     ) : (
                       <>
                         {/* Revenue */}
                         <TableRow className="border-border bg-primary/5 hover:bg-primary/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-primary">
-                            【수익의 부 (収益の部)】
+                            【収益の部】
                           </TableCell>
                         </TableRow>
                         {plRevenue.map(renderAccountRow)}
-                        {renderSummaryRow("수익 합계", revenueTotal, true)}
+                        {renderSummaryRow("収益合計", revenueTotal, true)}
 
                         {/* Expenses */}
                         <TableRow className="border-border bg-destructive/5 hover:bg-destructive/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-destructive">
-                            【비용의 부 (費用の部)】
+                            【費用の部】
                           </TableCell>
                         </TableRow>
                         {plExpenses.map(renderAccountRow)}
-                        {renderSummaryRow("비용 합계", expenseTotal)}
+                        {renderSummaryRow("費用合計", expenseTotal)}
 
                         {/* Net Income */}
                         <TableRow className="border-border bg-success/5 hover:bg-success/10">
                           <TableCell colSpan={4} className="px-3 py-1.5 text-xs font-bold text-success">
-                            【당기순이익 (当期純利益)】
+                            【当期純利益】
                           </TableCell>
                         </TableRow>
-                        {renderSummaryRow("당기순이익 (수익 - 비용)", netIncome, true)}
+                        {renderSummaryRow("当期純利益（収益 − 費用）", netIncome, true)}
                       </>
                     )}
                   </TableBody>
