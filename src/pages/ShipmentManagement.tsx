@@ -444,7 +444,7 @@ const ShipmentManagement = () => {
 
         {/* Action Modal */}
         <Dialog open={actionModal.open} onOpenChange={(open) => setActionModal({ open, type: open ? actionModal.type : null })}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 {actionModal.type === "approve" && <CheckCircle2 className="w-5 h-5 text-success" />}
