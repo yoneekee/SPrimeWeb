@@ -159,7 +159,7 @@ const ERPSidebar = () => {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r border-border transition-all duration-300"
+      className="border-r border-border"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -169,7 +169,7 @@ const ERPSidebar = () => {
             <Cpu className="w-5 h-5 text-primary" />
           </div>
           {!collapsed && (
-            <div className="animate-slide-up">
+           <div>
               <div className="text-sm font-semibold text-foreground tracking-tight">S-Prime ERP</div>
               <div className="text-[10px] text-muted-foreground">반도체 정밀 기기 관리</div>
             </div>
@@ -188,9 +188,6 @@ const ERPSidebar = () => {
                 <div key={item.id}>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onMouseEnter={() => {
-                        if (item.children) openGroup(item.id);
-                      }}
                       onClick={() => {
                         if (item.children) {
                           toggleGroup(item.id);
