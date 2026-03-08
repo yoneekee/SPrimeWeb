@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import ProductionExecution from "./pages/ProductionExecution";
 
 const queryClient = new QueryClient();
 
@@ -18,7 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/production" element={<PlaceholderPage title="생산 및 제조" description="생산 및 제조 관리 화면입니다." />} />
-          <Route path="/production/execution" element={<PlaceholderPage title="제품 생산 및 실행" />} />
+          <Route path="/production/execution" element={<ProductionExecution />} />
           <Route path="/production/shipping" element={<PlaceholderPage title="출고 및 재고조정" />} />
           <Route path="/documents" element={<PlaceholderPage title="전표 및 서류" description="전표 및 서류 관리 화면입니다." />} />
           <Route path="/documents/finance" element={<PlaceholderPage title="재무제표 조회" />} />
