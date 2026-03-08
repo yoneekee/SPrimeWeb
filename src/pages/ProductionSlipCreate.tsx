@@ -215,10 +215,10 @@ const ProductionSlipCreate = () => {
                     <SelectValue placeholder="발주처 선택" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="tokyo">도쿄반도체(주)</SelectItem>
-                    <SelectItem value="osaka">오사카정밀(주)</SelectItem>
-                    <SelectItem value="samsung">삼성전자(주)</SelectItem>
-                    <SelectItem value="sk">SK하이닉스(주)</SelectItem>
+                    <SelectItem value="tokyo">東京半導体(株)</SelectItem>
+                    <SelectItem value="osaka">大阪精密(株)</SelectItem>
+                    <SelectItem value="nagoya">名古屋素材(株)</SelectItem>
+                    <SelectItem value="screen">SCREEN HD(株)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

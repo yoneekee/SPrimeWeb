@@ -1,16 +1,16 @@
 import { ShoppingCart } from "lucide-react";
 
 const orders = [
-  { id: "ORD-2024-0891", client: "삼성전자", product: "8\" 웨이퍼 장비", qty: 5, status: "진행중", amount: "₩245,000,000" },
-  { id: "ORD-2024-0890", client: "SK하이닉스", product: "CVD 챔버", qty: 2, status: "완료", amount: "₩180,000,000" },
-  { id: "ORD-2024-0889", client: "DB하이텍", product: "에칭 모듈", qty: 8, status: "검수중", amount: "₩92,000,000" },
-  { id: "ORD-2024-0888", client: "키파운드리", product: "정밀 센서", qty: 120, status: "진행중", amount: "₩36,000,000" },
+  { id: "ORD-2024-0891", client: "東京エレクトロン(株)", product: "8\" ウェーハ装置", qty: 5, status: "進行中", amount: "¥245,000,000" },
+  { id: "ORD-2024-0890", client: "SCREEN HD(株)", product: "CVDチャンバー", qty: 2, status: "完了", amount: "¥180,000,000" },
+  { id: "ORD-2024-0889", client: "ディスコ(株)", product: "エッチングモジュール", qty: 8, status: "検収中", amount: "¥92,000,000" },
+  { id: "ORD-2024-0888", client: "ルネサス(株)", product: "精密センサー", qty: 120, status: "進行中", amount: "¥36,000,000" },
 ];
 
 const statusStyle: Record<string, string> = {
-  "진행중": "bg-info/20 text-info",
-  "완료": "bg-success/20 text-success",
-  "검수중": "bg-warning/20 text-warning",
+  "進行中": "bg-info/20 text-info",
+  "完了": "bg-success/20 text-success",
+  "検収中": "bg-warning/20 text-warning",
 };
 
 const RecentOrders = () => {

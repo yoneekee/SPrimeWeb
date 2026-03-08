@@ -34,6 +34,7 @@ import {
   Search,
   FileText,
 } from "lucide-react";
+import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   S00: { label: "작성중 (Draft)", color: "bg-muted text-muted-foreground" },
@@ -105,19 +106,19 @@ const mockItems: ShipmentItem[] = [
 ];
 
 const mockWorkflow: WorkflowEntry[] = [
-  { stepNo: 1, status: "출고신청", empName: "정수현", role: "신청자", comment: "삼성전자 평택 FAB 납품 건", procAt: "2024-03-10 09:00:00" },
+  { stepNo: 1, status: "출고신청", empName: "정수현", role: "신청자", comment: "東京エレクトロン 川崎 FAB 납품 건", procAt: "2024-03-10 09:00:00" },
   { stepNo: 2, status: "승인", empName: "박지영", role: "승인자(1차)", comment: "재고 확인 완료, 승인", procAt: "2024-03-10 11:30:00" },
   { stepNo: 3, status: "승인", empName: "이동훈", role: "승인자(2차)", comment: "출고 승인", procAt: "2024-03-10 14:00:00" },
-  { stepNo: 4, status: "배송시작", empName: "최유진", role: "물류담당", comment: "운송업체: 대한통운 / 송장번호: DHL-240311-0891", procAt: "2024-03-11 08:30:00" },
+  { stepNo: 4, status: "배송시작", empName: "최유진", role: "물류담당", comment: "운송업체: ヤマト運輸 / 송장번호: YMT-240311-0891", procAt: "2024-03-11 08:30:00" },
 ];
 
 const ShipmentManagement = () => {
   const navigate = useNavigate();
   const [currentStatus, setCurrentStatus] = useState("T01");
   const [slipList] = useState([
-    { slipNo: "SHP20240310-001", date: "2024-03-10", customer: "삼성전자(주)", status: "T01", totalAmount: "245,000,000" },
-    { slipNo: "SHP20240308-002", date: "2024-03-08", customer: "SK하이닉스(주)", status: "T03", totalAmount: "156,000,000" },
-    { slipNo: "SHP20240306-001", date: "2024-03-06", customer: "도쿄일렉트론(주)", status: "T02", totalAmount: "89,500,000" },
+    { slipNo: "SHP20240310-001", date: "2024-03-10", customer: "東京エレクトロン(株)", status: "T01", totalAmount: "245,000,000" },
+    { slipNo: "SHP20240308-002", date: "2024-03-08", customer: "SCREEN HD(株)", status: "T03", totalAmount: "156,000,000" },
+    { slipNo: "SHP20240306-001", date: "2024-03-06", customer: "ディスコ(株)", status: "T02", totalAmount: "89,500,000" },
     { slipNo: "SHP20240303-003", date: "2024-03-03", customer: "TSMC Japan", status: "T04", totalAmount: "12,800,000" },
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SHP20240310-001");
@@ -240,27 +241,19 @@ const ShipmentManagement = () => {
                 </Button>
               </div>
 
-              {/* Status Flow */}
-              <div className="mt-4 flex items-center gap-1 text-[10px] text-muted-foreground overflow-x-auto pb-1">
-                {statusFlow.map((code, i) => (
-                  <div key={code} className="flex items-center gap-1 flex-shrink-0">
-                    <span className={`px-1.5 py-0.5 rounded font-mono ${
-                      code === currentStatus
-                        ? "bg-primary text-primary-foreground font-bold"
-                        : statusFlow.indexOf(code) < statusFlow.indexOf(currentStatus)
-                          ? "bg-success/20 text-success"
-                          : "bg-muted text-muted-foreground"
-                    }`}>
-                      {code}
-                    </span>
-                    {i < statusFlow.length - 1 && <span className="text-muted-foreground/40">→</span>}
-                  </div>
-                ))}
-                <span className="text-muted-foreground/40 mx-1">|</span>
-                <span className={`px-1.5 py-0.5 rounded font-mono ${
-                  currentStatus === "T04" ? "bg-warning/20 text-warning font-bold" : "bg-muted text-muted-foreground"
-                }`}>T04</span>
-              </div>
+              <StatusFlowStepper
+                steps={[
+                  { code: "S00", label: "작성중" },
+                  { code: "S01", label: "신청중" },
+                  { code: "A00", label: "승인중" },
+                  { code: "A01", label: "승인완료" },
+                  { code: "T01", label: "적송중" },
+                  { code: "T02", label: "출고완료" },
+                  { code: "T03", label: "매출확정" },
+                ]}
+                currentStatus={currentStatus}
+                extraStep={{ code: "T04", label: "재고조정" }}
+              />
             </CardContent>
           </Card>
         </div>
@@ -291,11 +284,11 @@ const ShipmentManagement = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">고객사 명</label>
-                <Input value="삼성전자(주) 평택캠퍼스" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
+                <Input value="東京エレクトロン(株) 川崎事業所" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
               </div>
               <div className="space-y-1 md:col-span-2">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">배송지 주소</label>
-                <Input value="경기도 평택시 삼남면 삼성로 1길 30 (FAB동 B2F)" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
+                <Input value="〒212-0032 神奈川県川崎市幸区新川崎7-1" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">출발지 창고</label>

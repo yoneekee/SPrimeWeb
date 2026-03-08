@@ -35,6 +35,7 @@ import {
   Search,
   FileText,
 } from "lucide-react";
+import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
 
 // --- Mock Data ---
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
@@ -255,23 +256,20 @@ const ProductionExecution = () => {
                 </Button>
               </div>
 
-              {/* Status Flow Indicator */}
-              <div className="mt-4 flex items-center gap-1 text-[10px] text-muted-foreground overflow-x-auto pb-1">
-                {["S00", "S01", "A00", "A01", "P01", "P02", "P03", "P04", "I00"].map((code, i) => (
-                  <div key={code} className="flex items-center gap-1 flex-shrink-0">
-                    <span className={`px-1.5 py-0.5 rounded font-mono ${
-                      code === currentStatus
-                        ? "bg-primary text-primary-foreground font-bold"
-                        : Object.keys(STATUS_MAP).indexOf(code) < Object.keys(STATUS_MAP).indexOf(currentStatus)
-                          ? "bg-success/20 text-success"
-                          : "bg-muted text-muted-foreground"
-                    }`}>
-                      {code}
-                    </span>
-                    {i < 8 && <span className="text-muted-foreground/40">→</span>}
-                  </div>
-                ))}
-              </div>
+              <StatusFlowStepper
+                steps={[
+                  { code: "S00", label: "작성중" },
+                  { code: "S01", label: "신청중" },
+                  { code: "A00", label: "승인중" },
+                  { code: "A01", label: "승인완료" },
+                  { code: "P01", label: "견적중" },
+                  { code: "P02", label: "발주완료" },
+                  { code: "P03", label: "분납중" },
+                  { code: "P04", label: "입고완료" },
+                  { code: "I00", label: "검수완료" },
+                ]}
+                currentStatus={currentStatus}
+              />
             </CardContent>
           </Card>
         </div>

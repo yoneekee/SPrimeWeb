@@ -6,6 +6,8 @@ import CompanyNews from "@/components/erp/CompanyNews";
 import InventoryStatus from "@/components/erp/InventoryStatus";
 import ProductionLine from "@/components/erp/ProductionLine";
 import RecentOrders from "@/components/erp/RecentOrders";
+import SafetyStockAlert from "@/components/erp/SafetyStockAlert";
+import SlipStatusChart from "@/components/erp/SlipStatusChart";
 
 const Index = () => {
   return (
@@ -18,7 +20,7 @@ const Index = () => {
             <p className="text-xs text-muted-foreground mt-0.5">반도체 정밀 기기 통합 관리 시스템</p>
           </div>
           <div className="data-text text-[11px] text-muted-foreground">
-            최종 업데이트: {new Date().toLocaleString("ko-KR")}
+            최종 업데이트: {new Date().toLocaleString("ja-JP")}
           </div>
         </div>
 
@@ -34,7 +36,7 @@ const Index = () => {
           />
           <KPICard
             title="재고 회전율"
-            value="4.8회"
+            value="4.8回"
             change="+1.2%"
             trend="up"
             icon={Package}
@@ -42,7 +44,7 @@ const Index = () => {
           />
           <KPICard
             title="월간 매출"
-            value="₩5.53억"
+            value="¥5.53億"
             change="+12.5%"
             trend="up"
             icon={TrendingUp}
@@ -68,17 +70,20 @@ const Index = () => {
           <CompanyNews />
         </div>
 
-        {/* Bottom grid */}
+        {/* Middle grid - 3 cols */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           <InventoryStatus />
           <ProductionLine />
-          <div className="lg:col-span-1">
-            {/* Placeholder for additional widget */}
-          </div>
+          <SafetyStockAlert />
         </div>
 
-        {/* Orders table */}
-        <RecentOrders />
+        {/* Bottom grid - Status chart + Orders */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <SlipStatusChart />
+          <div className="lg:col-span-2">
+            <RecentOrders />
+          </div>
+        </div>
       </div>
     </ERPLayout>
   );
