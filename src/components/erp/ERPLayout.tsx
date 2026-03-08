@@ -96,9 +96,9 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 variant="ghost"
                 size="sm"
                 onClick={toggleTheme}
-                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                className="h-7 w-7 p-0 relative rounded-full bg-secondary text-foreground hover:text-foreground ring-1 ring-border shadow-sm"
               >
-                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {theme === "dark" ? <Sun className="w-4 h-4 text-warning" /> : <Moon className="w-4 h-4 text-primary" />}
               </Button>
 
               {/* Notification Bell */}
