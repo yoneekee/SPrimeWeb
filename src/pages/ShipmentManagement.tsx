@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -22,6 +23,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Send,
   CheckCircle2,
@@ -123,6 +132,13 @@ const ShipmentManagement = () => {
   ]);
   const [selectedSlip, setSelectedSlip] = useState("SHP20240310-001");
 
+  // Modal state for approval/reject actions
+  const [actionModal, setActionModal] = useState<{
+    open: boolean;
+    type: "approve" | "reject" | null;
+  }>({ open: false, type: null });
+  const [actionMessage, setActionMessage] = useState("");
+
   const statusInfo = STATUS_MAP[currentStatus] || STATUS_MAP.S00;
 
   const isButtonActive = (btn: string) => {
@@ -136,6 +152,33 @@ const ShipmentManagement = () => {
       case "adjust": return true; // 어느 단계에서든 가능
       default: return false;
     }
+  };
+
+  const getActionTitle = (type: "approve" | "reject" | null) => {
+    switch (type) {
+      case "approve": return "승인";
+      case "reject": return "부인";
+      default: return "";
+    }
+  };
+
+  const getActionDescription = (type: "approve" | "reject" | null) => {
+    switch (type) {
+      case "approve": return "해당 출고 전표를 승인합니다. 승인 메시지를 입력해주세요.";
+      case "reject": return "해당 출고 전표를 부인합니다. 부인 사유를 입력해주세요.";
+      default: return "";
+    }
+  };
+
+  const handleActionConfirm = () => {
+    console.log(`Action: ${actionModal.type}, Message: ${actionMessage}`);
+    setActionModal({ open: false, type: null });
+    setActionMessage("");
+  };
+
+  const openActionModal = (type: "approve" | "reject") => {
+    setActionModal({ open: true, type });
+    setActionMessage("");
   };
 
   const statusFlow = ["S00", "S01", "A00", "A01", "T01", "T02", "T03"];
@@ -219,10 +262,10 @@ const ShipmentManagement = () => {
                 <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} className="gap-1.5 text-xs">
                   <Send className="w-3.5 h-3.5" /> 출고신청
                 </Button>
-                <Button size="sm" variant={isButtonActive("approve") ? "default" : "outline"} disabled={!isButtonActive("approve")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("approve") ? "default" : "outline"} disabled={!isButtonActive("approve")} onClick={() => openActionModal("approve")} className="gap-1.5 text-xs">
                   <CheckCircle2 className="w-3.5 h-3.5" /> 승인
                 </Button>
-                <Button size="sm" variant={isButtonActive("reject") ? "destructive" : "outline"} disabled={!isButtonActive("reject")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("reject") ? "destructive" : "outline"} disabled={!isButtonActive("reject")} onClick={() => openActionModal("reject")} className="gap-1.5 text-xs">
                   <XCircle className="w-3.5 h-3.5" /> 부인
                 </Button>
                 <Separator orientation="vertical" className="h-8" />
@@ -403,6 +446,44 @@ const ShipmentManagement = () => {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Action Modal for Approve/Reject */}
+        <Dialog open={actionModal.open} onOpenChange={(open) => setActionModal({ open, type: open ? actionModal.type : null })}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {actionModal.type === "approve" && <CheckCircle2 className="w-5 h-5 text-success" />}
+                {actionModal.type === "reject" && <XCircle className="w-5 h-5 text-destructive" />}
+                {getActionTitle(actionModal.type)}
+              </DialogTitle>
+              <DialogDescription>
+                {getActionDescription(actionModal.type)}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">메시지</label>
+                <Textarea
+                  placeholder={actionModal.type === "approve" ? "승인 메시지를 입력하세요..." : "부인 사유를 입력하세요..."}
+                  value={actionMessage}
+                  onChange={(e) => setActionMessage(e.target.value)}
+                  className="min-h-[100px] text-sm"
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setActionModal({ open: false, type: null })}>
+                취소
+              </Button>
+              <Button
+                variant={actionModal.type === "reject" ? "destructive" : "default"}
+                onClick={handleActionConfirm}
+              >
+                {getActionTitle(actionModal.type)} 확인
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ERPLayout>
   );
