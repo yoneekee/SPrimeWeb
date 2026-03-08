@@ -181,7 +181,7 @@ const CompanyIntro = () => {
             <SectionTitle icon={Workflow}>비즈니스 워크플로우</SectionTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="multiple" defaultValue={["step1","step2","step3","step4"]} className="w-full">
               <AccordionItem value="step1">
                 <AccordionTrigger className="text-sm hover:no-underline">
                   <div className="flex items-center gap-2">
