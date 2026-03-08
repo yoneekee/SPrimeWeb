@@ -50,11 +50,15 @@ const WarehouseMaster = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLoc, setEditingLoc] = useState<Location | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const openNew = () => { setEditingLoc(null); setDialogOpen(true); };
   const openEdit = (loc: Location) => { setEditingLoc(loc); setDialogOpen(true); };
 
   const filtered = typeFilter === "all" ? mockLocations : mockLocations.filter(l => l.locType === typeFilter);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <ERPLayout>
