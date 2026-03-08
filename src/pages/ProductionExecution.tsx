@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -125,6 +126,7 @@ const mockWorkflow: WorkflowEntry[] = [
 ];
 
 const ProductionExecution = () => {
+  const navigate = useNavigate();
   const [currentStatus, setCurrentStatus] = useState("P03");
   const [slipList] = useState([
     { slipNo: "SLP20240307-001", date: "2024-03-07", requester: "김민수", status: "P03", totalAmount: "68,750,000" },
@@ -161,7 +163,7 @@ const ProductionExecution = () => {
               원재료 조달부터 검수 완료까지의 전체 생산 프로세스를 관리합니다
             </p>
           </div>
-          <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button size="sm" onClick={() => navigate("/production/execution/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="w-3.5 h-3.5" />
             신규 전표
           </Button>
