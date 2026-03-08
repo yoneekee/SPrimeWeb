@@ -124,7 +124,8 @@
     font-size: 17px;
   }
   body {
-    @apply bg-background teBIZ UDGothic', 'JetBrains Mono', -apple-system, BlinkMacSystemFontKaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    @apply bg-background text-foreground;
+    font-family: 'BIZ UDGothic', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 }
