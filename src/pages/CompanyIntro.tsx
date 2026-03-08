@@ -99,7 +99,7 @@ const tableSchemas: Record<string, TableColumn[]> = {
     { name: "partner_id", type: "INTEGER", constraint: "FK", desc: "取引先ID（取引先マスタ参照）" },
     { name: "create_date", type: "TIMESTAMP", constraint: "DEFAULT NOW()", desc: "登録日時" },
     { name: "create_user", type: "INTEGER", constraint: "-", desc: "起案者ID（Employees参照）" },
-    { name: "uodate_date", type: "TIMESTAMP", constraint: "DEFAULT NOW()", desc: "更新日時（初回登録時は登録日時）" },
+    { name: "update_date", type: "TIMESTAMP", constraint: "DEFAULT NOW()", desc: "更新日時（初回登録時は登録日時）" },
     { name: "update_user", type: "INTEGER", constraint: "-", desc: "ログインユーザー" },
   ],
   tran_detail_history: [
