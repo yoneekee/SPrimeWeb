@@ -172,7 +172,7 @@ const EmployeeMaster = () => {
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">表示件数</span>
               <Select value={String(itemsPerPage)} onValueChange={(v) => { setItemsPerPage(Number(v)); setCurrentPage(1); }}>
-                <SelectTrigger className="h-7 w-16 text-xs border-border">
+                <SelectTrigger className="h-7 w-20 text-xs border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
