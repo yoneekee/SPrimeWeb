@@ -33,6 +33,8 @@ import {
   MinusCircle,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import type { PdfDocumentData } from "@/components/pdf";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   S00: { label: "作成中", color: "bg-muted text-muted-foreground" },
