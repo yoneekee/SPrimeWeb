@@ -64,7 +64,7 @@ const mockSlips: SlipRecord[] = [
 const REQUESTER_OPTIONS = [...new Set(mockSlips.map(s => s.requester))];
 const APPROVER_OPTIONS = [...new Set(mockSlips.map(s => s.approver).filter(a => a !== "-"))];
 const HANDLER_OPTIONS = [...new Set(mockSlips.map(s => s.handler).filter(h => h !== "-"))];
-const STATUS_OPTIONS = Object.entries(ALL_STATUS).map(([code, v]) => ({ code, label: v.label }));
+const STATUS_OPTIONS = Object.entries(SLIP_STATUS_CONFIG).map(([code, config]) => ({ code, label: config.label }));
 
 const SlipListPage = () => {
   const navigate = useNavigate();
