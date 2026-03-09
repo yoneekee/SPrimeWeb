@@ -109,6 +109,47 @@ const BomProductionSlip = () => {
     return <AlertTriangle className="w-3.5 h-3.5 text-destructive" />;
   };
 
+  // Convert BOM data to PDF format
+  const convertBomToPdfData = (slipNo: string): PdfDocumentData => {
+    const slip = mockSlips.find((s) => s.slipNo === slipNo);
+    if (!slip) throw new Error("Slip not found");
+
+    // Convert BOM items to PDF line items
+    const pdfItems = mockBom.map((bomItem) => ({
+      name: `${"  ".repeat(bomItem.level)}${bomItem.itemName}`,
+      spec: `Lv${bomItem.level} / ${bomItem.itemCode}`,
+      qty: bomItem.totalQty,
+      unit: "EA",
+      unitPrice: 0, // BOM doesn't have unit price
+      amount: 0,
+      warehouse: bomItem.warehouse,
+      note: `所要量:${bomItem.requiredQty} / 在庫:${bomItem.stockQty} / 過不足:${bomItem.shortage >= 0 ? '+' : ''}${bomItem.shortage}`,
+    }));
+
+    return {
+      docType: "bom",
+      docNo: slipNo,
+      issueDate: slip.date.replace(/-/g, "年").replace(/年(\d+)$/, "年$1日").replace(/年(\d+)-/, "年$1月"),
+      partner: "社内生産",
+      items: pdfItems,
+      subtotal: 0,
+      taxRate: 0,
+      taxAmount: 0,
+      totalAmount: 0,
+      note: `対象品目: ${slip.targetItem} / 生産目標数: ${slip.targetQty}`,
+    };
+  };
+
+  const handleDownloadPdf = () => {
+    const pdfData = convertBomToPdfData(selectedSlip);
+    downloadPdf(pdfData);
+  };
+
+  const handleBatchDownload = () => {
+    const pdfDataList = checkedSlips.map(convertBomToPdfData);
+    downloadMultiplePdfs(pdfDataList);
+  };
+
   return (
     <ERPLayout>
       <div className="space-y-4">
