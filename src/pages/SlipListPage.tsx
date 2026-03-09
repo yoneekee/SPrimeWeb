@@ -20,34 +20,7 @@ import {
   Search, FileText, ChevronLeft, ChevronRight, ExternalLink, ListFilter,
 } from "lucide-react";
 
-// --- Status Maps ---
-const PROD_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  S00: { label: "作成中", color: "bg-muted text-muted-foreground" },
-  S01: { label: "申請中", color: "bg-info/20 text-info" },
-  A00: { label: "承認中", color: "bg-warning/20 text-warning" },
-  A01: { label: "承認済", color: "bg-success/20 text-success" },
-  A02: { label: "否認", color: "bg-destructive/20 text-destructive" },
-  P00: { label: "差戻中", color: "bg-warning/20 text-warning" },
-  P01: { label: "見積中", color: "bg-primary/20 text-primary" },
-  P02: { label: "発注済", color: "bg-primary/20 text-primary" },
-  P03: { label: "分納中", color: "bg-info/20 text-info" },
-  P04: { label: "入庫済", color: "bg-success/20 text-success" },
-  I00: { label: "検収済", color: "bg-success/20 text-success" },
-};
-
-const SHIP_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  S00: { label: "作成中", color: "bg-muted text-muted-foreground" },
-  S01: { label: "申請中", color: "bg-info/20 text-info" },
-  A00: { label: "承認中", color: "bg-warning/20 text-warning" },
-  A01: { label: "承認済", color: "bg-success/20 text-success" },
-  A02: { label: "否認", color: "bg-destructive/20 text-destructive" },
-  T01: { label: "積送中", color: "bg-info/20 text-info" },
-  T02: { label: "出庫済", color: "bg-primary/20 text-primary" },
-  T03: { label: "売上確定", color: "bg-success/20 text-success" },
-  T04: { label: "在庫調整", color: "bg-warning/20 text-warning" },
-};
-
-const ALL_STATUS = { ...PROD_STATUS_MAP, ...SHIP_STATUS_MAP };
+// --- Status configuration (from slip-utils) ---
 
 // --- Mock Data ---
 interface SlipRecord {
