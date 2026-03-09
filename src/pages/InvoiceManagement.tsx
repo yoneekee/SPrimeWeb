@@ -16,6 +16,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Search, FileDown, FileText, Eye, Printer, CheckCircle2, Clock } from "lucide-react";
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import type { PdfDocumentData } from "@/components/pdf";
 
 interface DocItem {
   slipNo: string;
@@ -44,6 +46,8 @@ const InvoiceManagement = () => {
   const [docType, setDocType] = useState<"po" | "invoice">("po");
   const [checkedDocs, setCheckedDocs] = useState<string[]>([]);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+
+  const { downloadPdf, downloadMultiplePdfs, isGenerating } = usePdfDownload();
 
   const docs = docType === "po" ? mockPO : mockInvoice;
 
@@ -77,6 +81,50 @@ const InvoiceManagement = () => {
   const previewSubtotal = previewItems.reduce((s, i) => s + i.amount, 0);
   const previewTax = Math.floor(previewSubtotal * 0.1);
   const previewTotal = previewSubtotal + previewTax;
+
+  // Convert to PDF data format
+  const convertToPdfData = (doc: DocItem): PdfDocumentData => {
+    const items = docType === "po"
+      ? [
+          { name: "シリコンウェーハ 300mm", spec: "300mm / P-type", qty: 500, unit: "EA", unitPrice: 85000, amount: 42500000 },
+          { name: "フォトレジスト AZ-5214", spec: "1L / UV-grade", qty: 200, unit: "EA", unitPrice: 120000, amount: 24000000 },
+          { name: "高純度窒素ガス（N2）", spec: "99.999% / 47L", qty: 50, unit: "SET", unitPrice: 45000, amount: 2250000 },
+        ]
+      : [
+          { name: "プラズマエッチング装置 PE-500", spec: "Standard", qty: 3, unit: "SET", unitPrice: 45000000, amount: 135000000 },
+          { name: "CVD成膜装置 CV-300", spec: "Standard", qty: 1, unit: "SET", unitPrice: 78000000, amount: 78000000 },
+          { name: "精密ウェーハチャックモジュール", spec: "Φ300", qty: 10, unit: "EA", unitPrice: 3200000, amount: 32000000 },
+        ];
+
+    return {
+      docType: docType,
+      docNo: doc.slipNo,
+      issueDate: doc.issueDate.replace(/-/g, "年").replace(/年(\d+)$/, "年$1日").replace(/年(\d+)-/, "年$1月"),
+      partner: doc.partner,
+      items,
+      subtotal: doc.totalAmount,
+      taxRate: 0.1,
+      taxAmount: doc.taxAmount,
+      totalAmount: doc.totalAmount + doc.taxAmount,
+      deliveryDate: docType === "po" ? "2024年03月20日" : undefined,
+      deliveryAddress: docType === "po" ? "本社 第1倉庫" : undefined,
+      paymentTerms: docType === "po" ? "月末締め翌月末払い" : undefined,
+      paymentDueDate: docType === "invoice" ? "2024年04月30日" : undefined,
+      bankInfo: docType === "invoice" ? "みずほ銀行 渋谷支店 普通 1234567" : undefined,
+      accountName: docType === "invoice" ? "エスプライム株式会社" : undefined,
+    };
+  };
+
+  const handleDownloadPdf = (doc: DocItem) => {
+    const pdfData = convertToPdfData(doc);
+    downloadPdf(pdfData);
+  };
+
+  const handleBatchDownload = () => {
+    const selectedDocs = docs.filter((d) => checkedDocs.includes(d.slipNo));
+    const pdfDataList = selectedDocs.map(convertToPdfData);
+    downloadMultiplePdfs(pdfDataList);
+  };
 
   return (
     <ERPLayout>
@@ -128,7 +176,13 @@ const InvoiceManagement = () => {
                 <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90">
                   <Search className="w-3.5 h-3.5" /> 照会
                 </Button>
-                <Button size="sm" variant="outline" className="gap-1.5 text-xs" disabled={checkedDocs.length === 0}>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="gap-1.5 text-xs" 
+                  disabled={checkedDocs.length === 0 || isGenerating}
+                  onClick={handleBatchDownload}
+                >
                   <FileDown className="w-3.5 h-3.5" /> PDF一括出力 ({checkedDocs.length})
                 </Button>
               </div>
@@ -191,7 +245,13 @@ const InvoiceManagement = () => {
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); setSelectedDoc(doc.slipNo); }}>
                             <Eye className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0" 
+                            disabled={isGenerating}
+                            onClick={(e) => { e.stopPropagation(); handleDownloadPdf(doc); }}
+                          >
                             <Printer className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                           </Button>
                         </div>
@@ -324,7 +384,15 @@ const InvoiceManagement = () => {
 
               {selectedDoc && (
                 <div className="flex gap-2 mt-3">
-                  <Button size="sm" className="gap-1.5 text-xs flex-1 bg-primary text-primary-foreground">
+                  <Button 
+                    size="sm" 
+                    className="gap-1.5 text-xs flex-1 bg-primary text-primary-foreground"
+                    disabled={isGenerating}
+                    onClick={() => {
+                      const doc = docs.find((d) => d.slipNo === selectedDoc);
+                      if (doc) handleDownloadPdf(doc);
+                    }}
+                  >
                     <Printer className="w-3.5 h-3.5" /> PDFダウンロード
                   </Button>
                 </div>
