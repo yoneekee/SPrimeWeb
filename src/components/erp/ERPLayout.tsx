@@ -219,6 +219,11 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
           <main className="flex-1 overflow-auto p-4">
             {children}
           </main>
+
+          <footer className="h-10 flex items-center justify-between px-4 border-t border-border bg-background text-[11px] text-muted-foreground flex-shrink-0">
+            <span>© {new Date().getFullYear()} S-Prime ERP</span>
+            <span>v1.0.0</span>
+          </footer>
         </div>
       </div>
 
