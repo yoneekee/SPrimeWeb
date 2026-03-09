@@ -384,7 +384,15 @@ const InvoiceManagement = () => {
 
               {selectedDoc && (
                 <div className="flex gap-2 mt-3">
-                  <Button size="sm" className="gap-1.5 text-xs flex-1 bg-primary text-primary-foreground">
+                  <Button 
+                    size="sm" 
+                    className="gap-1.5 text-xs flex-1 bg-primary text-primary-foreground"
+                    disabled={isGenerating}
+                    onClick={() => {
+                      const doc = docs.find((d) => d.slipNo === selectedDoc);
+                      if (doc) handleDownloadPdf(doc);
+                    }}
+                  >
                     <Printer className="w-3.5 h-3.5" /> PDFダウンロード
                   </Button>
                 </div>
