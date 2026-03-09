@@ -122,11 +122,6 @@ const SlipListPage = () => {
     }
   };
 
-  const getStatusInfo = (slip: SlipRecord) => {
-    const map = slip.slipType === "PROD" ? PROD_STATUS_MAP : SHIP_STATUS_MAP;
-    return map[slip.status] || { label: slip.status, color: "bg-muted text-muted-foreground" };
-  };
-
   return (
     <ERPLayout>
       <div className="space-y-4">
