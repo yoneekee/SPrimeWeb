@@ -103,13 +103,33 @@ src/
 ├── App.tsx                      # Route definitions + ProtectedRoute
 ├── index.css                    # Theme CSS variables (light/dark), font overrides, utility classes
 │
+├── types/                       # 공통 타입 정의 (백엔드 DTO와 매핑)
+│   ├── index.ts                 # 통합 export
+│   ├── slip.types.ts            # 전표 관련 타입
+│   ├── master.types.ts          # 마스터 데이터 타입
+│   └── api.types.ts             # API 응답 래퍼 타입
+│
+├── services/                    # API 호출 로직
+│   ├── index.ts                 # 통합 export
+│   ├── api-client.ts            # 중앙화된 HTTP 클라이언트
+│   ├── slip.service.ts          # 전표 API
+│   ├── master.service.ts        # 마스터 데이터 API
+│   └── auth.service.ts          # 인증 API
+│
 ├── hooks/
 │   ├── use-auth.tsx             # AuthContext: isLoggedIn, user, login(), logout()
 │   ├── use-theme.tsx            # ThemeContext: theme ("light"|"dark"), toggleTheme()
 │   ├── use-mobile.tsx           # useIsMobile() hook
-│   └── use-pagination.tsx       # usePagination() — 페이지네이션 공통 로직 훅
+│   ├── use-pagination.tsx       # usePagination() — 페이지네이션 공통 로직 훅
+│   └── api/                     # React Query 데이터 fetching 훅
+│       ├── index.ts             # 통합 export
+│       ├── use-slips.tsx        # 전표 CRUD 훅
+│       ├── use-employees.tsx    # 사원 CRUD 훅
+│       ├── use-items.tsx        # 품목 CRUD 훅
+│       ├── use-warehouses.tsx   # 창고 CRUD 훅
+│       └── use-partners.tsx     # 거래처 CRUD 훅
 │
-├── pages/                       # One file per route (self-contained with mock data)
+├── pages/                       # One file per route (mock data → API 훅으로 전환 준비 완료)
 │   ├── Login.tsx
 │   ├── Index.tsx                # Dashboard: KPI cards, charts, widgets
 │   ├── SlipListPage.tsx         # Cross-search production+shipping slips
