@@ -358,7 +358,13 @@ const BomProductionSlip = () => {
                   充足 {mockBom.filter(b => b.shortage >= 0).length}件
                 </span>
               </div>
-              <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="gap-1.5 text-xs h-7"
+                disabled={isGenerating}
+                onClick={handleDownloadPdf}
+              >
                 <FileDown className="w-3 h-3" /> PDF出力
               </Button>
             </div>
