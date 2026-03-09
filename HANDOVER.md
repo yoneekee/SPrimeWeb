@@ -56,6 +56,8 @@
 | **Recharts** | 차트 | 대시보드에 쓰이는 그래프 라이브러리 |
 | **date-fns** | 날짜 처리 | 날짜 포맷팅, 파싱 유틸리티 |
 | **Lucide React** | 아이콘 | 아이콘 라이브러리 (예: `<Factory />`, `<Search />`) |
+| **@react-pdf/renderer** | PDF 생성 | 브라우저에서 직접 PDF를 생성하고 다운로드 (NotoSansJP 폰트 사용) |
+| **@tanstack/react-query** | 비동기 상태 | API 연동 시 데이터 fetching, 캐싱, 뮤테이션 관리 |
 
 ---
 
@@ -203,7 +205,7 @@ src/
 │
 ├── components/
 │   ├── erp/                    ← ★ ERP 전용 커스텀 컴포넌트
-│   │   ├── ERPLayout.tsx       ← 전체 레이아웃 (사이드바 + 헤더 + 본문)
+│   │   ├── ERPLayout.tsx       ← 전체 레이아웃 (사이드바 + sticky 고정 헤더 + 본문)
 │   │   ├── ERPSidebar.tsx      ← 좌측 사이드바 네비게이션
 │   │   ├── KPICard.tsx         ← 대시보드 KPI 카드
 │   │   ├── DashboardChart.tsx  ← 대시보드 차트
@@ -214,7 +216,14 @@ src/
 │   │   ├── SafetyStockAlert.tsx← 안전재고 알림
 │   │   ├── SlipStatusChart.tsx ← 전표 상태 차트
 │   │   ├── StatusFlowStepper.tsx ← 전표 상태 흐름 스텝퍼
-│   │   └── ItemSelectModal.tsx ← 품목 선택 모달
+│   │   ├── ItemSelectModal.tsx ← 품목 선택 모달
+│   │   └── PaginationControls.tsx ← 재사용 가능한 페이지네이션 UI 컴포넌트
+│   │
+│   ├── pdf/                    ← ★ PDF 생성 전용 컴포넌트 (@react-pdf/renderer)
+│   │   ├── SlipPdfDocument.tsx ← 전표 PDF 레이아웃 (발주서/청구서/생산/출고/BOM)
+│   │   ├── pdf-styles.ts       ← PDF용 StyleSheet 정의 (NotoSansJP 폰트 포함)
+│   │   ├── pdf-types.ts        ← PdfDocumentData, PdfLineItem 타입 정의
+│   │   └── index.ts            ← 통합 export
 │   │
 │   └── ui/                     ← shadcn/ui 공통 UI 컴포넌트 (수정 거의 안 함)
 │       ├── button.tsx
@@ -230,10 +239,21 @@ src/
 ├── hooks/                      ← 커스텀 훅 (전역 상태 관리)
 │   ├── use-auth.tsx            ← 로그인/로그아웃 상태
 │   ├── use-theme.tsx           ← 다크/라이트 테마
-│   └── use-mobile.tsx          ← 모바일 여부 감지
+│   ├── use-mobile.tsx          ← 모바일 여부 감지
+│   ├── use-pagination.tsx      ← usePagination() 페이지네이션 공통 훅
+│   ├── use-pdf-download.tsx    ← PDF 생성 및 다운로드 훅
+│   └── api/                    ← React Query 데이터 fetching 훅
+│       ├── index.ts
+│       ├── use-slips.tsx
+│       ├── use-employees.tsx
+│       ├── use-items.tsx
+│       ├── use-warehouses.tsx
+│       └── use-partners.tsx
 │
 └── lib/
-    └── utils.ts                ← cn() 유틸리티 (Tailwind 클래스 병합)
+    ├── utils.ts                ← cn() 유틸리티 (Tailwind 클래스 병합)
+    ├── slip-utils.ts           ← 전표 상태 관리, 전표 번호 생성 유틸
+    └── format-utils.ts         ← 금액, 날짜, 숫자 포맷팅 유틸
 ```
 
 ---
@@ -351,7 +371,7 @@ const ProtectedRoute = ({ children }) => {
 ### ERPLayout (`src/components/erp/ERPLayout.tsx`)
 
 - **사이드바**: `ERPSidebar` 컴포넌트. 마우스 호버 시 자동 확장/축소.
-- **상단 헤더**: 검색, 테마 토글, 알림 패널, 유저 메뉴(설정/로그아웃)
+- **상단 헤더**: `sticky top-0 z-40` 으로 스크롤 시에도 상단 고정. 검색, 테마 토글, 알림 패널, 유저 메뉴(설정/로그아웃) 포함.
 - **본문**: `{children}` = 각 페이지의 내용이 여기에 들어감
 
 ### ERPSidebar (`src/components/erp/ERPSidebar.tsx`)
@@ -575,22 +595,62 @@ const steps = [
 <StatusFlowStepper steps={steps} currentStatus="A01" />
 ```
 
-### 12.7 ItemSelectModal (품목 선택 모달)
+### 12.8 usePdfDownload (PDF 생성·다운로드)
+
+`src/hooks/use-pdf-download.tsx` — 브라우저에서 직접 PDF를 생성하고 저장합니다.
 
 ```tsx
-import ItemSelectModal from "@/components/erp/ItemSelectModal";
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import type { PdfDocumentData } from "@/components/pdf";
 
-<ItemSelectModal
-  open={isOpen}
-  onOpenChange={setIsOpen}
-  items={catalogItems}
-  onSelect={(item) => addToList(item)}
-/>
+const { downloadPdf, downloadMultiplePdfs, isGenerating } = usePdfDownload();
+
+// 단건 다운로드
+await downloadPdf(pdfData, "발주서_001.pdf");
+
+// 일괄 다운로드 (여러 전표 한 번에)
+await downloadMultiplePdfs([pdfData1, pdfData2]);
+```
+
+**`PdfDocumentData` 주요 필드:**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `docType` | `"po" \| "invoice" \| "production" \| "shipment" \| "bom"` | 전표 유형 |
+| `docNo` | `string` | 전표 번호 (파일명 기본값으로 사용) |
+| `issueDate` | `string` | 발행 일자 |
+| `partner` | `string` | 거래처 이름 |
+| `items` | `PdfLineItem[]` | 품목 행 배열 |
+| `subtotal` | `number` | 소계 |
+| `taxAmount` | `number` | 소비세 |
+| `totalAmount` | `number` | 합계 금액 |
+
+> **폰트**: PDF 내 일본어는 Google Fonts CDN의 `NotoSansJP`를 사용합니다. 네트워크 없이 생성 시 폰트 로딩이 실패할 수 있습니다.
+
+### 12.9 PaginationControls (페이지네이션 UI)
+
+`src/components/erp/PaginationControls.tsx` — `usePagination` 훅과 쌍으로 사용되는 페이지네이션 UI입니다.
+
+```tsx
+import { usePagination } from "@/hooks/use-pagination";
+import { PaginationControls } from "@/components/erp/PaginationControls";
+
+const pagination = usePagination(filteredData, 10);
+
+return (
+  <>
+    <Table>
+      {pagination.paged.map(item => <TableRow key={item.id}>...</TableRow>)}
+    </Table>
+    <PaginationControls pagination={pagination} />
+  </>
+);
 ```
 
 ---
 
 ## 13. 데이터 흐름 — Mock 데이터 구조
+
 
 ### ⚠️ 중요: 현재 모든 데이터는 하드코딩(Mock)입니다
 

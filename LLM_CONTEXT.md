@@ -121,6 +121,7 @@ src/
 │   ├── use-theme.tsx            # ThemeContext: theme ("light"|"dark"), toggleTheme()
 │   ├── use-mobile.tsx           # useIsMobile() hook
 │   ├── use-pagination.tsx       # usePagination() — 페이지네이션 공통 로직 훅
+│   ├── use-pdf-download.tsx     # usePdfDownload() — PDF 생성 및 다운로드 (단건/일괄)
 │   └── api/                     # React Query 데이터 fetching 훅
 │       ├── index.ts             # 통합 export
 │       ├── use-slips.tsx        # 전표 CRUD 훅
@@ -150,7 +151,7 @@ src/
 │
 ├── components/
 │   ├── erp/                     # Domain-specific components
-│   │   ├── ERPLayout.tsx        # Shell: sidebar + header + main content + notifications + user menu + settings modal
+│   │   ├── ERPLayout.tsx        # Shell: sidebar + sticky header (top-0 z-40) + notifications + user menu + settings modal
 │   │   ├── ERPSidebar.tsx       # Left nav with collapsible groups, hover auto-expand
 │   │   ├── KPICard.tsx          # Dashboard KPI card
 │   │   ├── DashboardChart.tsx   # Recharts area chart
@@ -162,7 +163,13 @@ src/
 │   │   ├── SlipStatusChart.tsx  # Slip status pie chart
 │   │   ├── StatusFlowStepper.tsx# Visual step indicator for slip workflow
 │   │   ├── ItemSelectModal.tsx  # Modal for selecting catalog items (used in slip creation)
-│   │   └── PaginationControls.tsx # 재사용 가능한 페이지네이션 UI 컴포넌트
+│   │   └── PaginationControls.tsx # Reusable pagination UI; used with usePagination()
+│   │
+│   ├── pdf/                     # PDF generation components (@react-pdf/renderer)
+│   │   ├── SlipPdfDocument.tsx  # PDF layout for all slip types (PO/invoice/production/shipment/BOM)
+│   │   ├── pdf-styles.ts        # StyleSheet definitions + NotoSansJP font registration
+│   │   ├── pdf-types.ts         # PdfDocumentData, PdfLineItem, PdfDocType type definitions
+│   │   └── index.ts             # Re-exports
 │   │
 │   └── ui/                      # shadcn/ui primitives (avoid modifying except date-picker.tsx)
 │       ├── date-picker.tsx      # CUSTOM: text input + calendar popover, supports string/Date values
@@ -324,6 +331,30 @@ return (
 - `goToPage(n)`, `nextPage()`, `prevPage()` — 페이지 이동
 - `changeItemsPerPage(n)` — 표시 건수 변경
 
+### use-pdf-download.tsx (`src/hooks/use-pdf-download.tsx`)
+
+브라우저에서 직접 PDF를 생성하고 다운로드하는 훅. `@react-pdf/renderer`의 `pdf()` 함수를 사용해 Blob을 생성합니다.
+
+```typescript
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import type { PdfDocumentData } from "@/components/pdf";
+
+const { downloadPdf, downloadMultiplePdfs, isGenerating } = usePdfDownload();
+
+// 단건 다운로드 (fileName 생략 시 docNo를 파일명으로 사용)
+await downloadPdf(pdfData, "SLP20240307-001.pdf");
+
+// 일괄 다운로드
+await downloadMultiplePdfs([pdfData1, pdfData2, pdfData3]);
+```
+
+`PdfDocumentData` 구조 (`src/components/pdf/pdf-types.ts`):
+- `docType`: `"po" | "invoice" | "production" | "shipment" | "bom"`
+- `docNo`, `issueDate`, `partner`, `items[]`, `subtotal`, `taxRate`, `taxAmount`, `totalAmount`
+- Optional: `deliveryDate`, `paymentTerms`, `bankInfo`, `note`, `requester`, `approver`
+
+> PDF 일본어 폰트는 Google Fonts CDN (`NotoSansJP`)을 사용. 오프라인 환경에서는 폰트 로딩 실패 가능.
+
 ---
 
 ## Key Patterns & Conventions
@@ -452,13 +483,15 @@ const { data } = useQuery({ queryKey: ['items'], queryFn: () => fetch('/api/item
 |---------|---------|---------|
 | react | ^18.3.1 | UI framework |
 | react-router-dom | ^6.30.1 | Client routing |
-| @tanstack/react-query | ^5.83.0 | Async state (installed, not actively used yet) |
+| @tanstack/react-query | ^5.83.0 | Async state / API hooks (서비스 레이어 준비 완료) |
+| @react-pdf/renderer | ^4.3.2 | Browser-side PDF generation (NotoSansJP font) |
 | recharts | ^2.15.4 | Charts on dashboard |
 | date-fns | ^3.6.0 | Date formatting/parsing |
 | lucide-react | ^0.462.0 | Icons |
 | react-day-picker | ^8.10.1 | Calendar component |
 | zod | ^3.25.76 | Schema validation |
 | react-hook-form | ^7.61.1 | Form management |
+| sonner | ^1.7.4 | Toast notifications |
 | tailwindcss | ^3.4.17 | Utility CSS |
 | shadcn/ui components | various @radix-ui/* | Accessible UI primitives |
 
