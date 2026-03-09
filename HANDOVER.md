@@ -595,22 +595,62 @@ const steps = [
 <StatusFlowStepper steps={steps} currentStatus="A01" />
 ```
 
-### 12.7 ItemSelectModal (품목 선택 모달)
+### 12.8 usePdfDownload (PDF 생성·다운로드)
+
+`src/hooks/use-pdf-download.tsx` — 브라우저에서 직접 PDF를 생성하고 저장합니다.
 
 ```tsx
-import ItemSelectModal from "@/components/erp/ItemSelectModal";
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import type { PdfDocumentData } from "@/components/pdf";
 
-<ItemSelectModal
-  open={isOpen}
-  onOpenChange={setIsOpen}
-  items={catalogItems}
-  onSelect={(item) => addToList(item)}
-/>
+const { downloadPdf, downloadMultiplePdfs, isGenerating } = usePdfDownload();
+
+// 단건 다운로드
+await downloadPdf(pdfData, "발주서_001.pdf");
+
+// 일괄 다운로드 (여러 전표 한 번에)
+await downloadMultiplePdfs([pdfData1, pdfData2]);
+```
+
+**`PdfDocumentData` 주요 필드:**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `docType` | `"po" \| "invoice" \| "production" \| "shipment" \| "bom"` | 전표 유형 |
+| `docNo` | `string` | 전표 번호 (파일명 기본값으로 사용) |
+| `issueDate` | `string` | 발행 일자 |
+| `partner` | `string` | 거래처 이름 |
+| `items` | `PdfLineItem[]` | 품목 행 배열 |
+| `subtotal` | `number` | 소계 |
+| `taxAmount` | `number` | 소비세 |
+| `totalAmount` | `number` | 합계 금액 |
+
+> **폰트**: PDF 내 일본어는 Google Fonts CDN의 `NotoSansJP`를 사용합니다. 네트워크 없이 생성 시 폰트 로딩이 실패할 수 있습니다.
+
+### 12.9 PaginationControls (페이지네이션 UI)
+
+`src/components/erp/PaginationControls.tsx` — `usePagination` 훅과 쌍으로 사용되는 페이지네이션 UI입니다.
+
+```tsx
+import { usePagination } from "@/hooks/use-pagination";
+import { PaginationControls } from "@/components/erp/PaginationControls";
+
+const pagination = usePagination(filteredData, 10);
+
+return (
+  <>
+    <Table>
+      {pagination.paged.map(item => <TableRow key={item.id}>...</TableRow>)}
+    </Table>
+    <PaginationControls pagination={pagination} />
+  </>
+);
 ```
 
 ---
 
 ## 13. 데이터 흐름 — Mock 데이터 구조
+
 
 ### ⚠️ 중요: 현재 모든 데이터는 하드코딩(Mock)입니다
 
