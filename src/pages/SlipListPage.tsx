@@ -314,45 +314,42 @@ const SlipListPage = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    paged.map((slip) => {
-                      const st = getStatusInfo(slip);
-                      return (
-                        <TableRow key={slip.slipNo} className="border-border hover:bg-secondary/50">
-                          <TableCell className="px-3 py-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-6 text-[10px] px-2 gap-1"
-                              onClick={() => handleDetail(slip)}
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              詳細
-                            </Button>
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs font-mono text-primary font-medium">{slip.slipNo}</TableCell>
-                          <TableCell className="px-3 py-2">
-                            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
-                              slip.slipType === "PROD" ? "border-info/50 text-info" : "border-warning/50 text-warning"
-                            }`}>
-                              {slip.typeName}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-muted-foreground font-mono">{slip.date}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-foreground">{slip.requester}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.department}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-foreground">{slip.partner}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.approver}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.handler}</TableCell>
-                          <TableCell className="px-3 py-2 text-center">
-                            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st.color}`}>
-                              {st.label}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-muted-foreground">{slip.itemCount}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">¥{slip.totalAmount.toLocaleString()}</TableCell>
-                        </TableRow>
-                      );
-                    })
+                    paged.map((slip) => (
+                      <TableRow key={slip.slipNo} className="border-border hover:bg-secondary/50">
+                        <TableCell className="px-3 py-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 text-[10px] px-2 gap-1"
+                            onClick={() => handleDetail(slip)}
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            詳細
+                          </Button>
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-xs font-mono text-primary font-medium">{slip.slipNo}</TableCell>
+                        <TableCell className="px-3 py-2">
+                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
+                            slip.slipType === "PROD" ? "border-info/50 text-info" : "border-warning/50 text-warning"
+                          }`}>
+                            {slip.typeName}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground font-mono">{slip.date}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-foreground">{slip.requester}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.department}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-foreground">{slip.partner}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.approver}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.handler}</TableCell>
+                        <TableCell className="px-3 py-2 text-center">
+                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getSlipStatusStyle(slip.status)}`}>
+                            {getSlipStatusLabel(slip.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-right font-mono text-muted-foreground">{slip.itemCount}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">¥{slip.totalAmount.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))
                   )}
                 </TableBody>
               </Table>
