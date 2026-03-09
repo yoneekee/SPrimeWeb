@@ -16,6 +16,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Search, FileDown, FileText, Eye, Printer, CheckCircle2, Clock } from "lucide-react";
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import type { PdfDocumentData } from "@/components/pdf";
 
 interface DocItem {
   slipNo: string;
