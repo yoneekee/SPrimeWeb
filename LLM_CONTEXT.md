@@ -103,13 +103,33 @@ src/
 ├── App.tsx                      # Route definitions + ProtectedRoute
 ├── index.css                    # Theme CSS variables (light/dark), font overrides, utility classes
 │
+├── types/                       # 공통 타입 정의 (백엔드 DTO와 매핑)
+│   ├── index.ts                 # 통합 export
+│   ├── slip.types.ts            # 전표 관련 타입
+│   ├── master.types.ts          # 마스터 데이터 타입
+│   └── api.types.ts             # API 응답 래퍼 타입
+│
+├── services/                    # API 호출 로직
+│   ├── index.ts                 # 통합 export
+│   ├── api-client.ts            # 중앙화된 HTTP 클라이언트
+│   ├── slip.service.ts          # 전표 API
+│   ├── master.service.ts        # 마스터 데이터 API
+│   └── auth.service.ts          # 인증 API
+│
 ├── hooks/
 │   ├── use-auth.tsx             # AuthContext: isLoggedIn, user, login(), logout()
 │   ├── use-theme.tsx            # ThemeContext: theme ("light"|"dark"), toggleTheme()
 │   ├── use-mobile.tsx           # useIsMobile() hook
-│   └── use-pagination.tsx       # usePagination() — 페이지네이션 공통 로직 훅
+│   ├── use-pagination.tsx       # usePagination() — 페이지네이션 공통 로직 훅
+│   └── api/                     # React Query 데이터 fetching 훅
+│       ├── index.ts             # 통합 export
+│       ├── use-slips.tsx        # 전표 CRUD 훅
+│       ├── use-employees.tsx    # 사원 CRUD 훅
+│       ├── use-items.tsx        # 품목 CRUD 훅
+│       ├── use-warehouses.tsx   # 창고 CRUD 훅
+│       └── use-partners.tsx     # 거래처 CRUD 훅
 │
-├── pages/                       # One file per route (self-contained with mock data)
+├── pages/                       # One file per route (mock data → API 훅으로 전환 준비 완료)
 │   ├── Login.tsx
 │   ├── Index.tsx                # Dashboard: KPI cards, charts, widgets
 │   ├── SlipListPage.tsx         # Cross-search production+shipping slips
@@ -474,3 +494,209 @@ Each page's table is self-contained. Find `<TableHead>` and `<TableCell>` elemen
 5. **Mock data is per-page** — no shared state store; each page file contains its own data arrays
 6. **Font size minimum**: Due to Japanese readability override in index.css, sizes below 14px render as 14px
 7. **`cn()` for conditional classes**: Always use `cn()` from `@/lib/utils` for class merging
+
+---
+
+## Backend Integration Architecture
+
+### Overview
+
+프로젝트는 C# .NET Core 백엔드 연동을 위해 완전히 준비되어 있습니다. 프론트엔드는 타입 안전성, 중앙화된 API 호출, React Query 기반 데이터 관리를 갖추고 있습니다.
+
+### Environment Configuration
+
+환경 변수는 `.env.local`에 정의 (`.env.example` 참고):
+
+```bash
+VITE_API_BASE_URL=http://localhost:5000/api  # C# API 서버 주소
+VITE_API_TIMEOUT=30000                       # 요청 타임아웃 (ms)
+VITE_USE_MOCK_DATA=true                      # true: mock 데이터, false: 실제 API
+```
+
+### Architecture Layers
+
+```
+Pages (UI)
+   ↓ 사용
+React Query Hooks (src/hooks/api/)
+   ↓ 호출
+Service Layer (src/services/)
+   ↓ 사용
+API Client (src/services/api-client.ts)
+   ↓ HTTP 요청
+C# Backend API
+```
+
+### Type System
+
+모든 타입은 `src/types/`에 중앙화:
+
+```typescript
+// 사용 예시
+import type { SlipRecord, CreateSlipRequest, PaginatedResponse } from "@/types";
+```
+
+- `slip.types.ts`: 전표 관련 (SlipRecord, SlipDetail, CreateSlipRequest, ...)
+- `master.types.ts`: 마스터 데이터 (Employee, Item, Warehouse, Partner, ...)
+- `api.types.ts`: API 응답 래퍼 (ApiResponse<T>, PaginatedResponse<T>, ApiError)
+
+### API Client
+
+`src/services/api-client.ts`는 모든 HTTP 요청을 처리:
+
+- 자동 인증 헤더 추가 (Bearer token from sessionStorage)
+- 타임아웃 지원
+- 표준 에러 핸들링
+- C# 백엔드의 `ApiResponse<T>` 래퍼 자동 unwrap
+
+```typescript
+// api-client.ts 내부 사용 예시
+const data = await apiClient.get<PaginatedResponse<Item>>("/items", { 
+  params: { page: 1, pageSize: 10 } 
+});
+```
+
+### Service Layer
+
+각 도메인별 서비스 (`src/services/`):
+
+- `slip.service.ts`: 전표 CRUD + 상태 변경
+- `master.service.ts`: 사원/품목/창고/거래처 CRUD
+- `auth.service.ts`: 로그인/로그아웃/토큰 갱신
+
+```typescript
+// 사용 예시 (서비스 직접 호출은 드물고, React Query 훅을 통해 호출)
+import { slipService } from "@/services";
+const slips = await slipService.getSlips({ page: 1, pageSize: 10 });
+```
+
+### React Query Hooks
+
+`src/hooks/api/`의 훅들이 데이터 fetching을 담당:
+
+```typescript
+// 페이지에서 사용
+import { useSlips, useCreateSlip } from "@/hooks/api";
+
+const { data, isLoading, error } = useSlips({ page: 1, pageSize: 10 });
+const createMutation = useCreateSlip({
+  onSuccess: () => toast.success("전표가 생성되었습니다"),
+});
+
+createMutation.mutate({ slipType: "PROD", date: "2024-03-07", ... });
+```
+
+주요 훅:
+- **전표**: `useSlips`, `useSlipDetail`, `useCreateSlip`, `useUpdateSlip`, `useDeleteSlip`, `useApproveSlip`, `useRejectSlip`
+- **사원**: `useEmployees`, `useEmployee`, `useCreateEmployee`, `useUpdateEmployee`, `useDeleteEmployee`
+- **품목**: `useItems`, `useItem`, `useItemByCode`, `useItemStock`, `useCreateItem`, `useUpdateItem`, `useDeleteItem`
+- **창고**: `useWarehouses`, `useWarehouse`, `useCreateWarehouse`, `useUpdateWarehouse`, `useDeleteWarehouse`
+- **거래처**: `usePartners`, `usePartner`, `usePartnersByType`, `useCreatePartner`, `useUpdatePartner`, `useDeletePartner`
+
+### Mock vs Real Data Toggle
+
+`.env.local`에서 `VITE_USE_MOCK_DATA` 설정:
+- `true`: 페이지의 기존 mock 배열 사용
+- `false`: React Query 훅으로 실제 API 호출
+
+페이지에서 전환 패턴:
+
+```typescript
+// Before (mock):
+const [data] = useState(mockArray);
+
+// After (API 연동):
+import { useItems } from "@/hooks/api";
+const { data: response, isLoading } = useItems({ page: 1, pageSize: 10 });
+const data = response?.items || [];
+
+if (isLoading) return <div>Loading...</div>;
+```
+
+### C# Backend 요구사항
+
+백엔드는 다음 구조로 응답해야 합니다:
+
+```csharp
+// 표준 응답 래퍼
+public class ApiResponse<T>
+{
+    public bool Success { get; set; }
+    public T Data { get; set; }
+    public string Message { get; set; }
+    public List<string> Errors { get; set; }
+    public DateTime Timestamp { get; set; }
+}
+
+// 페이지네이션 응답
+public class PaginatedResponse<T>
+{
+    public List<T> Items { get; set; }
+    public int TotalCount { get; set; }
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int TotalPages { get; set; }
+}
+```
+
+예시 엔드포인트:
+- `GET /api/slips?page=1&pageSize=10` → `ApiResponse<PaginatedResponse<SlipRecord>>`
+- `GET /api/slips/{slipNo}` → `ApiResponse<SlipDetail>`
+- `POST /api/slips` → `ApiResponse<SlipDetail>`
+- `PUT /api/slips/{slipNo}` → `ApiResponse<SlipDetail>`
+- `DELETE /api/slips/{slipNo}` → `ApiResponse<void>`
+- `PATCH /api/slips/{slipNo}/status` → `ApiResponse<SlipDetail>`
+
+### Authentication Flow
+
+1. 로그인 시 백엔드가 JWT 토큰 반환
+2. `auth.service.ts`가 sessionStorage에 저장
+3. `api-client.ts`가 모든 요청에 `Authorization: Bearer {token}` 헤더 자동 추가
+4. 토큰 만료 시 `auth.service.refreshToken()` 호출
+
+```typescript
+// 로그인 예시
+import { authService } from "@/services";
+
+const response = await authService.login({ username, password });
+// → sessionStorage에 token, refreshToken, user 저장
+```
+
+### Error Handling
+
+`api-client.ts`는 모든 에러를 `ApiClientError`로 변환:
+
+```typescript
+try {
+  const data = await slipService.getSlips();
+} catch (error) {
+  if (error instanceof ApiClientError) {
+    console.error(`${error.statusCode}: ${error.apiError.message}`);
+    // error.apiError.details 에 상세 에러 필드별 메시지
+  }
+}
+```
+
+React Query 훅 사용 시:
+
+```typescript
+const { data, error, isLoading } = useSlips();
+
+if (error) {
+  return <div>에러: {error.message}</div>;
+}
+```
+
+### Migration Checklist
+
+기존 mock 데이터 페이지를 API 연동으로 전환:
+
+1. `.env.local`에서 `VITE_USE_MOCK_DATA=false` 설정
+2. 페이지에서 `useState(mockArray)` 제거
+3. 적절한 `use*` 훅 import 및 호출
+4. `isLoading`, `error` 상태 처리
+5. `PaginatedResponse` 구조에 맞춰 데이터 접근 (`data.items`, `data.totalCount`)
+6. Mutation 훅으로 생성/수정/삭제 처리
+7. Toast 알림 추가 (`onSuccess`, `onError` 콜백)
+
+---
