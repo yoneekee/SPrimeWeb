@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { getSlipStatusLabel, getSlipStatusStyle, SLIP_STATUS_CONFIG } from "@/lib/slip-utils";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -19,34 +20,7 @@ import {
   Search, FileText, ChevronLeft, ChevronRight, ExternalLink, ListFilter,
 } from "lucide-react";
 
-// --- Status Maps ---
-const PROD_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  S00: { label: "作成中", color: "bg-muted text-muted-foreground" },
-  S01: { label: "申請中", color: "bg-info/20 text-info" },
-  A00: { label: "承認中", color: "bg-warning/20 text-warning" },
-  A01: { label: "承認済", color: "bg-success/20 text-success" },
-  A02: { label: "否認", color: "bg-destructive/20 text-destructive" },
-  P00: { label: "差戻中", color: "bg-warning/20 text-warning" },
-  P01: { label: "見積中", color: "bg-primary/20 text-primary" },
-  P02: { label: "発注済", color: "bg-primary/20 text-primary" },
-  P03: { label: "分納中", color: "bg-info/20 text-info" },
-  P04: { label: "入庫済", color: "bg-success/20 text-success" },
-  I00: { label: "検収済", color: "bg-success/20 text-success" },
-};
-
-const SHIP_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  S00: { label: "作成中", color: "bg-muted text-muted-foreground" },
-  S01: { label: "申請中", color: "bg-info/20 text-info" },
-  A00: { label: "承認中", color: "bg-warning/20 text-warning" },
-  A01: { label: "承認済", color: "bg-success/20 text-success" },
-  A02: { label: "否認", color: "bg-destructive/20 text-destructive" },
-  T01: { label: "積送中", color: "bg-info/20 text-info" },
-  T02: { label: "出庫済", color: "bg-primary/20 text-primary" },
-  T03: { label: "売上確定", color: "bg-success/20 text-success" },
-  T04: { label: "在庫調整", color: "bg-warning/20 text-warning" },
-};
-
-const ALL_STATUS = { ...PROD_STATUS_MAP, ...SHIP_STATUS_MAP };
+// --- Status configuration (from slip-utils) ---
 
 // --- Mock Data ---
 interface SlipRecord {
@@ -90,7 +64,7 @@ const mockSlips: SlipRecord[] = [
 const REQUESTER_OPTIONS = [...new Set(mockSlips.map(s => s.requester))];
 const APPROVER_OPTIONS = [...new Set(mockSlips.map(s => s.approver).filter(a => a !== "-"))];
 const HANDLER_OPTIONS = [...new Set(mockSlips.map(s => s.handler).filter(h => h !== "-"))];
-const STATUS_OPTIONS = Object.entries(ALL_STATUS).map(([code, v]) => ({ code, label: v.label }));
+const STATUS_OPTIONS = Object.entries(SLIP_STATUS_CONFIG).map(([code, config]) => ({ code, label: config.label }));
 
 const SlipListPage = () => {
   const navigate = useNavigate();
@@ -146,11 +120,6 @@ const SlipListPage = () => {
     } else {
       navigate("/production/shipping");
     }
-  };
-
-  const getStatusInfo = (slip: SlipRecord) => {
-    const map = slip.slipType === "PROD" ? PROD_STATUS_MAP : SHIP_STATUS_MAP;
-    return map[slip.status] || { label: slip.status, color: "bg-muted text-muted-foreground" };
   };
 
   return (
@@ -345,45 +314,42 @@ const SlipListPage = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    paged.map((slip) => {
-                      const st = getStatusInfo(slip);
-                      return (
-                        <TableRow key={slip.slipNo} className="border-border hover:bg-secondary/50">
-                          <TableCell className="px-3 py-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-6 text-[10px] px-2 gap-1"
-                              onClick={() => handleDetail(slip)}
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              詳細
-                            </Button>
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs font-mono text-primary font-medium">{slip.slipNo}</TableCell>
-                          <TableCell className="px-3 py-2">
-                            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
-                              slip.slipType === "PROD" ? "border-info/50 text-info" : "border-warning/50 text-warning"
-                            }`}>
-                              {slip.typeName}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-muted-foreground font-mono">{slip.date}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-foreground">{slip.requester}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.department}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-foreground">{slip.partner}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.approver}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.handler}</TableCell>
-                          <TableCell className="px-3 py-2 text-center">
-                            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st.color}`}>
-                              {st.label}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-muted-foreground">{slip.itemCount}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">¥{slip.totalAmount.toLocaleString()}</TableCell>
-                        </TableRow>
-                      );
-                    })
+                    paged.map((slip) => (
+                      <TableRow key={slip.slipNo} className="border-border hover:bg-secondary/50">
+                        <TableCell className="px-3 py-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 text-[10px] px-2 gap-1"
+                            onClick={() => handleDetail(slip)}
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            詳細
+                          </Button>
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-xs font-mono text-primary font-medium">{slip.slipNo}</TableCell>
+                        <TableCell className="px-3 py-2">
+                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
+                            slip.slipType === "PROD" ? "border-info/50 text-info" : "border-warning/50 text-warning"
+                          }`}>
+                            {slip.typeName}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground font-mono">{slip.date}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-foreground">{slip.requester}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.department}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-foreground">{slip.partner}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.approver}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">{slip.handler}</TableCell>
+                        <TableCell className="px-3 py-2 text-center">
+                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getSlipStatusStyle(slip.status)}`}>
+                            {getSlipStatusLabel(slip.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-right font-mono text-muted-foreground">{slip.itemCount}</TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">¥{slip.totalAmount.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))
                   )}
                 </TableBody>
               </Table>
