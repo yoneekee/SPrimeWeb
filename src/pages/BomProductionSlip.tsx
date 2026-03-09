@@ -33,6 +33,8 @@ import {
   MinusCircle,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import type { PdfDocumentData } from "@/components/pdf";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   S00: { label: "作成中", color: "bg-muted text-muted-foreground" },
@@ -91,6 +93,8 @@ const BomProductionSlip = () => {
   const [selectedSlip, setSelectedSlip] = useState("SLP20240307-001");
   const [statusFilter, setStatusFilter] = useState("all");
   const [checkedSlips, setCheckedSlips] = useState<string[]>([]);
+  
+  const { downloadPdf, downloadMultiplePdfs, isGenerating } = usePdfDownload();
 
   const toggleCheck = (slipNo: string) => {
     setCheckedSlips((prev) =>
@@ -105,6 +109,47 @@ const BomProductionSlip = () => {
     return <AlertTriangle className="w-3.5 h-3.5 text-destructive" />;
   };
 
+  // Convert BOM data to PDF format
+  const convertBomToPdfData = (slipNo: string): PdfDocumentData => {
+    const slip = mockSlips.find((s) => s.slipNo === slipNo);
+    if (!slip) throw new Error("Slip not found");
+
+    // Convert BOM items to PDF line items
+    const pdfItems = mockBom.map((bomItem) => ({
+      name: `${"  ".repeat(bomItem.level)}${bomItem.itemName}`,
+      spec: `Lv${bomItem.level} / ${bomItem.itemCode}`,
+      qty: bomItem.totalQty,
+      unit: "EA",
+      unitPrice: 0, // BOM doesn't have unit price
+      amount: 0,
+      warehouse: bomItem.warehouse,
+      note: `所要量:${bomItem.requiredQty} / 在庫:${bomItem.stockQty} / 過不足:${bomItem.shortage >= 0 ? '+' : ''}${bomItem.shortage}`,
+    }));
+
+    return {
+      docType: "bom",
+      docNo: slipNo,
+      issueDate: slip.date.replace(/-/g, "年").replace(/年(\d+)$/, "年$1日").replace(/年(\d+)-/, "年$1月"),
+      partner: "社内生産",
+      items: pdfItems,
+      subtotal: 0,
+      taxRate: 0,
+      taxAmount: 0,
+      totalAmount: 0,
+      note: `対象品目: ${slip.targetItem} / 生産目標数: ${slip.targetQty}`,
+    };
+  };
+
+  const handleDownloadPdf = () => {
+    const pdfData = convertBomToPdfData(selectedSlip);
+    downloadPdf(pdfData);
+  };
+
+  const handleBatchDownload = () => {
+    const pdfDataList = checkedSlips.map(convertBomToPdfData);
+    downloadMultiplePdfs(pdfDataList);
+  };
+
   return (
     <ERPLayout>
       <div className="space-y-4">
@@ -117,7 +162,13 @@ const BomProductionSlip = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="gap-1.5 text-xs" disabled={checkedSlips.length === 0}>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="gap-1.5 text-xs" 
+              disabled={checkedSlips.length === 0 || isGenerating}
+              onClick={handleBatchDownload}
+            >
               <FileDown className="w-3.5 h-3.5" /> 一括出力 ({checkedSlips.length})
             </Button>
             <Button size="sm" onClick={() => navigate("/documents/bom/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs">
@@ -307,7 +358,13 @@ const BomProductionSlip = () => {
                   充足 {mockBom.filter(b => b.shortage >= 0).length}件
                 </span>
               </div>
-              <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="gap-1.5 text-xs h-7"
+                disabled={isGenerating}
+                onClick={handleDownloadPdf}
+              >
                 <FileDown className="w-3 h-3" /> PDF出力
               </Button>
             </div>
