@@ -137,6 +137,30 @@ export function getSlipExtraStep(slipType: "PROD" | "SHIP"): StatusStep | undefi
 }
 
 // ========================================
+// 전표 번호 생성
+// ========================================
+
+/**
+ * 전표 번호 생성 (prefix에 따라 SLP/SHP/BOM 등)
+ * 형식: {PREFIX}YYYYMMDD-{seq}
+ * 
+ * 사용 예:
+ *   generateSlipNumber("SLP")  → "SLP20240307-001"
+ *   generateSlipNumber("SHP")  → "SHP20240307-123"
+ *   generateSlipNumber("BOM")  → "BOM20240307-045"
+ * 
+ * TODO: 백엔드 연동 시 실제 시퀀스를 API에서 받아올 것
+ */
+export function generateSlipNumber(prefix: string): string {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const seq = String(Math.floor(Math.random() * 999) + 1).padStart(3, "0");
+  return `${prefix}${y}${m}${d}-${seq}`;
+}
+
+// ========================================
 // 상태 판별 유틸리티
 // ========================================
 
