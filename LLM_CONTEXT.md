@@ -331,6 +331,30 @@ return (
 - `goToPage(n)`, `nextPage()`, `prevPage()` — 페이지 이동
 - `changeItemsPerPage(n)` — 표시 건수 변경
 
+### use-pdf-download.tsx (`src/hooks/use-pdf-download.tsx`)
+
+브라우저에서 직접 PDF를 생성하고 다운로드하는 훅. `@react-pdf/renderer`의 `pdf()` 함수를 사용해 Blob을 생성합니다.
+
+```typescript
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import type { PdfDocumentData } from "@/components/pdf";
+
+const { downloadPdf, downloadMultiplePdfs, isGenerating } = usePdfDownload();
+
+// 단건 다운로드 (fileName 생략 시 docNo를 파일명으로 사용)
+await downloadPdf(pdfData, "SLP20240307-001.pdf");
+
+// 일괄 다운로드
+await downloadMultiplePdfs([pdfData1, pdfData2, pdfData3]);
+```
+
+`PdfDocumentData` 구조 (`src/components/pdf/pdf-types.ts`):
+- `docType`: `"po" | "invoice" | "production" | "shipment" | "bom"`
+- `docNo`, `issueDate`, `partner`, `items[]`, `subtotal`, `taxRate`, `taxAmount`, `totalAmount`
+- Optional: `deliveryDate`, `paymentTerms`, `bankInfo`, `note`, `requester`, `approver`
+
+> PDF 일본어 폰트는 Google Fonts CDN (`NotoSansJP`)을 사용. 오프라인 환경에서는 폰트 로딩 실패 가능.
+
 ---
 
 ## Key Patterns & Conventions
