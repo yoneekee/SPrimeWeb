@@ -47,6 +47,8 @@ const InvoiceManagement = () => {
   const [checkedDocs, setCheckedDocs] = useState<string[]>([]);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
 
+  const { downloadPdf, downloadMultiplePdfs, isGenerating } = usePdfDownload();
+
   const docs = docType === "po" ? mockPO : mockInvoice;
 
   const toggleCheck = (slipNo: string) => {
