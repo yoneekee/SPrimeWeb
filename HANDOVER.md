@@ -203,7 +203,7 @@ src/
 │
 ├── components/
 │   ├── erp/                    ← ★ ERP 전용 커스텀 컴포넌트
-│   │   ├── ERPLayout.tsx       ← 전체 레이아웃 (사이드바 + 헤더 + 본문)
+│   │   ├── ERPLayout.tsx       ← 전체 레이아웃 (사이드바 + sticky 고정 헤더 + 본문)
 │   │   ├── ERPSidebar.tsx      ← 좌측 사이드바 네비게이션
 │   │   ├── KPICard.tsx         ← 대시보드 KPI 카드
 │   │   ├── DashboardChart.tsx  ← 대시보드 차트
@@ -214,7 +214,14 @@ src/
 │   │   ├── SafetyStockAlert.tsx← 안전재고 알림
 │   │   ├── SlipStatusChart.tsx ← 전표 상태 차트
 │   │   ├── StatusFlowStepper.tsx ← 전표 상태 흐름 스텝퍼
-│   │   └── ItemSelectModal.tsx ← 품목 선택 모달
+│   │   ├── ItemSelectModal.tsx ← 품목 선택 모달
+│   │   └── PaginationControls.tsx ← 재사용 가능한 페이지네이션 UI 컴포넌트
+│   │
+│   ├── pdf/                    ← ★ PDF 생성 전용 컴포넌트 (@react-pdf/renderer)
+│   │   ├── SlipPdfDocument.tsx ← 전표 PDF 레이아웃 (발주서/청구서/생산/출고/BOM)
+│   │   ├── pdf-styles.ts       ← PDF용 StyleSheet 정의 (NotoSansJP 폰트 포함)
+│   │   ├── pdf-types.ts        ← PdfDocumentData, PdfLineItem 타입 정의
+│   │   └── index.ts            ← 통합 export
 │   │
 │   └── ui/                     ← shadcn/ui 공통 UI 컴포넌트 (수정 거의 안 함)
 │       ├── button.tsx
@@ -230,10 +237,21 @@ src/
 ├── hooks/                      ← 커스텀 훅 (전역 상태 관리)
 │   ├── use-auth.tsx            ← 로그인/로그아웃 상태
 │   ├── use-theme.tsx           ← 다크/라이트 테마
-│   └── use-mobile.tsx          ← 모바일 여부 감지
+│   ├── use-mobile.tsx          ← 모바일 여부 감지
+│   ├── use-pagination.tsx      ← usePagination() 페이지네이션 공통 훅
+│   ├── use-pdf-download.tsx    ← PDF 생성 및 다운로드 훅
+│   └── api/                    ← React Query 데이터 fetching 훅
+│       ├── index.ts
+│       ├── use-slips.tsx
+│       ├── use-employees.tsx
+│       ├── use-items.tsx
+│       ├── use-warehouses.tsx
+│       └── use-partners.tsx
 │
 └── lib/
-    └── utils.ts                ← cn() 유틸리티 (Tailwind 클래스 병합)
+    ├── utils.ts                ← cn() 유틸리티 (Tailwind 클래스 병합)
+    ├── slip-utils.ts           ← 전표 상태 관리, 전표 번호 생성 유틸
+    └── format-utils.ts         ← 금액, 날짜, 숫자 포맷팅 유틸
 ```
 
 ---
