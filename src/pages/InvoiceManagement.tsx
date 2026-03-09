@@ -245,7 +245,13 @@ const InvoiceManagement = () => {
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); setSelectedDoc(doc.slipNo); }}>
                             <Eye className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0" 
+                            disabled={isGenerating}
+                            onClick={(e) => { e.stopPropagation(); handleDownloadPdf(doc); }}
+                          >
                             <Printer className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                           </Button>
                         </div>
