@@ -148,7 +148,10 @@ src/
 │       └── (40+ files)
 │
 └── lib/
-    └── utils.ts                 # cn() — clsx + tailwind-merge utility
+    ├── utils.ts                 # cn() — clsx + tailwind-merge utility
+    ├── slip-utils.ts            # 전표 상태 관리, 전표 번호 생성 유틸
+    └── format-utils.ts          # 금액, 날짜, 숫자 포맷팅 유틸
+
 ```
 
 ---
