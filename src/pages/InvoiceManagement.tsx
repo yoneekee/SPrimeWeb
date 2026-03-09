@@ -176,7 +176,13 @@ const InvoiceManagement = () => {
                 <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90">
                   <Search className="w-3.5 h-3.5" /> 照会
                 </Button>
-                <Button size="sm" variant="outline" className="gap-1.5 text-xs" disabled={checkedDocs.length === 0}>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="gap-1.5 text-xs" 
+                  disabled={checkedDocs.length === 0 || isGenerating}
+                  onClick={handleBatchDownload}
+                >
                   <FileDown className="w-3.5 h-3.5" /> PDF一括出力 ({checkedDocs.length})
                 </Button>
               </div>
