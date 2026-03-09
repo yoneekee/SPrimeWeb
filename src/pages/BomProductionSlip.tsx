@@ -162,7 +162,13 @@ const BomProductionSlip = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="gap-1.5 text-xs" disabled={checkedSlips.length === 0}>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="gap-1.5 text-xs" 
+              disabled={checkedSlips.length === 0 || isGenerating}
+              onClick={handleBatchDownload}
+            >
               <FileDown className="w-3.5 h-3.5" /> 一括出力 ({checkedSlips.length})
             </Button>
             <Button size="sm" onClick={() => navigate("/documents/bom/new")} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs">
