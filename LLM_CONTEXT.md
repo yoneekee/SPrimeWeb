@@ -459,13 +459,15 @@ const { data } = useQuery({ queryKey: ['items'], queryFn: () => fetch('/api/item
 |---------|---------|---------|
 | react | ^18.3.1 | UI framework |
 | react-router-dom | ^6.30.1 | Client routing |
-| @tanstack/react-query | ^5.83.0 | Async state (installed, not actively used yet) |
+| @tanstack/react-query | ^5.83.0 | Async state / API hooks (서비스 레이어 준비 완료) |
+| @react-pdf/renderer | ^4.3.2 | Browser-side PDF generation (NotoSansJP font) |
 | recharts | ^2.15.4 | Charts on dashboard |
 | date-fns | ^3.6.0 | Date formatting/parsing |
 | lucide-react | ^0.462.0 | Icons |
 | react-day-picker | ^8.10.1 | Calendar component |
 | zod | ^3.25.76 | Schema validation |
 | react-hook-form | ^7.61.1 | Form management |
+| sonner | ^1.7.4 | Toast notifications |
 | tailwindcss | ^3.4.17 | Utility CSS |
 | shadcn/ui components | various @radix-ui/* | Accessible UI primitives |
 
