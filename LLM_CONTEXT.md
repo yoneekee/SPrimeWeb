@@ -141,7 +141,8 @@ src/
 │   │   ├── SafetyStockAlert.tsx # Safety stock warnings
 │   │   ├── SlipStatusChart.tsx  # Slip status pie chart
 │   │   ├── StatusFlowStepper.tsx# Visual step indicator for slip workflow
-│   │   └── ItemSelectModal.tsx  # Modal for selecting catalog items (used in slip creation)
+│   │   ├── ItemSelectModal.tsx  # Modal for selecting catalog items (used in slip creation)
+│   │   └── PaginationControls.tsx # 재사용 가능한 페이지네이션 UI 컴포넌트
 │   │
 │   └── ui/                      # shadcn/ui primitives (avoid modifying except date-picker.tsx)
 │       ├── date-picker.tsx      # CUSTOM: text input + calendar popover, supports string/Date values
