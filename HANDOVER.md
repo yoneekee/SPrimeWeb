@@ -56,6 +56,8 @@
 | **Recharts** | 차트 | 대시보드에 쓰이는 그래프 라이브러리 |
 | **date-fns** | 날짜 처리 | 날짜 포맷팅, 파싱 유틸리티 |
 | **Lucide React** | 아이콘 | 아이콘 라이브러리 (예: `<Factory />`, `<Search />`) |
+| **@react-pdf/renderer** | PDF 생성 | 브라우저에서 직접 PDF를 생성하고 다운로드 (NotoSansJP 폰트 사용) |
+| **@tanstack/react-query** | 비동기 상태 | API 연동 시 데이터 fetching, 캐싱, 뮤테이션 관리 |
 
 ---
 
