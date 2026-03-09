@@ -371,7 +371,7 @@ const ProtectedRoute = ({ children }) => {
 ### ERPLayout (`src/components/erp/ERPLayout.tsx`)
 
 - **사이드바**: `ERPSidebar` 컴포넌트. 마우스 호버 시 자동 확장/축소.
-- **상단 헤더**: 검색, 테마 토글, 알림 패널, 유저 메뉴(설정/로그아웃)
+- **상단 헤더**: `sticky top-0 z-40` 으로 스크롤 시에도 상단 고정. 검색, 테마 토글, 알림 패널, 유저 메뉴(설정/로그아웃) 포함.
 - **본문**: `{children}` = 각 페이지의 내용이 여기에 들어감
 
 ### ERPSidebar (`src/components/erp/ERPSidebar.tsx`)
