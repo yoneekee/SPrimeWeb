@@ -106,7 +106,8 @@ src/
 ├── hooks/
 │   ├── use-auth.tsx             # AuthContext: isLoggedIn, user, login(), logout()
 │   ├── use-theme.tsx            # ThemeContext: theme ("light"|"dark"), toggleTheme()
-│   └── use-mobile.tsx           # useIsMobile() hook
+│   ├── use-mobile.tsx           # useIsMobile() hook
+│   └── use-pagination.tsx       # usePagination() — 페이지네이션 공통 로직 훅
 │
 ├── pages/                       # One file per route (self-contained with mock data)
 │   ├── Login.tsx
