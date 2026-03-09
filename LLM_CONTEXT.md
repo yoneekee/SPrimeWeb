@@ -151,7 +151,7 @@ src/
 │
 ├── components/
 │   ├── erp/                     # Domain-specific components
-│   │   ├── ERPLayout.tsx        # Shell: sidebar + header + main content + notifications + user menu + settings modal
+│   │   ├── ERPLayout.tsx        # Shell: sidebar + sticky header (top-0 z-40) + notifications + user menu + settings modal
 │   │   ├── ERPSidebar.tsx       # Left nav with collapsible groups, hover auto-expand
 │   │   ├── KPICard.tsx          # Dashboard KPI card
 │   │   ├── DashboardChart.tsx   # Recharts area chart
@@ -163,7 +163,13 @@ src/
 │   │   ├── SlipStatusChart.tsx  # Slip status pie chart
 │   │   ├── StatusFlowStepper.tsx# Visual step indicator for slip workflow
 │   │   ├── ItemSelectModal.tsx  # Modal for selecting catalog items (used in slip creation)
-│   │   └── PaginationControls.tsx # 재사용 가능한 페이지네이션 UI 컴포넌트
+│   │   └── PaginationControls.tsx # Reusable pagination UI; used with usePagination()
+│   │
+│   ├── pdf/                     # PDF generation components (@react-pdf/renderer)
+│   │   ├── SlipPdfDocument.tsx  # PDF layout for all slip types (PO/invoice/production/shipment/BOM)
+│   │   ├── pdf-styles.ts        # StyleSheet definitions + NotoSansJP font registration
+│   │   ├── pdf-types.ts         # PdfDocumentData, PdfLineItem, PdfDocType type definitions
+│   │   └── index.ts             # Re-exports
 │   │
 │   └── ui/                      # shadcn/ui primitives (avoid modifying except date-picker.tsx)
 │       ├── date-picker.tsx      # CUSTOM: text input + calendar popover, supports string/Date values
