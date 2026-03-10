@@ -181,8 +181,8 @@ const [isQueried, setIsQueried] = useState(true);
                 <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setIsQueried(true)}>
                   <Search className="w-3.5 h-3.5" /> 照会
                 </Button>
-                <Button size="sm" variant="outline" className="gap-1.5 text-xs">
-                  <FileDown className="w-3.5 h-3.5" /> PDF出力
+                <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handlePdfDownload} disabled={isPdfGenerating || !isQueried}>
+                  {isPdfGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileDown className="w-3.5 h-3.5" />} PDF出力
                 </Button>
               </div>
             </div>
