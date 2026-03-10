@@ -57,6 +57,7 @@ const App = () => (
           <Route path="/master/employee" element={<ProtectedRoute><EmployeeMaster /></ProtectedRoute>} />
           <Route path="/master/item" element={<ProtectedRoute><ItemMaster /></ProtectedRoute>} />
           <Route path="/master/warehouse" element={<ProtectedRoute><WarehouseMaster /></ProtectedRoute>} />
+          <Route path="/design-system" element={<DesignSystem />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
