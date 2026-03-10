@@ -52,7 +52,8 @@ const FinancialStatements = () => {
   const [reportType, setReportType] = useState<"bs" | "pl">("bs");
   const [startDate, setStartDate] = useState("2024-01-01");
   const [endDate, setEndDate] = useState("2024-03-31");
-  const [isQueried, setIsQueried] = useState(true);
+const [isQueried, setIsQueried] = useState(true);
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
 
   const assetTotal = bsAssets.reduce((s, a) => s + a.amount, 0);
   const liabilityTotal = bsLiabilities.reduce((s, a) => s + a.amount, 0);
@@ -60,6 +61,51 @@ const FinancialStatements = () => {
   const revenueTotal = plRevenue.reduce((s, a) => s + a.amount, 0);
   const expenseTotal = plExpenses.reduce((s, a) => s + a.amount, 0);
   const netIncome = revenueTotal - expenseTotal;
+
+  const handlePdfDownload = useCallback(async () => {
+    setIsPdfGenerating(true);
+    try {
+      const pdfData: FinancialPdfData = reportType === "bs"
+        ? {
+            reportType: "bs",
+            title: "貸 借 対 照 表",
+            period: `${startDate} ~ ${endDate}`,
+            sections: [
+              { title: "【資産の部】", items: bsAssets, subtotalLabel: "資産合計", subtotalAmount: assetTotal },
+              { title: "【負債の部】", items: bsLiabilities, subtotalLabel: "負債合計", subtotalAmount: liabilityTotal },
+            ],
+            grandTotalLabel: "純資産合計（資産 − 負債）",
+            grandTotalAmount: equityTotal,
+          }
+        : {
+            reportType: "pl",
+            title: "損 益 計 算 書",
+            period: `${startDate} ~ ${endDate}`,
+            sections: [
+              { title: "【収益の部】", items: plRevenue, subtotalLabel: "収益合計", subtotalAmount: revenueTotal },
+              { title: "【費用の部】", items: plExpenses, subtotalLabel: "費用合計", subtotalAmount: expenseTotal },
+            ],
+            grandTotalLabel: "当期純利益（収益 − 費用）",
+            grandTotalAmount: netIncome,
+          };
+
+      const blob = await pdf(<FinancialStatementPdf data={pdfData} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${reportType === "bs" ? "BS" : "PL"}_${startDate}_${endDate}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("PDFをダウンロードしました");
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      toast.error("PDF生成に失敗しました");
+    } finally {
+      setIsPdfGenerating(false);
+    }
+  }, [reportType, startDate, endDate, assetTotal, liabilityTotal, equityTotal, revenueTotal, expenseTotal, netIncome]);
 
   const renderAccountRow = (item: { code: string; name: string; amount: number; ratio: number }, idx: number) => (
     <TableRow key={item.code} className="border-border hover:bg-secondary/50">
