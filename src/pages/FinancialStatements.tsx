@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { format, parse } from "date-fns";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, FileDown, FileText, TrendingUp, TrendingDown } from "lucide-react";
+import { Search, FileDown, FileText, TrendingUp, TrendingDown, Loader2 } from "lucide-react";
+import { usePdfDownload } from "@/hooks/use-pdf-download";
+import { pdf } from "@react-pdf/renderer";
+import { FinancialStatementPdf } from "@/components/pdf";
+import type { FinancialPdfData } from "@/components/pdf";
+import { toast } from "sonner";
 
 // B/S mock data
 const bsAssets = [
