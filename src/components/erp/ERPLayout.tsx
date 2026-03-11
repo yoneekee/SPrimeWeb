@@ -1,16 +1,21 @@
+/**
+ * ERPLayout – Root layout shell.
+ * Renders sidebar (desktop) or Sheet drawer (mobile), top header, and footer.
+ */
 import { useState, useRef, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import ERPSidebar from "./ERPSidebar";
-import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X, LogIn, LogOut, Settings, UserCircle } from "lucide-react";
+import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X, LogOut, Settings, UserCircle, Menu } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 interface Notification {
   id: string;
@@ -45,6 +50,8 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -63,6 +70,11 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [navigate]);
+
   // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -80,12 +92,37 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
   return (
     <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full">
-        <ERPSidebar />
+        {/* Desktop sidebar – hidden on mobile */}
+        {!isMobile && <ERPSidebar />}
+
+        {/* Mobile Sheet drawer */}
+        {isMobile && (
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetContent side="left" className="w-72 p-0">
+              <SheetHeader className="sr-only">
+                <SheetTitle>メニュー</SheetTitle>
+              </SheetHeader>
+              <ERPSidebar onNavigate={() => setMobileMenuOpen(false)} />
+            </SheetContent>
+          </Sheet>
+        )}
+
         <div className="flex-1 flex flex-col min-w-0">
           {/* Top bar */}
           <header className="sticky top-0 z-40 h-12 flex items-center justify-between border-b border-border px-4 bg-background flex-shrink-0">
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+              {isMobile ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                  onClick={() => setMobileMenuOpen(true)}
+                >
+                  <Menu className="w-5 h-5" />
+                </Button>
+              ) : (
+                <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+              )}
               <div className="hidden sm:flex items-center gap-2 bg-secondary rounded-md px-3 py-1.5">
                 <Search className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">検索...</span>
@@ -99,7 +136,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 className="h-7 px-2.5 gap-1.5 relative rounded-full bg-secondary ring-1 ring-border shadow-sm hover:bg-secondary/80 hover:opacity-90 text-xs"
               >
                 {theme === "dark" ? <Moon className="w-3.5 h-3.5 text-primary" /> : <Sun className="w-3.5 h-3.5 text-warning" />}
-                <span className="text-[10px] font-medium">{theme === "dark" ? "ダーク" : "ライト"}</span>
+                <span className="hidden sm:inline text-[10px] font-medium">{theme === "dark" ? "ダーク" : "ライト"}</span>
               </Button>
 
               {/* Notification Bell */}
@@ -119,7 +156,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
                 </Button>
 
                 {notifOpen && (
-                  <div className="absolute right-0 top-9 w-80 border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-slide-up bg-background" style={{ opacity: 1 }}>
+                  <div className="absolute right-0 top-9 w-80 border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-slide-up bg-background">
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
                       <span className="text-xs font-semibold text-foreground">通知</span>
                       <div className="flex items-center gap-2">
@@ -235,7 +272,6 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
           </DialogHeader>
 
           <div className="space-y-4 pt-2">
-            {/* Profile section */}
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
                 <UserCircle className="w-8 h-8 text-primary" />
@@ -248,7 +284,6 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
 
             <Separator />
 
-            {/* Form */}
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">表示名</Label>
@@ -281,7 +316,6 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
 
             <Separator />
 
-            {/* Theme */}
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-foreground">テーマ</p>
