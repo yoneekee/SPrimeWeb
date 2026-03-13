@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import ERPLayout from "@/components/erp/ERPLayout";
+import { FormError } from "@/components/erp/FormError";
 import ItemSelectModal, { CatalogItem } from "@/components/erp/ItemSelectModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,29 +14,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  ArrowLeft,
-  Plus,
-  Trash2,
-  Save,
-  Send,
-  FileText,
-} from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Send, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { productionSlipSchema, type ProductionSlipFormValues } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
 interface NewDetailItem {
   id: number;
@@ -54,7 +43,7 @@ const ITEM_CATALOG: CatalogItem[] = [
   { code: "SEMI-CHEM-04", name: "現像液 AZ-300MIF", spec: "5L / TMAH", unit: "EA", price: 95000 },
   { code: "SEMI-GAS-07", name: "高純度窒素ガス (N₂)", spec: "99.999% / 47L", unit: "SET", price: 45000 },
   { code: "SEMI-GAS-08", name: "高純度アルゴンガス (Ar)", spec: "99.9999% / 47L", unit: "SET", price: 78000 },
-  { code: "SEMI-PART-10", name: "石英ボート 6インチ", spec: "6\" / 25slot", unit: "EA", price: 350000 },
+  { code: "SEMI-PART-10", name: "石英ボート 6インチ", spec: '6" / 25slot', unit: "EA", price: 350000 },
   { code: "SEMI-PART-11", name: "O-Ring (Viton)", spec: "ID200 x 5.0", unit: "EA", price: 12000 },
 ];
 
@@ -70,79 +59,63 @@ const generateSlipNo = () => {
 const ProductionSlipCreate = () => {
   const navigate = useNavigate();
   const [slipNo] = useState(generateSlipNo());
-  const [reqDate, setReqDate] = useState(new Date().toISOString().split("T")[0]);
   const [requester] = useState("田中 太郎");
   const [department] = useState("製造1課");
-  const [vendor, setVendor] = useState("");
-  const [remark, setRemark] = useState("");
   const [details, setDetails] = useState<NewDetailItem[]>([]);
   const [nextId, setNextId] = useState(1);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
 
+  const {
+    register,
+    handleSubmit: rhfSubmit,
+    setValue,
+    watch,
+    formState: { errors, isValid },
+    trigger,
+  } = useForm<ProductionSlipFormValues>({
+    resolver: zodResolver(productionSlipSchema),
+    defaultValues: {
+      reqDate: new Date().toISOString().split("T")[0],
+      vendor: "",
+      remark: "",
+    },
+    mode: "onChange",
+  });
+
+  const reqDate = watch("reqDate");
+  const vendor = watch("vendor");
+
   const addItem = (catalogItem: CatalogItem) => {
     const existing = details.find((d) => d.itemCode === catalogItem.code);
-    if (existing) {
-      toast.error("既に追加済みの品目です。");
-      return;
-    }
+    if (existing) { toast.error("既に追加済みの品目です。"); return; }
     setDetails((prev) => [
       ...prev,
-      {
-        id: nextId,
-        itemCode: catalogItem.code,
-        itemName: catalogItem.name,
-        spec: catalogItem.spec || "",
-        unit: catalogItem.unit,
-        orderQty: 1,
-        unitPrice: catalogItem.price,
-        supplyAmount: catalogItem.price,
-        lotNo: "",
-      },
+      { id: nextId, itemCode: catalogItem.code, itemName: catalogItem.name, spec: catalogItem.spec || "", unit: catalogItem.unit, orderQty: 1, unitPrice: catalogItem.price, supplyAmount: catalogItem.price, lotNo: "" },
     ]);
     setNextId((n) => n + 1);
     toast.success(`${catalogItem.name} を追加しました`);
   };
 
-  const removeItem = (id: number) => {
-    setDetails((prev) => prev.filter((d) => d.id !== id));
-  };
+  const removeItem = (id: number) => { setDetails((prev) => prev.filter((d) => d.id !== id)); };
 
   const updateQty = (id: number, qty: number) => {
-    setDetails((prev) =>
-      prev.map((d) =>
-        d.id === id
-          ? { ...d, orderQty: qty, supplyAmount: qty * d.unitPrice }
-          : d
-      )
-    );
+    setDetails((prev) => prev.map((d) => d.id === id ? { ...d, orderQty: qty, supplyAmount: qty * d.unitPrice } : d));
   };
 
   const updateLot = (id: number, lot: string) => {
-    setDetails((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, lotNo: lot } : d))
-    );
+    setDetails((prev) => prev.map((d) => (d.id === id ? { ...d, lotNo: lot } : d)));
   };
 
   const totalAmount = details.reduce((sum, d) => sum + d.supplyAmount, 0);
 
   const handleSave = () => {
-    if (details.length === 0) {
-      toast.error("1件以上の品目を追加してください。");
-      return;
-    }
+    if (details.length === 0) { toast.error("1件以上の品目を追加してください。"); return; }
     toast.success("伝票を保存しました（作成中ステータス）");
     navigate("/production/execution");
   };
 
-  const handleSubmit = () => {
-    if (details.length === 0) {
-      toast.error("1件以上の品目を追加してください。");
-      return;
-    }
-    if (!vendor) {
-      toast.error("希望発注先を選択してください。");
-      return;
-    }
+  const onSubmit = (data: ProductionSlipFormValues) => {
+    if (details.length === 0) { toast.error("1件以上の品目を追加してください。"); return; }
     toast.success("伝票を申請しました");
     navigate("/production/execution");
   };
@@ -153,36 +126,23 @@ const ProductionSlipCreate = () => {
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/production/execution")}
-              className="gap-1.5 text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              一覧
+            <Button variant="ghost" size="sm" onClick={() => navigate("/production/execution")} className="gap-1.5 text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-4 h-4" /> 一覧
             </Button>
             <Separator orientation="vertical" className="h-6" />
             <div>
               <h1 className="text-lg font-bold text-foreground">新規伝票作成</h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                原材料調達のための新規伝票を作成します
-              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">原材料調達のための新規伝票を作成します</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge className="bg-muted text-muted-foreground text-xs px-2.5 py-0.5">
-              作成中 (Draft)
-            </Badge>
-          </div>
+          <Badge className="bg-muted text-muted-foreground text-xs px-2.5 py-0.5">作成中 (Draft)</Badge>
         </div>
 
         {/* Header Info */}
         <Card className="border-border bg-card">
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <FileText className="w-4 h-4 text-primary" />
-              伝票ヘッダ情報
+              <FileText className="w-4 h-4 text-primary" /> 伝票ヘッダ情報
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
@@ -192,20 +152,21 @@ const ProductionSlipCreate = () => {
                 <Input value={slipNo} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請日</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請日 <span className="text-destructive">*</span></label>
                 <DatePicker
                   value={reqDate}
-                  onChange={(d) => setReqDate(d ? format(d, "yyyy-MM-dd") : "")}
+                  onChange={(d) => { setValue("reqDate", d ? format(d, "yyyy-MM-dd") : "", { shouldValidate: true }); }}
                 />
+                <FormError message={errors.reqDate?.message} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請者（部署）</label>
                 <Input value={`${requester}（${department}）`} readOnly className="h-8 text-xs bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">希望発注先</label>
-                <Select value={vendor} onValueChange={setVendor}>
-                  <SelectTrigger className="h-8 text-xs border-border">
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">希望発注先 <span className="text-destructive">*</span></label>
+                <Select value={vendor} onValueChange={(v) => setValue("vendor", v, { shouldValidate: true })}>
+                  <SelectTrigger className={cn("h-8 text-xs border-border", errors.vendor && "border-destructive ring-1 ring-destructive")}>
                     <SelectValue placeholder="発注先を選択" />
                   </SelectTrigger>
                   <SelectContent>
@@ -215,23 +176,16 @@ const ProductionSlipCreate = () => {
                     <SelectItem value="screen">SCREEN HD(株)</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormError message={errors.vendor?.message} />
               </div>
               <div className="col-span-2 md:col-span-3 space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">備考</label>
-                <Textarea
-                  value={remark}
-                  onChange={(e) => setRemark(e.target.value)}
-                  placeholder="伝票に関する備考事項を入力してください"
-                  className="text-xs border-border min-h-[60px] resize-none"
-                />
+                <Textarea {...register("remark")} placeholder="伝票に関する備考事項を入力してください" className={cn("text-xs border-border min-h-[60px] resize-none", errors.remark && "border-destructive")} />
+                <FormError message={errors.remark?.message} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">合計金額</label>
-                <Input
-                  value={`¥${totalAmount.toLocaleString()}`}
-                  readOnly
-                  className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold"
-                />
+                <Input value={`¥${totalAmount.toLocaleString()}`} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold" />
               </div>
             </div>
           </CardContent>
@@ -242,27 +196,14 @@ const ProductionSlipCreate = () => {
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">品目追加</CardTitle>
-              <Button
-                size="sm"
-                onClick={() => setIsItemModalOpen(true)}
-                className="gap-1.5 text-xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                品目選択
+              <Button size="sm" onClick={() => setIsItemModalOpen(true)} className="gap-1.5 text-xs">
+                <Plus className="w-3.5 h-3.5" /> 品目選択
               </Button>
             </div>
           </CardHeader>
         </Card>
 
-        {/* Item Select Modal */}
-        <ItemSelectModal
-          open={isItemModalOpen}
-          onOpenChange={setIsItemModalOpen}
-          items={ITEM_CATALOG}
-          onSelect={addItem}
-          selectedCodes={details.map((d) => d.itemCode)}
-          title="原材料品目選択"
-        />
+        <ItemSelectModal open={isItemModalOpen} onOpenChange={setIsItemModalOpen} items={ITEM_CATALOG} onSelect={addItem} selectedCodes={details.map((d) => d.itemCode)} title="原材料品目選択" />
 
         {/* Detail Items */}
         <Card className="border-border bg-card">
@@ -270,11 +211,7 @@ const ProductionSlipCreate = () => {
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">
                 明細品目一覧
-                {details.length > 0 && (
-                  <Badge variant="outline" className="ml-2 text-[10px] px-1.5 py-0">
-                    {details.length}件
-                  </Badge>
-                )}
+                {details.length > 0 && (<Badge variant="outline" className="ml-2 text-[10px] px-1.5 py-0">{details.length}件</Badge>)}
               </CardTitle>
             </div>
           </CardHeader>
@@ -309,35 +246,15 @@ const ProductionSlipCreate = () => {
                           <TableCell className="px-3 py-2 text-xs text-muted-foreground">{item.spec}</TableCell>
                           <TableCell className="px-3 py-2 text-xs text-center text-muted-foreground">{item.unit}</TableCell>
                           <TableCell className="px-3 py-2 text-xs text-right">
-                            <Input
-                              type="number"
-                              min={1}
-                              value={item.orderQty}
-                              onChange={(e) => updateQty(item.id, Math.max(1, parseInt(e.target.value) || 1))}
-                              className="h-6 w-20 text-xs text-right border-border ml-auto"
-                            />
+                            <Input type="number" min={1} value={item.orderQty} onChange={(e) => updateQty(item.id, Math.max(1, parseInt(e.target.value) || 1))} className="h-6 w-20 text-xs text-right border-border ml-auto" />
                           </TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">
-                            ¥{item.unitPrice.toLocaleString()}
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">
-                            ¥{item.supplyAmount.toLocaleString()}
-                          </TableCell>
+                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">¥{item.unitPrice.toLocaleString()}</TableCell>
+                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">¥{item.supplyAmount.toLocaleString()}</TableCell>
                           <TableCell className="px-3 py-2 text-xs">
-                            <Input
-                              value={item.lotNo}
-                              onChange={(e) => updateLot(item.id, e.target.value)}
-                              placeholder="LOT-"
-                              className="h-6 w-28 text-xs font-mono border-border"
-                            />
+                            <Input value={item.lotNo} onChange={(e) => updateLot(item.id, e.target.value)} placeholder="LOT-" className="h-6 w-28 text-xs font-mono border-border" />
                           </TableCell>
                           <TableCell className="px-3 py-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeItem(item.id)}
-                              className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)} className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10">
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </TableCell>
@@ -348,9 +265,7 @@ const ProductionSlipCreate = () => {
                 </div>
                 <div className="flex justify-end items-center gap-4 px-4 py-2.5 border-t border-border bg-muted/30">
                   <span className="text-xs text-muted-foreground">合計</span>
-                  <span className="text-sm font-mono font-bold text-primary">
-                    ¥{totalAmount.toLocaleString()}
-                  </span>
+                  <span className="text-sm font-mono font-bold text-primary">¥{totalAmount.toLocaleString()}</span>
                 </div>
               </>
             )}
@@ -359,30 +274,17 @@ const ProductionSlipCreate = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-2 pb-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/production/execution")}
-            className="gap-1.5 text-xs"
-          >
-            キャンセル
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSave}
-            className="gap-1.5 text-xs"
-          >
-            <Save className="w-3.5 h-3.5" />
-            一時保存
+          <Button variant="outline" size="sm" onClick={() => navigate("/production/execution")} className="gap-1.5 text-xs">キャンセル</Button>
+          <Button variant="outline" size="sm" onClick={handleSave} className="gap-1.5 text-xs">
+            <Save className="w-3.5 h-3.5" /> 一時保存
           </Button>
           <Button
             size="sm"
-            onClick={handleSubmit}
-            className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={rhfSubmit(onSubmit)}
+            disabled={!isValid || details.length === 0}
+            className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            <Send className="w-3.5 h-3.5" />
-            申請
+            <Send className="w-3.5 h-3.5" /> 申請
           </Button>
         </div>
       </div>
