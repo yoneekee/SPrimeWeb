@@ -1,5 +1,14 @@
+/**
+ * ItemMaster — 品目マスタ管理画面
+ * 原材料・半製品・完成品の品目情報登録および在庫管理
+ * 
+ * Validation: zod + react-hook-form による日本語エラーメッセージ付きバリデーション
+ */
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import ERPLayout from "@/components/erp/ERPLayout";
+import { FormError } from "@/components/erp/FormError";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +26,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Plus, Search, Pencil, Box, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { itemSchema, type ItemFormValues } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Item {
   itemId: number;
@@ -66,8 +78,32 @@ const ItemMaster = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  const openNew = () => { setEditingItem(null); setDialogOpen(true); };
-  const openEdit = (item: Item) => { setEditingItem(item); setDialogOpen(true); };
+  const isEditing = !!editingItem;
+
+  const form = useForm<ItemFormValues>({
+    resolver: zodResolver(itemSchema),
+    defaultValues: { itemCode: "", itemType: "", itemName: "", spec: "", unit: "", stdPrice: 0, safetyStock: 0, acctCode: "", isActive: true },
+    mode: "onChange",
+  });
+
+  const { register, handleSubmit, setValue, watch, formState: { errors, isValid }, reset } = form;
+
+  const openNew = () => {
+    setEditingItem(null);
+    reset({ itemCode: "", itemType: "", itemName: "", spec: "", unit: "", stdPrice: 0, safetyStock: 0, acctCode: "", isActive: true });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (item: Item) => {
+    setEditingItem(item);
+    reset({ itemCode: item.itemCode, itemType: item.itemType, itemName: item.itemName, spec: item.spec, unit: item.unit, stdPrice: item.stdPrice, safetyStock: item.safetyStock, acctCode: item.acctCode, isActive: item.isActive });
+    setDialogOpen(true);
+  };
+
+  const onFormSubmit = (data: ItemFormValues) => {
+    toast.success(isEditing ? "品目情報を更新しました" : "品目を登録しました");
+    setDialogOpen(false);
+  };
 
   const filtered = typeFilter === "all" ? mockItems : mockItems.filter(i => i.itemType === typeFilter);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
@@ -100,9 +136,7 @@ const ItemMaster = () => {
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">品目分類</label>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="h-8 text-xs border-border w-28">
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger className="h-8 text-xs border-border w-28"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">全件</SelectItem>
                     {TYPE_OPTIONS.map(t => <SelectItem key={t.code} value={t.code}>{t.name}</SelectItem>)}
@@ -120,8 +154,7 @@ const ItemMaster = () => {
         <Card className="border-border bg-card">
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Box className="w-4 h-4 text-primary" />
-              品目一覧
+              <Box className="w-4 h-4 text-primary" /> 品目一覧
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground ml-1">{filtered.length}件</Badge>
             </CardTitle>
           </CardHeader>
@@ -149,13 +182,10 @@ const ItemMaster = () => {
                         <TableCell className="px-3 py-2 text-xs font-mono text-primary">{item.itemCode}</TableCell>
                         <TableCell className="px-3 py-2 text-xs font-medium text-foreground">{item.itemName}</TableCell>
                         <TableCell className="px-3 py-2">
-                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
+                          <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0",
                             item.itemType === "RAW" ? "border-info/50 text-info" :
-                            item.itemType === "SEMI" ? "border-warning/50 text-warning" :
-                            "border-success/50 text-success"
-                          }`}>
-                            {item.typeName}
-                          </Badge>
+                            item.itemType === "SEMI" ? "border-warning/50 text-warning" : "border-success/50 text-success"
+                          )}>{item.typeName}</Badge>
                         </TableCell>
                         <TableCell className="px-3 py-2 text-xs text-muted-foreground">{item.spec}</TableCell>
                         <TableCell className="px-3 py-2 text-xs text-right font-mono text-muted-foreground">{item.planQty.toLocaleString()}</TableCell>
@@ -167,11 +197,9 @@ const ItemMaster = () => {
                         </TableCell>
                         <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">¥{item.stdPrice.toLocaleString()}</TableCell>
                         <TableCell className="px-3 py-2 text-center">
-                          {item.isActive ? (
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-success/10 text-success border-success/30">使用中</Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-destructive/10 text-destructive border-destructive/30">廃番</Badge>
-                          )}
+                          {item.isActive
+                            ? <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-success/10 text-success border-success/30">使用中</Badge>
+                            : <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-destructive/10 text-destructive border-destructive/30">廃番</Badge>}
                         </TableCell>
                         <TableCell className="px-3 py-2 text-center">
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEdit(item)}>
@@ -189,9 +217,7 @@ const ItemMaster = () => {
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">表示件数</span>
               <Select value={String(itemsPerPage)} onValueChange={(v) => { setItemsPerPage(Number(v)); setCurrentPage(1); }}>
-                <SelectTrigger className="h-7 w-20 text-xs border-border">
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger className="h-7 w-20 text-xs border-border"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="5">5件</SelectItem>
                   <SelectItem value="10">10件</SelectItem>
@@ -204,17 +230,11 @@ const ItemMaster = () => {
             </div>
             {totalPages > 1 && (
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </Button>
+                <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}><ChevronLeft className="w-3.5 h-3.5" /></Button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button key={page} variant={currentPage === page ? "default" : "outline"} size="icon" className="h-7 w-7 text-xs" onClick={() => setCurrentPage(page)}>
-                    {page}
-                  </Button>
+                  <Button key={page} variant={currentPage === page ? "default" : "outline"} size="icon" className="h-7 w-7 text-xs" onClick={() => setCurrentPage(page)}>{page}</Button>
                 ))}
-                <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Button>
+                <Button variant="outline" size="icon" className="h-7 w-7" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}><ChevronRight className="w-3.5 h-3.5" /></Button>
               </div>
             )}
           </div>
@@ -225,82 +245,90 @@ const ItemMaster = () => {
           <DialogContent className="sm:max-w-xl bg-card border-border">
             <DialogHeader>
               <DialogTitle className="text-sm font-semibold text-foreground">
-                {editingItem ? "品目情報編集" : "品目新規登録"}
+                {isEditing ? "品目情報編集" : "品目新規登録"}
               </DialogTitle>
             </DialogHeader>
-            <div className="space-y-3 py-2">
+            <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-3 py-2">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">品目コード <span className="text-destructive">*</span></Label>
-                  <Input defaultValue={editingItem?.itemCode || ""} disabled={!!editingItem} className="h-8 text-xs border-border font-mono" placeholder="例: SEMI-CHB-001" />
+                  <Input {...register("itemCode")} disabled={isEditing} className={cn("h-8 text-xs border-border font-mono", errors.itemCode && "border-destructive ring-1 ring-destructive")} placeholder="例: SEMI-CHB-001" />
+                  <FormError message={errors.itemCode?.message} />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">品目分類 <span className="text-destructive">*</span></Label>
-                  <Select defaultValue={editingItem?.itemType || ""}>
-                    <SelectTrigger className="h-8 text-xs border-border">
+                  <Select value={watch("itemType")} onValueChange={(v) => setValue("itemType", v, { shouldValidate: true })}>
+                    <SelectTrigger className={cn("h-8 text-xs border-border", errors.itemType && "border-destructive ring-1 ring-destructive")}>
                       <SelectValue placeholder="分類選択" />
                     </SelectTrigger>
                     <SelectContent>
                       {TYPE_OPTIONS.map(t => <SelectItem key={t.code} value={t.code}>{t.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
+                  <FormError message={errors.itemType?.message} />
                 </div>
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">品目名称 <span className="text-destructive">*</span></Label>
-                <Input defaultValue={editingItem?.itemName || ""} className="h-8 text-xs border-border" placeholder="品目名入力" />
+                <Input {...register("itemName")} className={cn("h-8 text-xs border-border", errors.itemName && "border-destructive ring-1 ring-destructive")} placeholder="品目名入力" />
+                <FormError message={errors.itemName?.message} />
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">詳細規格</Label>
-                <Textarea defaultValue={editingItem?.spec || ""} className="text-xs border-border min-h-[50px]" placeholder="寸法、材質、電圧など" />
+                <Textarea {...register("spec")} className={cn("text-xs border-border min-h-[50px]", errors.spec && "border-destructive")} placeholder="寸法、材質、電圧など" />
+                <FormError message={errors.spec?.message} />
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">管理単位 <span className="text-destructive">*</span></Label>
-                  <Select defaultValue={editingItem?.unit || ""}>
-                    <SelectTrigger className="h-8 text-xs border-border">
+                  <Select value={watch("unit")} onValueChange={(v) => setValue("unit", v, { shouldValidate: true })}>
+                    <SelectTrigger className={cn("h-8 text-xs border-border", errors.unit && "border-destructive ring-1 ring-destructive")}>
                       <SelectValue placeholder="単位" />
                     </SelectTrigger>
                     <SelectContent>
                       {UNIT_OPTIONS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                     </SelectContent>
                   </Select>
+                  <FormError message={errors.unit?.message} />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">標準単価 <span className="text-destructive">*</span></Label>
-                  <Input type="number" defaultValue={editingItem?.stdPrice || ""} className="h-8 text-xs border-border" placeholder="0" />
+                  <Input type="number" {...register("stdPrice", { valueAsNumber: true })} className={cn("h-8 text-xs border-border", errors.stdPrice && "border-destructive ring-1 ring-destructive")} placeholder="0" />
+                  <FormError message={errors.stdPrice?.message} />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">安全在庫量</Label>
-                  <Input type="number" defaultValue={editingItem?.safetyStock || ""} className="h-8 text-xs border-border" placeholder="0" />
+                  <Input type="number" {...register("safetyStock", { valueAsNumber: true })} className={cn("h-8 text-xs border-border", errors.safetyStock && "border-destructive ring-1 ring-destructive")} placeholder="0" />
+                  <FormError message={errors.safetyStock?.message} />
                 </div>
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">基本勘定科目 <span className="text-destructive">*</span></Label>
-                <Select defaultValue={editingItem?.acctCode || ""}>
-                  <SelectTrigger className="h-8 text-xs border-border">
+                <Select value={watch("acctCode")} onValueChange={(v) => setValue("acctCode", v, { shouldValidate: true })}>
+                  <SelectTrigger className={cn("h-8 text-xs border-border", errors.acctCode && "border-destructive ring-1 ring-destructive")}>
                     <SelectValue placeholder="勘定科目選択" />
                   </SelectTrigger>
                   <SelectContent>
                     {ACCT_OPTIONS.map(a => <SelectItem key={a.code} value={a.code}>{a.code}: {a.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
+                <FormError message={errors.acctCode?.message} />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">使用状態</Label>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">廃番</span>
-                  <Switch defaultChecked={editingItem?.isActive ?? true} />
+                  <Switch checked={watch("isActive")} onCheckedChange={(v) => setValue("isActive", v)} />
                   <span className="text-xs text-foreground">使用中</span>
                 </div>
               </div>
-            </div>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" size="sm" className="text-xs" onClick={() => setDialogOpen(false)}>キャンセル</Button>
-              <Button size="sm" className="text-xs bg-primary text-primary-foreground" onClick={() => setDialogOpen(false)}>
-                {editingItem ? "更新保存" : "登録"}
-              </Button>
-            </DialogFooter>
+              <DialogFooter className="gap-2">
+                <Button type="button" variant="outline" size="sm" className="text-xs" onClick={() => setDialogOpen(false)}>キャンセル</Button>
+                <Button type="submit" size="sm" disabled={!isValid} className="text-xs bg-primary text-primary-foreground disabled:opacity-50">
+                  {isEditing ? "更新保存" : "登録"}
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>

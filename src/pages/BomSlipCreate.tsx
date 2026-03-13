@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import ERPLayout from "@/components/erp/ERPLayout";
+import { FormError } from "@/components/erp/FormError";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,35 +13,16 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  ArrowLeft,
-  Plus,
-  Trash2,
-  Save,
-  Send,
-  FileText,
-  Search,
-  CheckCircle2,
-  AlertTriangle,
-  Layers,
-} from "lucide-react";
+import { ArrowLeft, Save, Send, FileText, CheckCircle2, AlertTriangle, Layers } from "lucide-react";
 import { toast } from "sonner";
+import { bomSlipSchema, type BomSlipFormValues } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
-// 完成品カタログ（BOM対象）
 const FINISHED_PRODUCTS = [
   { code: "FIN-ETCH-500", name: "プラズマエッチング装置 PE-500" },
   { code: "FIN-CVD-300", name: "CVD成膜装置 CV-300" },
@@ -47,7 +31,21 @@ const FINISHED_PRODUCTS = [
   { code: "FIN-CLEAN-400", name: "洗浄装置 CL-400" },
 ];
 
-// BOMデータ（完成品別下位部品ツリー）
+interface BomNode {
+  level: number;
+  itemCode: string;
+  itemName: string;
+  requiredQty: number;
+  lossRate: number;
+  stockQty: number;
+  warehouse: string;
+}
+
+interface ExpandedBomRow extends BomNode {
+  totalQty: number;
+  shortage: number;
+}
+
 const BOM_DATA: Record<string, BomNode[]> = {
   "FIN-ETCH-500": [
     { level: 1, itemCode: "SEMI-CHAMBER-01", itemName: "真空チャンバーモジュール", requiredQty: 1, lossRate: 2, stockQty: 8, warehouse: "本社 第1倉庫" },
@@ -74,21 +72,6 @@ const BOM_DATA: Record<string, BomNode[]> = {
   ],
 };
 
-interface BomNode {
-  level: number;
-  itemCode: string;
-  itemName: string;
-  requiredQty: number;
-  lossRate: number;
-  stockQty: number;
-  warehouse: string;
-}
-
-interface ExpandedBomRow extends BomNode {
-  totalQty: number;
-  shortage: number;
-}
-
 const generateSlipNo = () => {
   const now = new Date();
   const y = now.getFullYear();
@@ -101,24 +84,36 @@ const generateSlipNo = () => {
 const BomSlipCreate = () => {
   const navigate = useNavigate();
   const [slipNo] = useState(generateSlipNo());
-  const [reqDate, setReqDate] = useState(new Date().toISOString().split("T")[0]);
   const [requester] = useState("田中 太郎");
   const [department] = useState("製造1課");
-  const [selectedProduct, setSelectedProduct] = useState("");
-  const [targetQty, setTargetQty] = useState(1);
-  const [remark, setRemark] = useState("");
 
-  // BOM展開結果
+  const {
+    register,
+    handleSubmit: rhfSubmit,
+    setValue,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<BomSlipFormValues>({
+    resolver: zodResolver(bomSlipSchema),
+    defaultValues: {
+      reqDate: new Date().toISOString().split("T")[0],
+      selectedProduct: "",
+      targetQty: 1,
+      remark: "",
+    },
+    mode: "onChange",
+  });
+
+  const reqDate = watch("reqDate");
+  const selectedProduct = watch("selectedProduct");
+  const targetQty = watch("targetQty");
+
   const bomRows: ExpandedBomRow[] = (() => {
     if (!selectedProduct) return [];
     const nodes = BOM_DATA[selectedProduct] || [];
     return nodes.map((node) => {
       const totalQty = parseFloat((node.requiredQty * targetQty * (1 + node.lossRate / 100)).toFixed(1));
-      return {
-        ...node,
-        totalQty,
-        shortage: node.stockQty - totalQty,
-      };
+      return { ...node, totalQty, shortage: node.stockQty - totalQty };
     });
   })();
 
@@ -127,27 +122,12 @@ const BomSlipCreate = () => {
   const productInfo = FINISHED_PRODUCTS.find((p) => p.code === selectedProduct);
 
   const handleSave = () => {
-    if (!selectedProduct) {
-      toast.error("生産対象の完成品を選択してください。");
-      return;
-    }
-    if (targetQty < 1) {
-      toast.error("生産目標数は1以上である必要があります。");
-      return;
-    }
+    if (!selectedProduct) { toast.error("生産対象の完成品を選択してください。"); return; }
     toast.success("BOM生産伝票が保存されました（作成中ステータス）");
     navigate("/documents/bom");
   };
 
-  const handleSubmit = () => {
-    if (!selectedProduct) {
-      toast.error("生産対象の完成品を選択してください。");
-      return;
-    }
-    if (targetQty < 1) {
-      toast.error("生産目標数は1以上である必要があります。");
-      return;
-    }
+  const onSubmit = (data: BomSlipFormValues) => {
     if (shortageCount > 0) {
       toast.warning(`不足部品が${shortageCount}件あります。それでも申請しますか？`);
     }
@@ -161,34 +141,23 @@ const BomSlipCreate = () => {
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/documents/bom")}
-              className="gap-1.5 text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              一覧
+            <Button variant="ghost" size="sm" onClick={() => navigate("/documents/bom")} className="gap-1.5 text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-4 h-4" /> 一覧
             </Button>
             <Separator orientation="vertical" className="h-6" />
             <div>
               <h1 className="text-lg font-bold text-foreground">新規BOM生産伝票作成</h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                完成品の生産計画を立案し、BOM基準の部品過不足を確認します
-              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">完成品の生産計画を立案し、BOM基準の部品過不足を確認します</p>
             </div>
           </div>
-          <Badge className="bg-muted text-muted-foreground text-xs px-2.5 py-0.5">
-            作成中（Draft）
-          </Badge>
+          <Badge className="bg-muted text-muted-foreground text-xs px-2.5 py-0.5">作成中（Draft）</Badge>
         </div>
 
         {/* Header Info */}
         <Card className="border-border bg-card">
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <FileText className="w-4 h-4 text-primary" />
-              伝票ヘッダー情報
+              <FileText className="w-4 h-4 text-primary" /> 伝票ヘッダー情報
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
@@ -198,50 +167,44 @@ const BomSlipCreate = () => {
                 <Input value={slipNo} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">作成日付</label>
-                <DatePicker
-                  value={reqDate}
-                  onChange={(d) => setReqDate(d ? format(d, "yyyy-MM-dd") : "")}
-                />
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">作成日付 <span className="text-destructive">*</span></label>
+                <DatePicker value={reqDate} onChange={(d) => setValue("reqDate", d ? format(d, "yyyy-MM-dd") : "", { shouldValidate: true })} />
+                <FormError message={errors.reqDate?.message} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">起案者（部署）</label>
                 <Input value={`${requester}（${department}）`} readOnly className="h-8 text-xs bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">生産目標数</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">生産目標数 <span className="text-destructive">*</span></label>
                 <Input
                   type="number"
                   min={1}
-                  value={targetQty}
-                  onChange={(e) => setTargetQty(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="h-8 text-xs border-border font-mono"
+                  {...register("targetQty", { valueAsNumber: true })}
+                  className={cn("h-8 text-xs border-border font-mono", errors.targetQty && "border-destructive ring-1 ring-destructive")}
                 />
+                <FormError message={errors.targetQty?.message} />
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">生産対象完成品</label>
-                <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                  <SelectTrigger className="h-8 text-xs border-border">
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">生産対象完成品 <span className="text-destructive">*</span></label>
+                <Select value={selectedProduct} onValueChange={(v) => setValue("selectedProduct", v, { shouldValidate: true })}>
+                  <SelectTrigger className={cn("h-8 text-xs border-border", errors.selectedProduct && "border-destructive ring-1 ring-destructive")}>
                     <SelectValue placeholder="完成品を選択してください" />
                   </SelectTrigger>
                   <SelectContent>
                     {FINISHED_PRODUCTS.map((p) => (
                       <SelectItem key={p.code} value={p.code}>
-                        <span className="font-mono text-primary mr-2">{p.code}</span>
-                        {p.name}
+                        <span className="font-mono text-primary mr-2">{p.code}</span>{p.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <FormError message={errors.selectedProduct?.message} />
               </div>
               <div className="space-y-1 md:col-span-2">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">備考</label>
-                <Textarea
-                  value={remark}
-                  onChange={(e) => setRemark(e.target.value)}
-                  placeholder="生産伝票に関する備考事項を入力してください"
-                  className="text-xs border-border min-h-[60px] resize-none"
-                />
+                <Textarea {...register("remark")} placeholder="生産伝票に関する備考事項を入力してください" className={cn("text-xs border-border min-h-[60px] resize-none", errors.remark && "border-destructive")} />
+                <FormError message={errors.remark?.message} />
               </div>
             </div>
           </CardContent>
@@ -252,22 +215,13 @@ const BomSlipCreate = () => {
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Layers className="w-4 h-4 text-primary" />
-                BOM展開結果
-                {productInfo && (
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono text-primary">
-                    {productInfo.code}
-                  </Badge>
-                )}
+                <Layers className="w-4 h-4 text-primary" /> BOM展開結果
+                {productInfo && (<Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono text-primary">{productInfo.code}</Badge>)}
               </CardTitle>
               {bomRows.length > 0 && (
                 <div className="flex items-center gap-3 text-[10px]">
-                  <span className="flex items-center gap-1 text-success">
-                    <CheckCircle2 className="w-3 h-3" /> 充足 {sufficientCount}件
-                  </span>
-                  <span className="flex items-center gap-1 text-destructive">
-                    <AlertTriangle className="w-3 h-3" /> 不足 {shortageCount}件
-                  </span>
+                  <span className="flex items-center gap-1 text-success"><CheckCircle2 className="w-3 h-3" /> 充足 {sufficientCount}件</span>
+                  <span className="flex items-center gap-1 text-destructive"><AlertTriangle className="w-3 h-3" /> 不足 {shortageCount}件</span>
                 </div>
               )}
             </div>
@@ -285,7 +239,6 @@ const BomSlipCreate = () => {
               </div>
             ) : (
               <>
-                {/* 完成品サマリー */}
                 <div className="px-4 py-2.5 bg-primary/5 border-b border-border flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/50 text-primary">L0</Badge>
@@ -294,7 +247,6 @@ const BomSlipCreate = () => {
                   </div>
                   <span className="text-xs font-mono text-foreground">目標: {targetQty}台</span>
                 </div>
-
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -314,35 +266,20 @@ const BomSlipCreate = () => {
                       {bomRows.map((item, idx) => (
                         <TableRow key={idx} className="border-border hover:bg-secondary/50">
                           <TableCell className="px-3 py-2">
-                            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
-                              item.level === 1 ? "border-info/50 text-info" : "border-muted-foreground/50 text-muted-foreground"
-                            }`}>
-                              L{item.level}
-                            </Badge>
+                            <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", item.level === 1 ? "border-info/50 text-info" : "border-muted-foreground/50 text-muted-foreground")}>L{item.level}</Badge>
                           </TableCell>
                           <TableCell className="px-3 py-2 text-xs font-mono text-primary" style={{ paddingLeft: `${12 + item.level * 16}px` }}>
-                            <span className="text-muted-foreground/40 mr-1">└</span>
-                            {item.itemCode}
+                            <span className="text-muted-foreground/40 mr-1">└</span>{item.itemCode}
                           </TableCell>
                           <TableCell className="px-3 py-2 text-xs text-foreground">{item.itemName}</TableCell>
                           <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">{item.requiredQty}</TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-muted-foreground">
-                            {item.lossRate > 0 ? `${item.lossRate}%` : "-"}
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono font-medium text-foreground">
-                            {item.totalQty.toLocaleString()}
-                          </TableCell>
-                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">
-                            {item.stockQty.toLocaleString()}
-                          </TableCell>
+                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-muted-foreground">{item.lossRate > 0 ? `${item.lossRate}%` : "-"}</TableCell>
+                          <TableCell className="px-3 py-2 text-xs text-right font-mono font-medium text-foreground">{item.totalQty.toLocaleString()}</TableCell>
+                          <TableCell className="px-3 py-2 text-xs text-right font-mono text-foreground">{item.stockQty.toLocaleString()}</TableCell>
                           <TableCell className="px-3 py-2 text-center">
                             <div className="flex items-center justify-center gap-1">
-                              {item.shortage >= 0 ? (
-                                <CheckCircle2 className="w-3.5 h-3.5 text-success" />
-                              ) : (
-                                <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
-                              )}
-                              <span className={`text-xs font-mono font-medium ${item.shortage >= 0 ? "text-success" : "text-destructive"}`}>
+                              {item.shortage >= 0 ? <CheckCircle2 className="w-3.5 h-3.5 text-success" /> : <AlertTriangle className="w-3.5 h-3.5 text-destructive" />}
+                              <span className={cn("text-xs font-mono font-medium", item.shortage >= 0 ? "text-success" : "text-destructive")}>
                                 {item.shortage >= 0 ? `+${item.shortage}` : item.shortage}
                               </span>
                             </div>
@@ -353,17 +290,11 @@ const BomSlipCreate = () => {
                     </TableBody>
                   </Table>
                 </div>
-
-                {/* Summary */}
                 <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-muted/30">
                   <div className="flex items-center gap-4 text-xs">
                     <span className="text-muted-foreground">部品 計 {bomRows.length}件</span>
-                    <span className="flex items-center gap-1 text-destructive">
-                      <AlertTriangle className="w-3 h-3" /> 不足 {shortageCount}件
-                    </span>
-                    <span className="flex items-center gap-1 text-success">
-                      <CheckCircle2 className="w-3 h-3" /> 充足 {sufficientCount}件
-                    </span>
+                    <span className="flex items-center gap-1 text-destructive"><AlertTriangle className="w-3 h-3" /> 不足 {shortageCount}件</span>
+                    <span className="flex items-center gap-1 text-success"><CheckCircle2 className="w-3 h-3" /> 充足 {sufficientCount}件</span>
                   </div>
                 </div>
               </>
@@ -373,30 +304,17 @@ const BomSlipCreate = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-2 pb-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/documents/bom")}
-            className="gap-1.5 text-xs"
-          >
-            キャンセル
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSave}
-            className="gap-1.5 text-xs"
-          >
-            <Save className="w-3.5 h-3.5" />
-            一時保存
+          <Button variant="outline" size="sm" onClick={() => navigate("/documents/bom")} className="gap-1.5 text-xs">キャンセル</Button>
+          <Button variant="outline" size="sm" onClick={handleSave} className="gap-1.5 text-xs">
+            <Save className="w-3.5 h-3.5" /> 一時保存
           </Button>
           <Button
             size="sm"
-            onClick={handleSubmit}
-            className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={rhfSubmit(onSubmit)}
+            disabled={!isValid}
+            className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            <Send className="w-3.5 h-3.5" />
-            生産申請
+            <Send className="w-3.5 h-3.5" /> 生産申請
           </Button>
         </div>
       </div>
