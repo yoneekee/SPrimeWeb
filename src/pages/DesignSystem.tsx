@@ -23,35 +23,82 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import {
-  Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@/components/ui/select";
 import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
 } from "@/components/ui/table";
 import {
-  Tooltip, TooltipTrigger, TooltipContent,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
 } from "@/components/ui/tooltip";
 import {
-  AlertTriangle, Check, Copy, Info, Moon, Palette, Sun, Type,
+  AlertTriangle,
+  Check,
+  Copy,
+  Info,
+  Moon,
+  Palette,
+  Sun,
+  Type,
+  Building2,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { BRAND_HUE, COMPANY } from "@/lib/constants";
 import { toast } from "sonner";
 
 /* ────────── helper: section wrapper ────────── */
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const Section = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
   <section className="space-y-4">
-    <h2 className="text-base font-bold text-foreground border-b border-border pb-2">{title}</h2>
+    <h2 className="text-base font-bold text-foreground border-b border-border pb-2">
+      {title}
+    </h2>
     {children}
   </section>
 );
 
-const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
+const Row = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
   <div className="space-y-1.5">
     <p className="text-xs text-muted-foreground font-medium">{label}</p>
     <div className="flex flex-wrap items-center gap-2">{children}</div>
@@ -60,6 +107,7 @@ const Row = ({ label, children }: { label: string; children: React.ReactNode }) 
 
 /* ────────── page component ────────── */
 const DesignSystem = () => {
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -71,12 +119,26 @@ const DesignSystem = () => {
           <div className="flex items-center gap-3">
             <Palette className="w-5 h-5 text-primary" />
             <h1 className="text-sm font-bold">S-Prime Design System</h1>
-            <Badge variant="outline" className="text-[10px]">{COMPANY.version}</Badge>
+            <Badge variant="outline" className="text-[10px]">
+              {COMPANY.version}
+            </Badge>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">Brand Hue: <code className="text-primary font-mono">{BRAND_HUE}</code></span>
-            <Button variant="outline" size="sm" onClick={toggleTheme} className="gap-1.5 text-xs">
-              {theme === "dark" ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            <span className="text-xs text-muted-foreground">
+              Brand Hue:{" "}
+              <code className="text-primary font-mono">{BRAND_HUE}</code>
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleTheme}
+              className="gap-1.5 text-xs"
+            >
+              {theme === "dark" ? (
+                <Sun className="w-3.5 h-3.5" />
+              ) : (
+                <Moon className="w-3.5 h-3.5" />
+              )}
               {theme === "dark" ? "Light" : "Dark"}
             </Button>
           </div>
@@ -84,25 +146,48 @@ const DesignSystem = () => {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-
         {/* ─── COLOR TOKENS ─── */}
         <Section title="Color Tokens">
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
             {[
               { name: "primary", cls: "bg-primary text-primary-foreground" },
-              { name: "secondary", cls: "bg-secondary text-secondary-foreground" },
-              { name: "destructive", cls: "bg-destructive text-destructive-foreground" },
+              {
+                name: "secondary",
+                cls: "bg-secondary text-secondary-foreground",
+              },
+              {
+                name: "destructive",
+                cls: "bg-destructive text-destructive-foreground",
+              },
               { name: "success", cls: "bg-success text-success-foreground" },
               { name: "warning", cls: "bg-warning text-warning-foreground" },
               { name: "info", cls: "bg-info text-info-foreground" },
               { name: "muted", cls: "bg-muted text-muted-foreground" },
               { name: "accent", cls: "bg-accent text-accent-foreground" },
-              { name: "card", cls: "bg-card text-card-foreground border border-border" },
-              { name: "background", cls: "bg-background text-foreground border border-border" },
-              { name: "popover", cls: "bg-popover text-popover-foreground border border-border" },
-              { name: "sidebar", cls: "bg-sidebar text-sidebar-foreground border border-border" },
+              {
+                name: "card",
+                cls: "bg-card text-card-foreground border border-border",
+              },
+              {
+                name: "background",
+                cls: "bg-background text-foreground border border-border",
+              },
+              {
+                name: "popover",
+                cls: "bg-popover text-popover-foreground border border-border",
+              },
+              {
+                name: "sidebar",
+                cls: "bg-sidebar text-sidebar-foreground border border-border",
+              },
             ].map((c) => (
-              <div key={c.name} className={cn("rounded-lg p-3 text-center text-xs font-medium", c.cls)}>
+              <div
+                key={c.name}
+                className={cn(
+                  "rounded-lg p-3 text-center text-xs font-medium",
+                  c.cls,
+                )}
+              >
                 {c.name}
               </div>
             ))}
@@ -123,11 +208,15 @@ const DesignSystem = () => {
             <Button size="lg">Large</Button>
             <Button size="default">Default</Button>
             <Button size="sm">Small</Button>
-            <Button size="icon"><Check className="w-4 h-4" /></Button>
+            <Button size="icon">
+              <Check className="w-4 h-4" />
+            </Button>
           </Row>
           <Row label="States">
             <Button disabled>Disabled</Button>
-            <Button className="gap-1.5"><Copy className="w-3.5 h-3.5" /> With Icon</Button>
+            <Button className="gap-1.5">
+              <Copy className="w-3.5 h-3.5" /> With Icon
+            </Button>
           </Row>
         </Section>
 
@@ -140,10 +229,16 @@ const DesignSystem = () => {
             <Badge variant="outline">Outline</Badge>
           </Row>
           <Row label="Semantic (custom class)">
-            <Badge className="bg-success/20 text-success border-success/30">Success</Badge>
-            <Badge className="bg-warning/20 text-warning border-warning/30">Warning</Badge>
+            <Badge className="bg-success/20 text-success border-success/30">
+              Success
+            </Badge>
+            <Badge className="bg-warning/20 text-warning border-warning/30">
+              Warning
+            </Badge>
             <Badge className="bg-info/20 text-info border-info/30">Info</Badge>
-            <Badge className="bg-primary/20 text-primary border-primary/30">Primary Light</Badge>
+            <Badge className="bg-primary/20 text-primary border-primary/30">
+              Primary Light
+            </Badge>
           </Row>
         </Section>
 
@@ -183,11 +278,15 @@ const DesignSystem = () => {
           <Row label="Toggle Controls">
             <div className="flex items-center gap-2">
               <Switch id="sw-demo" />
-              <Label htmlFor="sw-demo" className="text-xs">Switch</Label>
+              <Label htmlFor="sw-demo" className="text-xs">
+                Switch
+              </Label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox id="cb-demo" />
-              <Label htmlFor="cb-demo" className="text-xs">Checkbox</Label>
+              <Label htmlFor="cb-demo" className="text-xs">
+                Checkbox
+              </Label>
             </div>
           </Row>
         </Section>
@@ -200,22 +299,36 @@ const DesignSystem = () => {
                 <CardTitle className="text-sm">Default Card</CardTitle>
                 <CardDescription>Standard card component</CardDescription>
               </CardHeader>
-              <CardContent><p className="text-xs text-muted-foreground">Card body content.</p></CardContent>
-              <CardFooter><Button size="sm">Action</Button></CardFooter>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">
+                  Card body content.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button size="sm">Action</Button>
+              </CardFooter>
             </Card>
             <Card className="card-glow border-glow">
               <CardHeader>
                 <CardTitle className="text-sm">Glow Card</CardTitle>
                 <CardDescription>With hover glow effect</CardDescription>
               </CardHeader>
-              <CardContent><p className="text-xs text-muted-foreground">Hover over this card.</p></CardContent>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">
+                  Hover over this card.
+                </p>
+              </CardContent>
             </Card>
             <Card className="border-primary/30 bg-primary/5">
               <CardHeader>
-                <CardTitle className="text-sm text-primary">Accent Card</CardTitle>
+                <CardTitle className="text-sm text-primary">
+                  Accent Card
+                </CardTitle>
                 <CardDescription>Highlighted variant</CardDescription>
               </CardHeader>
-              <CardContent><p className="text-xs text-muted-foreground">For emphasis.</p></CardContent>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">For emphasis.</p>
+              </CardContent>
             </Card>
           </div>
         </Section>
@@ -228,9 +341,33 @@ const DesignSystem = () => {
               <TabsTrigger value="tab2">Tab Two</TabsTrigger>
               <TabsTrigger value="tab3">Tab Three</TabsTrigger>
             </TabsList>
-            <TabsContent value="tab1"><Card><CardContent className="pt-4"><p className="text-xs text-muted-foreground">Content for Tab 1</p></CardContent></Card></TabsContent>
-            <TabsContent value="tab2"><Card><CardContent className="pt-4"><p className="text-xs text-muted-foreground">Content for Tab 2</p></CardContent></Card></TabsContent>
-            <TabsContent value="tab3"><Card><CardContent className="pt-4"><p className="text-xs text-muted-foreground">Content for Tab 3</p></CardContent></Card></TabsContent>
+            <TabsContent value="tab1">
+              <Card>
+                <CardContent className="pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Content for Tab 1
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="tab2">
+              <Card>
+                <CardContent className="pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Content for Tab 2
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="tab3">
+              <Card>
+                <CardContent className="pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Content for Tab 3
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </Section>
 
@@ -241,28 +378,72 @@ const DesignSystem = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground">Code</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground">Name</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground text-right">Amount</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground text-center">Status</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Code
+                    </TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Name
+                    </TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground text-right">
+                      Amount
+                    </TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground text-center">
+                      Status
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {[
-                    { code: "ITM-001", name: "シリコンウェーハ 300mm", amount: "¥85,000", status: "success" },
-                    { code: "ITM-002", name: "フォトレジスト AZ-5214", amount: "¥120,000", status: "warning" },
-                    { code: "ITM-003", name: "高純度窒素ガス（N2）", amount: "¥45,000", status: "destructive" },
+                    {
+                      code: "ITM-001",
+                      name: "シリコンウェーハ 300mm",
+                      amount: "¥85,000",
+                      status: "success",
+                    },
+                    {
+                      code: "ITM-002",
+                      name: "フォトレジスト AZ-5214",
+                      amount: "¥120,000",
+                      status: "warning",
+                    },
+                    {
+                      code: "ITM-003",
+                      name: "高純度窒素ガス（N2）",
+                      amount: "¥45,000",
+                      status: "destructive",
+                    },
                   ].map((row) => (
-                    <TableRow key={row.code} className="border-border hover:bg-secondary/50">
-                      <TableCell className="text-xs font-mono text-primary">{row.code}</TableCell>
-                      <TableCell className="text-xs font-medium text-foreground">{row.name}</TableCell>
-                      <TableCell className="text-xs text-right font-mono text-foreground">{row.amount}</TableCell>
+                    <TableRow
+                      key={row.code}
+                      className="border-border hover:bg-secondary/50"
+                    >
+                      <TableCell className="text-xs font-mono text-primary">
+                        {row.code}
+                      </TableCell>
+                      <TableCell className="text-xs font-medium text-foreground">
+                        {row.name}
+                      </TableCell>
+                      <TableCell className="text-xs text-right font-mono text-foreground">
+                        {row.amount}
+                      </TableCell>
                       <TableCell className="text-center">
-                        <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", {
-                          "bg-success/10 text-success border-success/30": row.status === "success",
-                          "bg-warning/10 text-warning border-warning/30": row.status === "warning",
-                          "bg-destructive/10 text-destructive border-destructive/30": row.status === "destructive",
-                        })}>{row.status === "success" ? "充足" : row.status === "warning" ? "注意" : "不足"}</Badge>
+                        <Badge
+                          variant="outline"
+                          className={cn("text-[10px] px-1.5 py-0", {
+                            "bg-success/10 text-success border-success/30":
+                              row.status === "success",
+                            "bg-warning/10 text-warning border-warning/30":
+                              row.status === "warning",
+                            "bg-destructive/10 text-destructive border-destructive/30":
+                              row.status === "destructive",
+                          })}
+                        >
+                          {row.status === "success"
+                            ? "充足"
+                            : row.status === "warning"
+                              ? "注意"
+                              : "不足"}
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -276,7 +457,9 @@ const DesignSystem = () => {
         <Section title="Dialog / Modal">
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">Open Dialog</Button>
+              <Button variant="outline" size="sm">
+                Open Dialog
+              </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
@@ -290,8 +473,22 @@ const DesignSystem = () => {
                 <Input className="mt-1.5" placeholder="テキスト入力" />
               </div>
               <DialogFooter>
-                <Button variant="outline" size="sm" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button size="sm" onClick={() => { setDialogOpen(false); toast.success("Action confirmed"); }}>Confirm</Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setDialogOpen(false);
+                    toast.success("Action confirmed");
+                  }}
+                >
+                  Confirm
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -308,9 +505,15 @@ const DesignSystem = () => {
           </Row>
           <Row label="Status Dots">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-xs"><span className="status-dot-success" /> Success</span>
-              <span className="flex items-center gap-1.5 text-xs"><span className="status-dot-warning" /> Warning</span>
-              <span className="flex items-center gap-1.5 text-xs"><span className="status-dot-destructive" /> Error</span>
+              <span className="flex items-center gap-1.5 text-xs">
+                <span className="status-dot-success" /> Success
+              </span>
+              <span className="flex items-center gap-1.5 text-xs">
+                <span className="status-dot-warning" /> Warning
+              </span>
+              <span className="flex items-center gap-1.5 text-xs">
+                <span className="status-dot-destructive" /> Error
+              </span>
             </div>
           </Row>
         </Section>
@@ -320,7 +523,9 @@ const DesignSystem = () => {
           <Row label="Hover to see">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1.5"><Info className="w-3.5 h-3.5" /> Hover me</Button>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <Info className="w-3.5 h-3.5" /> Hover me
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p className="text-xs">This is a tooltip</p>
@@ -344,7 +549,9 @@ const DesignSystem = () => {
         {/* ─── UTILITIES ─── */}
         <Section title="Utility Classes">
           <Row label="text-gradient">
-            <span className="text-gradient text-lg font-bold">Gradient Text</span>
+            <span className="text-gradient text-lg font-bold">
+              Gradient Text
+            </span>
           </Row>
           <Row label="data-text (monospace)">
             <span className="data-text text-foreground">¥68,750,000</span>
@@ -356,7 +563,9 @@ const DesignSystem = () => {
           </Row>
           <Row label="animate-slide-up">
             <div className="animate-slide-up bg-secondary rounded-lg px-4 py-3">
-              <span className="text-xs text-foreground">Slide-up animation</span>
+              <span className="text-xs text-foreground">
+                Slide-up animation
+              </span>
             </div>
           </Row>
         </Section>
@@ -364,22 +573,58 @@ const DesignSystem = () => {
         {/* ─── TOAST ─── */}
         <Section title="Toast / Sonner">
           <Row label="Click to trigger">
-            <Button size="sm" variant="outline" onClick={() => toast.success("成功しました！")}>Success Toast</Button>
-            <Button size="sm" variant="outline" onClick={() => toast.error("エラーが発生しました")}>Error Toast</Button>
-            <Button size="sm" variant="outline" onClick={() => toast.info("情報メッセージ")}>Info Toast</Button>
-            <Button size="sm" variant="outline" onClick={() => toast.warning("警告メッセージ")}>Warning Toast</Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => toast.success("成功しました！")}
+            >
+              Success Toast
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => toast.error("エラーが発生しました")}
+            >
+              Error Toast
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => toast.info("情報メッセージ")}
+            >
+              Info Toast
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => toast.warning("警告メッセージ")}
+            >
+              Warning Toast
+            </Button>
           </Row>
         </Section>
 
         {/* Footer */}
         <div className="border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          <p>{COMPANY.name} Design System Reference — {COMPANY.version}</p>
+          <p>
+            {COMPANY.name} Design System Reference — {COMPANY.version}
+          </p>
           <p className="mt-1">
-            Edit <code className="text-primary">src/index.css</code> (CSS variables) or <code className="text-primary">src/lib/constants.ts</code> (BRAND_HUE) to change the theme.
+            Edit <code className="text-primary">src/index.css</code> (CSS
+            variables) or{" "}
+            <code className="text-primary">src/lib/constants.ts</code>{" "}
+            (BRAND_HUE) to change the theme.
           </p>
         </div>
-
       </main>
+      {/* Fixed bottom-right: Company page link */}
+      <button
+        onClick={() => navigate("/company")}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 hover:shadow-xl transition-all duration-200"
+      >
+        <Building2 className="w-4 h-4 flex-shrink-0" />
+        <span className="text-xs font-medium">戻る</span>
+      </button>
     </div>
   );
 };
