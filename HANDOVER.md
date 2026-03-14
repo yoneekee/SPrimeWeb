@@ -358,6 +358,7 @@ const ProtectedRoute = ({ children }) => {
 | `/master/employee` | `EmployeeMaster` | 사원 마스터 |
 | `/master/item` | `ItemMaster` | 품목 마스터 |
 | `/master/warehouse` | `WarehouseMaster` | 창고 거점 마스터 |
+| `/design-system` | `DesignSystem` | 디자인 시스템 레퍼런스 (색상·컴포넌트 미리보기) |
 | `*` | `NotFound` | 404 페이지 |
 
 ### 새 페이지 추가 방법
