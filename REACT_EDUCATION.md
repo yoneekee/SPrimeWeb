@@ -1899,3 +1899,690 @@ export default MyPage;
 
 > **이 문서를 다 읽었다면**, 프로젝트의 어떤 파일이든 열어서 코드를 이해할 수 있을 것입니다.  
 > 모르는 것이 나오면 해당 섹션을 다시 찾아보세요. 실전에서 반복적으로 보다 보면 자연스럽게 익숙해집니다.
+
+---
+
+## 25. TanStack Query — 서버 데이터 관리
+
+TanStack Query(구 React Query)는 **서버에서 가져온 데이터를 자동으로 캐싱하고, 로딩/에러 상태를 관리**해주는 라이브러리입니다.
+
+### 왜 필요한가?
+
+```tsx
+// ❌ useState + useEffect로 직접 API 호출 시 문제점
+const [data, setData] = useState([]);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState(null);
+
+useEffect(() => {
+  setLoading(true);
+  fetch("/api/items")
+    .then(res => res.json())
+    .then(d => setData(d))
+    .catch(e => setError(e))
+    .finally(() => setLoading(false));
+}, []);
+// → 캐싱 없음, 중복 요청, 재시도 없음, 코드 반복...
+
+// ✅ TanStack Query — 한 줄로 해결
+const { data, isLoading, error } = useQuery({
+  queryKey: ["items"],
+  queryFn: () => itemService.getAll(),
+});
+// → 자동 캐싱, 중복 요청 제거, 재시도, 상태 관리 전부 내장!
+```
+
+### 기본 개념
+
+```
+┌───────────────────────────────────────────────────────┐
+│  useQuery        →  데이터 읽기 (GET 요청)             │
+│  useMutation     →  데이터 변경 (POST/PUT/DELETE 요청)  │
+│  queryKey        →  캐시의 "키" (이 키로 데이터를 구분)    │
+│  queryFn         →  실제 API 호출 함수                   │
+│  invalidateQueries → 캐시 무효화 (다시 가져오기)          │
+└───────────────────────────────────────────────────────┘
+```
+
+### 설정 (main.tsx)
+
+```tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,                    // 실패 시 1회 재시도
+      refetchOnWindowFocus: false, // 탭 전환 시 재요청 안 함
+      staleTime: 5 * 60 * 1000,   // 5분간 캐시 유지
+    },
+  },
+});
+
+createRoot(document.getElementById("root")!).render(
+  <QueryClientProvider client={queryClient}>  {/* ← 앱 전체에 제공 */}
+    <App />
+  </QueryClientProvider>
+);
+```
+
+### useQuery — 데이터 읽기
+
+```tsx
+// src/hooks/api/use-items.tsx
+import { useQuery } from "@tanstack/react-query";
+import { itemService } from "@/services";
+
+export const useItems = (filter?: MasterSearchFilter) => {
+  return useQuery({
+    queryKey: ["items", "list", filter],  // ← filter가 바뀌면 자동으로 새 요청
+    queryFn: () => itemService.getAll(filter),
+  });
+};
+
+// 사용하는 쪽 (ItemMaster.tsx)
+const ItemMaster = () => {
+  const { data, isLoading, error } = useItems(filter);
+  //      ↑ 서버 데이터   ↑ 로딩중?    ↑ 에러 발생?
+
+  if (isLoading) return <p>読み込み中...</p>;
+  if (error) return <p>エラーが発生しました</p>;
+
+  return (
+    <Table>
+      {data?.items.map(item => (
+        <TableRow key={item.id}>{item.name}</TableRow>
+      ))}
+    </Table>
+  );
+};
+```
+
+### useMutation — 데이터 변경
+
+```tsx
+// src/hooks/api/use-items.tsx
+export const useCreateItem = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ItemRequest) => itemService.create(data),
+    onSuccess: () => {
+      // 생성 성공 → 목록 캐시 무효화 → 자동 재요청
+      queryClient.invalidateQueries({ queryKey: ["items", "list"] });
+    },
+  });
+};
+
+// 사용하는 쪽
+const createItem = useCreateItem();
+
+const handleSubmit = () => {
+  createItem.mutate(formData, {
+    onSuccess: () => toast.success("品目を登録しました"),
+    onError: (err) => toast.error(err.message),
+  });
+};
+```
+
+### Query Key 설계 패턴 (이 프로젝트)
+
+```tsx
+// 계층 구조로 Query Key를 설계
+export const itemKeys = {
+  all:     ["items"] as const,                    // 최상위
+  lists:   () => [...itemKeys.all, "list"] as const,
+  list:    (filter?) => [...itemKeys.lists(), filter] as const,
+  details: () => [...itemKeys.all, "detail"] as const,
+  detail:  (id: number) => [...itemKeys.details(), id] as const,
+};
+
+// invalidateQueries({ queryKey: itemKeys.lists() })
+// → "items" + "list"로 시작하는 모든 캐시를 무효화
+// → filter가 다른 여러 목록 캐시가 한번에 갱신됨
+```
+
+---
+
+## 26. Zod + react-hook-form — 폼 검증
+
+### Zod란?
+
+Zod는 **데이터 형태를 정의하고 검증하는 라이브러리**입니다.
+
+```tsx
+import { z } from "zod";
+
+// 스키마 정의 = "이 데이터는 이런 형태여야 한다"
+const employeeSchema = z.object({
+  name: z.string().min(1, "氏名は必須項目です"),          // 빈 문자열 불가
+  department: z.string().min(1, "部署は必須項目です"),
+  email: z.string().email("正しいメールアドレスを入力してください").optional(),
+  joinDate: z.string().min(1, "入社日は必須項目です"),
+});
+
+// 스키마에서 TypeScript 타입 자동 생성!
+type EmployeeFormData = z.infer<typeof employeeSchema>;
+// → { name: string; department: string; email?: string; joinDate: string }
+```
+
+### react-hook-form이란?
+
+react-hook-form은 **폼 상태 관리와 검증을 효율적으로 처리하는 라이브러리**입니다.
+
+```tsx
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const EmployeeForm = () => {
+  const {
+    register,         // input에 연결하는 함수
+    handleSubmit,     // 폼 제출 핸들러 (검증 통과 시에만 실행)
+    formState: {
+      errors,         // 필드별 에러 메시지
+      isValid,        // 전체 폼이 유효한지
+    },
+  } = useForm<EmployeeFormData>({
+    resolver: zodResolver(employeeSchema),  // ← Zod 스키마 연결!
+    mode: "onChange",  // 입력할 때마다 검증 (즉각 피드백)
+  });
+
+  const onSubmit = (data: EmployeeFormData) => {
+    // 여기에 도달 = 모든 검증 통과!
+    console.log("유효한 데이터:", data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <Label>氏名</Label>
+        <Input
+          {...register("name")}
+          className={cn(errors.name && "border-destructive ring-destructive")}
+          {/*           ↑ 에러가 있으면 빨간 테두리 */}
+        />
+        {errors.name && (
+          <p className="text-[10px] text-destructive mt-0.5">
+            {errors.name.message}
+          </p>
+        )}
+      </div>
+
+      <Button type="submit" disabled={!isValid}>
+        {/*                  ↑ 폼이 유효할 때만 활성화 */}
+        登録
+      </Button>
+    </form>
+  );
+};
+```
+
+### 이 프로젝트의 스키마 구조
+
+```
+src/lib/schemas/
+├── index.ts              # 통합 export
+├── slip.schema.ts        # 전표(생산/출하/BOM) 검증 스키마
+├── employee.schema.ts    # 사원 검증 스키마
+└── item.schema.ts        # 품목 검증 스키마
+```
+
+### FormError — 재사용 가능한 에러 표시 컴포넌트
+
+```tsx
+// src/components/erp/FormError.tsx
+import { cn } from "@/lib/utils";
+
+export const FormError = ({ message, className }: { message?: string; className?: string }) => {
+  if (!message) return null;
+  return (
+    <p className={cn("text-[10px] text-destructive mt-0.5 font-medium", className)}>
+      {message}
+    </p>
+  );
+};
+
+// 사용: <FormError message={errors.name?.message} />
+```
+
+### Zod 검증 규칙 예시
+
+```tsx
+z.string()                          // 문자열
+z.string().min(1, "필수입니다")      // 빈 문자열 불가
+z.string().email("이메일 형식")      // 이메일 형식
+z.string().regex(/^\d{3}-\d{4}$/)   // 정규식 매칭
+z.number().min(1, "1 이상")         // 최소값
+z.number().positive("양수만")        // 양수
+z.enum(["PROD", "SHIP", "BOM"])     // 특정 값만 허용
+z.string().optional()                // 선택적 (undefined OK)
+z.coerce.number()                    // 문자열 → 숫자 자동 변환
+```
+
+---
+
+## 27. 반응형 대응 — useIsMobile과 모바일 패턴
+
+### useIsMobile Hook
+
+```tsx
+// src/hooks/use-mobile.tsx
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mql.matches);
+
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  return isMobile;
+};
+```
+
+### ERPLayout — 모바일 드로어 패턴
+
+```tsx
+// ERPLayout.tsx
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+
+const ERPLayout = ({ children }) => {
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  return (
+    <div>
+      {/* 데스크톱: 사이드바 직접 표시 */}
+      {!isMobile && <ERPSidebar />}
+
+      {/* 모바일: Sheet(드로어)로 감싸서 표시 */}
+      {isMobile && (
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent side="left" className="w-72 p-0">
+            <ERPSidebar onNavigate={() => setMobileMenuOpen(false)} />
+          </SheetContent>
+        </Sheet>
+      )}
+
+      <header>
+        {/* 모바일: 햄버거 메뉴 버튼 */}
+        {isMobile && (
+          <button onClick={() => setMobileMenuOpen(true)}>☰</button>
+        )}
+      </header>
+
+      <main>{children}</main>
+    </div>
+  );
+};
+```
+
+### ERPSidebar — 호버 vs 탭 전환
+
+```tsx
+// 데스크톱: 마우스 호버로 서브메뉴 열기
+// 모바일: 탭(클릭)으로 서브메뉴 토글
+
+const ERPSidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
+  const isMobile = useIsMobile();
+
+  // 데스크톱: hover 이벤트
+  const handleMouseEnter = () => { if (!isMobile) { /* 열기 */ } };
+  const handleMouseLeave = () => { if (!isMobile) { /* 닫기 */ } };
+
+  // 모바일: click 이벤트로 토글
+  const handleGroupClick = (groupId: string) => {
+    if (isMobile) {
+      setExpandedGroup(prev => prev === groupId ? null : groupId);
+    }
+  };
+
+  // 메뉴 아이템 클릭 시 모바일 드로어 닫기
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    onNavigate?.();  // ← 부모의 setMobileMenuOpen(false) 호출
+  };
+};
+```
+
+---
+
+## 28. 포맷 유틸리티 — format-utils.ts
+
+`src/lib/format-utils.ts`에는 **금액, 숫자, 날짜, 전화번호 등의 포맷팅 함수**가 모여 있습니다.
+
+### 사용법
+
+```tsx
+import { formatCurrency, formatDate, formatNumber, formatPercent } from "@/lib/format-utils";
+
+formatCurrency(1500000)     // → "¥1,500,000"
+formatCurrency(null)        // → "¥0" (안전하게 처리)
+formatAmount(1500000)       // → "1,500,000" (¥ 기호 없이)
+
+formatNumber(12345)         // → "12,345" (3자리 콤마)
+formatPercent(0.125)        // → "12.5%"
+
+formatDate("2024-03-07")   // → "2024/03/07" (표시용)
+formatDateISO(new Date())  // → "2024-03-07" (API/DB용)
+formatDateTime(new Date()) // → "2024/03/07 14:30"
+getTodayISO()              // → "2024-03-07" (초기값용)
+
+truncate("매우 긴 텍스트...", 10)  // → "매우 긴 텍스트..."
+formatPhone("0312345678")  // → "03-1234-5678"
+```
+
+### 왜 직접 `toLocaleString()`을 안 쓰고 이 함수를 쓰는가?
+
+```tsx
+// ❌ 직접 사용 시 — null/undefined 처리, 포맷 불일치 위험
+<span>¥{amount?.toLocaleString() ?? "0"}</span>  // 매번 이렇게 써야 함
+
+// ✅ 유틸 함수 사용 — 안전하고 통일된 포맷
+<span>{formatCurrency(amount)}</span>  // null도 안전, 포맷도 통일
+```
+
+---
+
+## 29. 서비스 레이어 — API 통신 구조
+
+### 구조 개요
+
+```
+src/services/
+├── api-client.ts      # HTTP 클라이언트 (fetch 래퍼, 인증 헤더, 타임아웃)
+├── auth.service.ts    # 인증 API (로그인, 로그아웃, 토큰 갱신)
+├── slip.service.ts    # 전표 API (CRUD + 상태 변경)
+├── master.service.ts  # 마스터 API (사원/품목/창고/거래처 CRUD)
+└── index.ts           # 통합 export
+
+src/types/
+├── api.types.ts       # API 공통 타입 (ApiResponse, PaginatedResponse, LoginRequest 등)
+├── slip.types.ts      # 전표 관련 타입
+├── master.types.ts    # 마스터 관련 타입
+└── index.ts           # 통합 export
+
+src/hooks/api/
+├── use-slips.tsx      # 전표용 React Query 훅
+├── use-items.tsx      # 품목용 React Query 훅
+├── use-employees.tsx  # 사원용 React Query 훅
+├── use-warehouses.tsx # 창고용 React Query 훅
+├── use-partners.tsx   # 거래처용 React Query 훅
+└── index.ts           # 통합 export
+```
+
+### 데이터 흐름
+
+```
+① 페이지 컴포넌트 (ItemMaster.tsx)
+   └→ useItems(filter)              ← React Query 훅 호출
+
+② React Query 훅 (use-items.tsx)
+   └→ itemService.getAll(filter)    ← 서비스 함수 호출
+
+③ 서비스 (master.service.ts)
+   └→ apiClient.get("/items", params) ← API 클라이언트로 HTTP 요청
+
+④ API 클라이언트 (api-client.ts)
+   └→ fetch("http://localhost:5000/api/items?page=1&pageSize=10")
+      ├── Authorization: Bearer {token}  ← 자동으로 인증 헤더 추가
+      ├── Content-Type: application/json
+      └── AbortController (타임아웃)
+
+⑤ C# 백엔드 서버
+   └→ JSON 응답: { success: true, data: { items: [...], totalCount: 100 } }
+
+⑥ 역순으로 데이터가 돌아옴
+   API 클라이언트 → 서비스 → React Query (캐싱) → 컴포넌트 (렌더링)
+```
+
+### Mock 모드 vs 실제 API 모드
+
+```
+환경 변수 (.env.local):
+  VITE_USE_MOCK_DATA=true    → Mock 데이터 사용 (백엔드 없이 개발)
+  VITE_USE_MOCK_DATA=false   → 실제 C# API 서버로 요청
+
+확인: isMockMode() 함수 (api-client.ts에서 export)
+```
+
+---
+
+## 30. React ↔ C# 백엔드 통신 원리
+
+이 섹션은 **프론트엔드(React)가 어떻게 백엔드(C# .NET Core)와 데이터를 주고받는지** 그 원리를 설명합니다.
+
+### 기본 개념: HTTP REST API
+
+```
+┌──────────────────┐         HTTP 요청          ┌──────────────────┐
+│                  │  ─────────────────────────→ │                  │
+│   React 앱       │     GET /api/items          │   C# 백엔드      │
+│   (브라우저)      │                             │   (.NET Core)    │
+│                  │  ←───────────────────────── │                  │
+│                  │      JSON 응답              │                  │
+└──────────────────┘                             └──────────────────┘
+     포트: 5173                                      포트: 5000
+  (Vite 개발 서버)                              (ASP.NET Core 서버)
+```
+
+React와 C#은 **완전히 별개의 프로그램**입니다.  
+둘 사이의 통신은 **HTTP 프로토콜**을 통해 이루어집니다.  
+데이터 형식은 **JSON**(JavaScript Object Notation)입니다.
+
+### 통신 과정 상세
+
+```
+1️⃣ 사용자가 "品目一覧" 페이지를 열면:
+
+   React (브라우저)                        C# 백엔드 (서버)
+   ┌─────────────────┐                    ┌─────────────────┐
+   │ useItems() 호출  │                    │                 │
+   │       ↓         │                    │                 │
+   │ itemService     │  HTTP GET 요청      │ ItemsController │
+   │ .getAll()       │ ──────────────────→ │ .GetAll()       │
+   │       ↓         │ URL: /api/items    │       ↓         │
+   │ apiClient       │ Headers:           │ DB에서 조회      │
+   │ .get("/items")  │  Authorization:    │       ↓         │
+   │       ↓         │  Bearer eyJhb...   │ JSON으로 변환    │
+   │ fetch() 실행    │                    │       ↓         │
+   │                 │  HTTP 200 응답      │ 응답 전송       │
+   │ JSON 파싱       │ ←────────────────── │                 │
+   │       ↓         │ Body:              │                 │
+   │ 화면에 렌더링    │ {"success":true,   │                 │
+   │                 │  "data":{...}}     │                 │
+   └─────────────────┘                    └─────────────────┘
+```
+
+### HTTP 메서드와 CRUD 매핑
+
+```
+┌────────┬──────────┬───────────────────────────────┬──────────────────────────┐
+│ 작업   │ HTTP     │ React에서                      │ C#에서                    │
+├────────┼──────────┼───────────────────────────────┼──────────────────────────┤
+│ 읽기   │ GET      │ apiClient.get("/items")       │ [HttpGet] GetAll()       │
+│ 생성   │ POST     │ apiClient.post("/items", data)│ [HttpPost] Create(dto)   │
+│ 수정   │ PUT      │ apiClient.put("/items/1", d)  │ [HttpPut] Update(id,dto) │
+│ 부분수정│ PATCH    │ apiClient.patch("/items/1",d) │ [HttpPatch] Patch(id,d)  │
+│ 삭제   │ DELETE   │ apiClient.delete("/items/1")  │ [HttpDelete] Delete(id)  │
+└────────┴──────────┴───────────────────────────────┴──────────────────────────┘
+```
+
+### JSON — 데이터 교환 형식
+
+JSON은 JavaScript와 C# 모두 이해할 수 있는 **공통 데이터 형식**입니다.
+
+```json
+// C# 백엔드가 보내는 표준 응답 형식 (ApiResponse<T>)
+{
+  "success": true,
+  "data": {
+    "items": [
+      { "id": 1, "itemCode": "ITM-001", "itemName": "ボルトM8", "unitPrice": 150 },
+      { "id": 2, "itemCode": "ITM-002", "itemName": "ナットM8", "unitPrice": 80 }
+    ],
+    "totalCount": 42,
+    "page": 1,
+    "pageSize": 10,
+    "totalPages": 5
+  },
+  "message": null,
+  "timestamp": "2024-03-07T14:30:00Z"
+}
+```
+
+```csharp
+// C# 모델 (백엔드)
+public class ApiResponse<T>
+{
+    public bool Success { get; set; }
+    public T Data { get; set; }
+    public string? Message { get; set; }
+    public string[] Errors { get; set; }
+    public DateTime Timestamp { get; set; }
+}
+```
+
+```tsx
+// TypeScript 타입 (프론트엔드) — C#과 1:1 대응
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  errors?: string[];
+  timestamp: string;
+}
+```
+
+### 타입 매핑 (C# ↔ TypeScript)
+
+```
+┌─────────────────┬──────────────────┐
+│ C# 타입          │ TypeScript 타입   │
+├─────────────────┼──────────────────┤
+│ string          │ string           │
+│ int, long       │ number           │
+│ decimal, double │ number           │
+│ bool            │ boolean          │
+│ DateTime        │ string (ISO형식)  │
+│ List<T>         │ T[]              │
+│ T?  (nullable)  │ T | null         │
+│ Dictionary<K,V> │ Record<K, V>     │
+└─────────────────┴──────────────────┘
+```
+
+### 인증 흐름 (JWT 토큰)
+
+```
+1️⃣ 로그인
+   React: POST /api/auth/login  { username: "admin", password: "1234" }
+   C#:    비밀번호 검증 → JWT 토큰 생성 → 응답
+   React: 토큰을 sessionStorage에 저장
+
+2️⃣ 이후 모든 요청
+   React: GET /api/items
+          Headers: { Authorization: "Bearer eyJhbGciOiJIUzI1NiIs..." }
+                                           ↑ 로그인 시 받은 토큰
+   C#:    토큰 검증 → 유효하면 데이터 반환, 무효하면 401 에러
+
+3️⃣ 토큰 만료 시
+   React: POST /api/auth/refresh  { refreshToken: "..." }
+   C#:    새 토큰 발급
+   React: 새 토큰으로 교체
+
+4️⃣ 로그아웃
+   React: POST /api/auth/logout
+   React: sessionStorage에서 토큰 삭제
+```
+
+### apiClient가 자동으로 하는 일
+
+```tsx
+// api-client.ts가 모든 요청에 대해 자동으로 처리:
+
+1. 인증 헤더 추가
+   → sessionStorage에서 토큰을 꺼내 Authorization 헤더에 넣음
+
+2. JSON 직렬화/역직렬화
+   → 보낼 때: JavaScript 객체 → JSON 문자열 (JSON.stringify)
+   → 받을 때: JSON 문자열 → JavaScript 객체 (response.json())
+
+3. 에러 처리
+   → HTTP 상태 코드 확인 (200 OK, 401 Unauthorized, 500 Server Error 등)
+   → success: false 응답을 ApiClientError로 변환
+
+4. 타임아웃
+   → 30초 이내 응답 없으면 자동 취소 (AbortController)
+
+5. 쿼리 파라미터
+   → { page: 1, search: "볼트" } → ?page=1&search=볼트
+```
+
+### CORS — 왜 다른 포트끼리 통신이 되는가?
+
+```
+브라우저는 기본적으로 다른 출처(Origin)끼리의 요청을 차단합니다.
+  React: http://localhost:5173  (프론트)
+  C#:    http://localhost:5000  (백엔드)
+  → 포트가 다르므로 "다른 출처" → 기본적으로 차단!
+
+해결: C# 백엔드에서 CORS 설정을 해야 합니다.
+
+// C# Program.cs에서:
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")  // React 개발 서버
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+```
+
+### 전체 아키텍처 한눈에 보기
+
+```
+┌─ 브라우저 (프론트엔드) ───────────────────────────────────────────┐
+│                                                                  │
+│  페이지 컴포넌트 (pages/)                                         │
+│       ↕ useItems(), useCreateItem() 등                           │
+│  React Query 훅 (hooks/api/)                                     │
+│       ↕ itemService.getAll(), .create() 등                       │
+│  서비스 레이어 (services/)                                        │
+│       ↕ apiClient.get(), .post() 등                              │
+│  API 클라이언트 (api-client.ts)                                   │
+│       ↕ fetch() — HTTP 요청                                      │
+│                                                                  │
+└──────────────────────────────────────┬───────────────────────────┘
+                                       │ HTTP (JSON)
+                                       ↕
+┌─ 서버 (백엔드) ──────────────────────┴───────────────────────────┐
+│                                                                  │
+│  Controller (API 엔드포인트)                                      │
+│       ↕                                                          │
+│  Service (비즈니스 로직)                                          │
+│       ↕                                                          │
+│  Repository (데이터 접근)                                         │
+│       ↕                                                          │
+│  Database (SQL Server / PostgreSQL 등)                            │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### 핵심 요약
+
+> **React는 화면을 그리는 역할**, **C#은 데이터를 처리하는 역할**입니다.  
+> 둘은 **HTTP + JSON**이라는 "공통 언어"로 대화합니다.  
+> React가 `fetch()`로 "이 데이터 줘"라고 요청하면,  
+> C#이 DB에서 꺼내서 JSON으로 포장해 돌려주는 구조입니다.  
+> **서로의 코드를 전혀 몰라도 됩니다** — 약속된 URL과 JSON 형식만 맞추면 됩니다.
+
+---
+
+> **이 문서를 다 읽었다면**, 프로젝트의 어떤 파일이든 열어서 코드를 이해할 수 있을 것입니다.  
+> 모르는 것이 나오면 해당 섹션을 다시 찾아보세요. 실전에서 반복적으로 보다 보면 자연스럽게 익숙해집니다.
