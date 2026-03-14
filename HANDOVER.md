@@ -397,11 +397,15 @@ const ProtectedRoute = ({ children }) => {
 
 ### ERPLayout (`src/components/erp/ERPLayout.tsx`)
 
-- **사이드바**: `ERPSidebar` 컴포넌트. 마우스 호버 시 자동 확장/축소.
+- **데스크톱**: `ERPSidebar`를 좌측에 직접 표시. 마우스 호버 시 자동 확장/축소.
+- **모바일**: `useIsMobile()` 감지 → `ERPSidebar`를 `Sheet`(드로어) 컴포넌트로 감싸서 표시. 헤더에 **햄버거 메뉴(☰)** 버튼 추가.
 - **상단 헤더**: `sticky top-0 z-40` 으로 스크롤 시에도 상단 고정. 검색, 테마 토글, 알림 패널, 유저 메뉴(설정/로그아웃) 포함.
 - **본문**: `{children}` = 각 페이지의 내용이 여기에 들어감
 
 ### ERPSidebar (`src/components/erp/ERPSidebar.tsx`)
+
+- **데스크톱**: 마우스 호버로 서브메뉴 자동 열기/닫기 (`onMouseEnter`/`onMouseLeave`)
+- **모바일**: 클릭/탭으로 서브메뉴 토글 (호버 없으므로). `onNavigate` 콜백으로 메뉴 선택 시 드로어 자동 닫힘.
 
 메뉴 구조는 `menuItems` 배열로 관리됩니다:
 
