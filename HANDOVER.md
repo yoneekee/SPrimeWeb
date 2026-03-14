@@ -63,6 +63,8 @@
 | **Lucide React** | 아이콘 | 아이콘 라이브러리 (예: `<Factory />`, `<Search />`) |
 | **@react-pdf/renderer** | PDF 생성 | 브라우저에서 직접 PDF를 생성하고 다운로드 (NotoSansJP 폰트 사용) |
 | **@tanstack/react-query** | 비동기 상태 | API 연동 시 데이터 fetching, 캐싱, 뮤테이션 관리 |
+| **Zod** | 스키마 검증 | 폼 데이터의 유효성 검증, TypeScript 타입 자동 생성 |
+| **react-hook-form** | 폼 관리 | 고성능 폼 상태 관리 + Zod 연동 (zodResolver) |
 
 ---
 
