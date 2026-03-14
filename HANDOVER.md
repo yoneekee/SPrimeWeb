@@ -479,7 +479,13 @@ const menuItems = [
 
 ### 11.1 테마 (색상 변수)
 
-모든 색상은 `src/index.css`에서 CSS 변수로 정의됩니다:
+모든 색상은 `src/index.css`에서 CSS 변수로 정의됩니다.  
+`src/lib/constants.ts`의 **`BRAND_HUE`** 상수(현재 `185`)로 primary 색상 계열 전체를 제어합니다:
+
+```tsx
+// src/lib/constants.ts
+export const BRAND_HUE = 185; // ★ 이 값 하나로 앱 전체 테마 색상 변경
+```
 
 ```css
 :root {            /* 라이트 모드 */
