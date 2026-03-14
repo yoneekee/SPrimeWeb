@@ -900,3 +900,182 @@ npm run build
 ---
 
 > **문의사항이 있으면 이 문서의 해당 섹션을 먼저 확인하고, 그래도 해결되지 않으면 코드 내 주석이나 컴포넌트 구조를 참고하세요.**
+
+---
+
+## 16. 폼 검증 시스템
+
+모든 생성 폼(생산/출고/BOM 전표, 사원/품목 마스터)에 **Zod + react-hook-form** 기반 검증이 적용되어 있습니다.
+
+### 구조
+
+```
+src/lib/schemas/
+├── slip.schema.ts        ← 전표 헤더 검증 (날짜, 담당자, 거래처 등)
+├── employee.schema.ts    ← 사원 (이름, 부서, 입사일 등)
+├── item.schema.ts        ← 품목 (코드, 이름, 단가 등)
+└── index.ts              ← 통합 export
+```
+
+### 동작 방식
+
+1. **Zod 스키마**에서 검증 규칙과 일본어 에러 메시지를 정의
+2. **`zodResolver`**로 react-hook-form에 연결
+3. **`mode: "onChange"`**로 입력 즉시 검증 피드백
+4. 유효하지 않으면 **Submit 버튼 비활성화** (`disabled={!isValid}`)
+5. 에러 필드에 **빨간 테두리** (`border-destructive`) 표시
+6. **`FormError`** 컴포넌트로 에러 메시지 표시
+
+### 에러 메시지 언어
+
+모든 에러 메시지는 **일본어**로 작성됨 (예: `"申請日は必須項目です"`, `"数量は1以上で入力してください"`)
+
+### 새 스키마 추가 방법
+
+```tsx
+// src/lib/schemas/new-entity.schema.ts
+import { z } from "zod";
+
+export const newEntitySchema = z.object({
+  name: z.string().min(1, "名前は必須項目です"),
+  quantity: z.coerce.number().min(1, "数量は1以上で入力してください"),
+});
+
+export type NewEntityFormData = z.infer<typeof newEntitySchema>;
+```
+
+---
+
+## 17. 반응형 모바일 대응
+
+### useIsMobile Hook (`src/hooks/use-mobile.tsx`)
+
+`window.matchMedia("(max-width: 768px)")`를 감시하여 모바일 여부를 반환합니다.
+
+### 적용 위치
+
+| 컴포넌트 | 데스크톱 동작 | 모바일 동작 |
+|----------|-------------|------------|
+| `ERPLayout.tsx` | 사이드바 직접 표시 | Sheet(드로어)로 표시 + 햄버거 메뉴 |
+| `ERPSidebar.tsx` | 호버로 서브메뉴 열기 | 탭으로 서브메뉴 토글 |
+
+### 코드 패턴
+
+```tsx
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const MyComponent = () => {
+  const isMobile = useIsMobile();
+
+  return isMobile ? <MobileView /> : <DesktopView />;
+};
+```
+
+---
+
+## 18. 서비스 레이어 — C# 백엔드 연동 구조
+
+### 아키텍처
+
+```
+페이지 컴포넌트 → React Query 훅 → 서비스 → API 클라이언트 → C# 백엔드
+(pages/)        (hooks/api/)      (services/)  (api-client.ts)    (HTTP/JSON)
+```
+
+### API 클라이언트 (`src/services/api-client.ts`)
+
+- **기본 URL**: `VITE_API_BASE_URL` 환경 변수 (기본값: `http://localhost:5000/api`)
+- **인증**: `sessionStorage`에서 JWT 토큰을 꺼내 `Authorization: Bearer` 헤더에 자동 추가
+- **타임아웃**: `VITE_API_TIMEOUT` (기본 30초), `AbortController` 사용
+- **에러 처리**: `ApiClientError` 클래스로 HTTP 에러와 비즈니스 에러 구분
+
+### 표준 응답 형식 (C# ↔ TypeScript 매핑)
+
+```tsx
+// TypeScript (프론트엔드)             // C# (백엔드)
+interface ApiResponse<T> {             // public class ApiResponse<T> {
+  success: boolean;                    //   public bool Success { get; set; }
+  data: T;                             //   public T Data { get; set; }
+  message?: string;                    //   public string? Message { get; set; }
+  errors?: string[];                   //   public string[] Errors { get; set; }
+  timestamp: string;                   //   public DateTime Timestamp { get; set; }
+}                                      // }
+```
+
+### Mock 모드 전환
+
+```bash
+# .env.local
+VITE_USE_MOCK_DATA=true    # Mock 데이터 사용 (백엔드 없이 개발)
+VITE_USE_MOCK_DATA=false   # 실제 C# API 서버로 요청
+
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_API_TIMEOUT=30000
+```
+
+### React Query 설정 (`main.tsx`)
+
+```tsx
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,                    // 실패 시 1회 재시도
+      refetchOnWindowFocus: false, // 탭 전환 시 재요청 안 함
+      staleTime: 5 * 60 * 1000,   // 5분간 캐시 유지
+    },
+  },
+});
+```
+
+---
+
+## 19. 포맷 유틸리티
+
+`src/lib/format-utils.ts`에 통일된 포맷팅 함수가 정의되어 있습니다.
+
+| 함수 | 입력 | 출력 | 용도 |
+|------|------|------|------|
+| `formatCurrency(1500000)` | number | `"¥1,500,000"` | 금액 표시 |
+| `formatAmount(1500000)` | number | `"1,500,000"` | ¥ 없이 금액 |
+| `formatNumber(12345)` | number | `"12,345"` | 3자리 콤마 |
+| `formatPercent(0.125)` | number | `"12.5%"` | 퍼센트 |
+| `formatDate("2024-03-07")` | string/Date | `"2024/03/07"` | 표시용 날짜 |
+| `formatDateISO(new Date())` | Date | `"2024-03-07"` | API/DB용 날짜 |
+| `formatDateTime(new Date())` | Date | `"2024/03/07 14:30"` | 날짜+시간 |
+| `getTodayISO()` | - | `"2024-03-07"` | 오늘 날짜 (초기값) |
+| `truncate("긴 텍스트", 10)` | string | `"긴 텍스트..."` | 말줄임 |
+| `formatPhone("0312345678")` | string | `"03-1234-5678"` | 전화번호 |
+
+> **모든 함수는 null/undefined 안전** — null을 넣어도 에러 없이 기본값 반환
+
+---
+
+## 20. 배포 (Deployment)
+
+### 빌드
+
+```bash
+npm run build
+# → dist/ 폴더에 정적 파일 생성
+```
+
+### Netlify 배포 시 주의사항
+
+- **SPA 리다이렉트**: `public/_redirects` 파일이 존재 (`/* /index.html 200`)
+  - 이 파일이 없으면 브라우저에서 직접 URL 입력 시 404 발생
+- **빌드 출력 디렉토리**: `dist`
+- **빌드 명령어**: `npm run build`
+
+### 환경 변수
+
+Netlify/Vercel 등 배포 플랫폼에서 다음 환경 변수를 설정해야 합니다:
+
+| 변수명 | 값 (예시) | 설명 |
+|--------|-----------|------|
+| `VITE_API_BASE_URL` | `https://api.example.com/api` | C# 백엔드 URL |
+| `VITE_API_TIMEOUT` | `30000` | API 타임아웃 (ms) |
+| `VITE_USE_MOCK_DATA` | `false` | 운영 환경에서는 반드시 `false` |
+
+---
+
+> **관련 문서**: 더 상세한 React 개념 설명은 `REACT_EDUCATION.md`를, AI 에이전트용 코드베이스 컨텍스트는 `LLM_CONTEXT.md`를 참고하세요.
