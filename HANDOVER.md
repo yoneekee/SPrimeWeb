@@ -1,6 +1,6 @@
 # S-PRIME ERP 시스템 — 개발자 인수인계 문서
 
-> **최종 갱신**: 2026-03-08  
+> **최종 갱신**: 2026-03-14  
 > **대상 독자**: React 경험이 없는 프론트엔드/풀스택 개발자  
 > **목적**: 이 문서 하나로 프로젝트 구조와 동작 원리를 파악하고 즉시 작업에 착수할 수 있도록 함
 
@@ -23,6 +23,11 @@
 13. [데이터 흐름 — Mock 데이터 구조](#13-데이터-흐름--mock-데이터-구조)
 14. [자주 하는 작업 가이드](#14-자주-하는-작업-가이드)
 15. [알아두면 좋은 것들](#15-알아두면-좋은-것들)
+16. [폼 검증 시스템 (Zod + react-hook-form)](#16-폼-검증-시스템)
+17. [반응형 모바일 대응](#17-반응형-모바일-대응)
+18. [서비스 레이어 — C# 백엔드 연동 구조](#18-서비스-레이어--c-백엔드-연동-구조)
+19. [포맷 유틸리티](#19-포맷-유틸리티)
+20. [배포 (Deployment)](#20-배포-deployment)
 
 ---
 
@@ -31,7 +36,7 @@
 **S-PRIME ERP**는 반도체 정밀기기 제조업체를 위한 **통합 생산·재고·물류 관리 시스템**의 프론트엔드 프로토타입입니다.
 
 - **언어**: 일본어 (UI 텍스트 전체가 일본어)
-- **현재 상태**: 프론트엔드 전용 (백엔드/DB 연동 없음, 모든 데이터는 Mock)
+- **현재 상태**: 프론트엔드 전용 (백엔드/DB 연동 없음, 모든 데이터는 Mock). 단, C# .NET Core 백엔드 연동을 위한 **서비스 레이어, 타입 정의, React Query 훅이 이미 구축됨**.
 - **주요 기능**:
   - 대시보드 (KPI, 차트, 재고현황)
   - 생산 전표 생성 및 실행 관리
@@ -58,6 +63,8 @@
 | **Lucide React** | 아이콘 | 아이콘 라이브러리 (예: `<Factory />`, `<Search />`) |
 | **@react-pdf/renderer** | PDF 생성 | 브라우저에서 직접 PDF를 생성하고 다운로드 (NotoSansJP 폰트 사용) |
 | **@tanstack/react-query** | 비동기 상태 | API 연동 시 데이터 fetching, 캐싱, 뮤테이션 관리 |
+| **Zod** | 스키마 검증 | 폼 데이터의 유효성 검증, TypeScript 타입 자동 생성 |
+| **react-hook-form** | 폼 관리 | 고성능 폼 상태 관리 + Zod 연동 (zodResolver) |
 
 ---
 
@@ -239,7 +246,7 @@ src/
 ├── hooks/                      ← 커스텀 훅 (전역 상태 관리)
 │   ├── use-auth.tsx            ← 로그인/로그아웃 상태
 │   ├── use-theme.tsx           ← 다크/라이트 테마
-│   ├── use-mobile.tsx          ← 모바일 여부 감지
+│   ├── use-mobile.tsx          ← 모바일 여부 감지 (useIsMobile)
 │   ├── use-pagination.tsx      ← usePagination() 페이지네이션 공통 훅
 │   ├── use-pdf-download.tsx    ← PDF 생성 및 다운로드 훅
 │   └── api/                    ← React Query 데이터 fetching 훅
@@ -250,10 +257,29 @@ src/
 │       ├── use-warehouses.tsx
 │       └── use-partners.tsx
 │
+├── services/                    ← ★ API 통신 서비스 레이어 (C# 백엔드 연동용)
+│   ├── api-client.ts           ← HTTP 클라이언트 (fetch 래퍼, 인증, 타임아웃)
+│   ├── auth.service.ts         ← 인증 API (로그인, 로그아웃, 토큰 갱신)
+│   ├── slip.service.ts         ← 전표 API (CRUD + 상태 변경)
+│   ├── master.service.ts       ← 마스터 API (사원/품목/창고/거래처)
+│   └── index.ts                ← 통합 export
+│
+├── types/                       ← ★ TypeScript 타입 정의 (C# 모델과 1:1 매핑)
+│   ├── api.types.ts            ← ApiResponse<T>, PaginatedResponse<T>, LoginRequest 등
+│   ├── slip.types.ts           ← 전표 관련 타입
+│   ├── master.types.ts         ← 마스터 관련 타입
+│   └── index.ts                ← 통합 export
+│
 └── lib/
     ├── utils.ts                ← cn() 유틸리티 (Tailwind 클래스 병합)
+    ├── constants.ts            ← BRAND_HUE 등 전역 상수
     ├── slip-utils.ts           ← 전표 상태 관리, 전표 번호 생성 유틸
-    └── format-utils.ts         ← 금액, 날짜, 숫자 포맷팅 유틸
+    ├── format-utils.ts         ← 금액(¥), 날짜, 숫자 포맷팅 유틸
+    └── schemas/                ← ★ Zod 검증 스키마
+        ├── slip.schema.ts      ← 전표 생성/수정 검증
+        ├── employee.schema.ts  ← 사원 등록/수정 검증
+        ├── item.schema.ts      ← 품목 등록/수정 검증
+        └── index.ts            ← 통합 export
 ```
 
 ---
@@ -332,6 +358,7 @@ const ProtectedRoute = ({ children }) => {
 | `/master/employee` | `EmployeeMaster` | 사원 마스터 |
 | `/master/item` | `ItemMaster` | 품목 마스터 |
 | `/master/warehouse` | `WarehouseMaster` | 창고 거점 마스터 |
+| `/design-system` | `DesignSystem` | 디자인 시스템 레퍼런스 (색상·컴포넌트 미리보기) |
 | `*` | `NotFound` | 404 페이지 |
 
 ### 새 페이지 추가 방법
@@ -370,11 +397,15 @@ const ProtectedRoute = ({ children }) => {
 
 ### ERPLayout (`src/components/erp/ERPLayout.tsx`)
 
-- **사이드바**: `ERPSidebar` 컴포넌트. 마우스 호버 시 자동 확장/축소.
+- **데스크톱**: `ERPSidebar`를 좌측에 직접 표시. 마우스 호버 시 자동 확장/축소.
+- **모바일**: `useIsMobile()` 감지 → `ERPSidebar`를 `Sheet`(드로어) 컴포넌트로 감싸서 표시. 헤더에 **햄버거 메뉴(☰)** 버튼 추가.
 - **상단 헤더**: `sticky top-0 z-40` 으로 스크롤 시에도 상단 고정. 검색, 테마 토글, 알림 패널, 유저 메뉴(설정/로그아웃) 포함.
 - **본문**: `{children}` = 각 페이지의 내용이 여기에 들어감
 
 ### ERPSidebar (`src/components/erp/ERPSidebar.tsx`)
+
+- **데스크톱**: 마우스 호버로 서브메뉴 자동 열기/닫기 (`onMouseEnter`/`onMouseLeave`)
+- **모바일**: 클릭/탭으로 서브메뉴 토글 (호버 없으므로). `onNavigate` 콜백으로 메뉴 선택 시 드로어 자동 닫힘.
 
 메뉴 구조는 `menuItems` 배열로 관리됩니다:
 
@@ -448,7 +479,13 @@ const menuItems = [
 
 ### 11.1 테마 (색상 변수)
 
-모든 색상은 `src/index.css`에서 CSS 변수로 정의됩니다:
+모든 색상은 `src/index.css`에서 CSS 변수로 정의됩니다.  
+`src/lib/constants.ts`의 **`BRAND_HUE`** 상수(현재 `185`)로 primary 색상 계열 전체를 제어합니다:
+
+```tsx
+// src/lib/constants.ts
+export const BRAND_HUE = 185; // ★ 이 값 하나로 앱 전체 테마 색상 변경
+```
 
 ```css
 :root {            /* 라이트 모드 */
@@ -863,3 +900,182 @@ npm run build
 ---
 
 > **문의사항이 있으면 이 문서의 해당 섹션을 먼저 확인하고, 그래도 해결되지 않으면 코드 내 주석이나 컴포넌트 구조를 참고하세요.**
+
+---
+
+## 16. 폼 검증 시스템
+
+모든 생성 폼(생산/출고/BOM 전표, 사원/품목 마스터)에 **Zod + react-hook-form** 기반 검증이 적용되어 있습니다.
+
+### 구조
+
+```
+src/lib/schemas/
+├── slip.schema.ts        ← 전표 헤더 검증 (날짜, 담당자, 거래처 등)
+├── employee.schema.ts    ← 사원 (이름, 부서, 입사일 등)
+├── item.schema.ts        ← 품목 (코드, 이름, 단가 등)
+└── index.ts              ← 통합 export
+```
+
+### 동작 방식
+
+1. **Zod 스키마**에서 검증 규칙과 일본어 에러 메시지를 정의
+2. **`zodResolver`**로 react-hook-form에 연결
+3. **`mode: "onChange"`**로 입력 즉시 검증 피드백
+4. 유효하지 않으면 **Submit 버튼 비활성화** (`disabled={!isValid}`)
+5. 에러 필드에 **빨간 테두리** (`border-destructive`) 표시
+6. **`FormError`** 컴포넌트로 에러 메시지 표시
+
+### 에러 메시지 언어
+
+모든 에러 메시지는 **일본어**로 작성됨 (예: `"申請日は必須項目です"`, `"数量は1以上で入力してください"`)
+
+### 새 스키마 추가 방법
+
+```tsx
+// src/lib/schemas/new-entity.schema.ts
+import { z } from "zod";
+
+export const newEntitySchema = z.object({
+  name: z.string().min(1, "名前は必須項目です"),
+  quantity: z.coerce.number().min(1, "数量は1以上で入力してください"),
+});
+
+export type NewEntityFormData = z.infer<typeof newEntitySchema>;
+```
+
+---
+
+## 17. 반응형 모바일 대응
+
+### useIsMobile Hook (`src/hooks/use-mobile.tsx`)
+
+`window.matchMedia("(max-width: 768px)")`를 감시하여 모바일 여부를 반환합니다.
+
+### 적용 위치
+
+| 컴포넌트 | 데스크톱 동작 | 모바일 동작 |
+|----------|-------------|------------|
+| `ERPLayout.tsx` | 사이드바 직접 표시 | Sheet(드로어)로 표시 + 햄버거 메뉴 |
+| `ERPSidebar.tsx` | 호버로 서브메뉴 열기 | 탭으로 서브메뉴 토글 |
+
+### 코드 패턴
+
+```tsx
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const MyComponent = () => {
+  const isMobile = useIsMobile();
+
+  return isMobile ? <MobileView /> : <DesktopView />;
+};
+```
+
+---
+
+## 18. 서비스 레이어 — C# 백엔드 연동 구조
+
+### 아키텍처
+
+```
+페이지 컴포넌트 → React Query 훅 → 서비스 → API 클라이언트 → C# 백엔드
+(pages/)        (hooks/api/)      (services/)  (api-client.ts)    (HTTP/JSON)
+```
+
+### API 클라이언트 (`src/services/api-client.ts`)
+
+- **기본 URL**: `VITE_API_BASE_URL` 환경 변수 (기본값: `http://localhost:5000/api`)
+- **인증**: `sessionStorage`에서 JWT 토큰을 꺼내 `Authorization: Bearer` 헤더에 자동 추가
+- **타임아웃**: `VITE_API_TIMEOUT` (기본 30초), `AbortController` 사용
+- **에러 처리**: `ApiClientError` 클래스로 HTTP 에러와 비즈니스 에러 구분
+
+### 표준 응답 형식 (C# ↔ TypeScript 매핑)
+
+```tsx
+// TypeScript (프론트엔드)             // C# (백엔드)
+interface ApiResponse<T> {             // public class ApiResponse<T> {
+  success: boolean;                    //   public bool Success { get; set; }
+  data: T;                             //   public T Data { get; set; }
+  message?: string;                    //   public string? Message { get; set; }
+  errors?: string[];                   //   public string[] Errors { get; set; }
+  timestamp: string;                   //   public DateTime Timestamp { get; set; }
+}                                      // }
+```
+
+### Mock 모드 전환
+
+```bash
+# .env.local
+VITE_USE_MOCK_DATA=true    # Mock 데이터 사용 (백엔드 없이 개발)
+VITE_USE_MOCK_DATA=false   # 실제 C# API 서버로 요청
+
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_API_TIMEOUT=30000
+```
+
+### React Query 설정 (`main.tsx`)
+
+```tsx
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,                    // 실패 시 1회 재시도
+      refetchOnWindowFocus: false, // 탭 전환 시 재요청 안 함
+      staleTime: 5 * 60 * 1000,   // 5분간 캐시 유지
+    },
+  },
+});
+```
+
+---
+
+## 19. 포맷 유틸리티
+
+`src/lib/format-utils.ts`에 통일된 포맷팅 함수가 정의되어 있습니다.
+
+| 함수 | 입력 | 출력 | 용도 |
+|------|------|------|------|
+| `formatCurrency(1500000)` | number | `"¥1,500,000"` | 금액 표시 |
+| `formatAmount(1500000)` | number | `"1,500,000"` | ¥ 없이 금액 |
+| `formatNumber(12345)` | number | `"12,345"` | 3자리 콤마 |
+| `formatPercent(0.125)` | number | `"12.5%"` | 퍼센트 |
+| `formatDate("2024-03-07")` | string/Date | `"2024/03/07"` | 표시용 날짜 |
+| `formatDateISO(new Date())` | Date | `"2024-03-07"` | API/DB용 날짜 |
+| `formatDateTime(new Date())` | Date | `"2024/03/07 14:30"` | 날짜+시간 |
+| `getTodayISO()` | - | `"2024-03-07"` | 오늘 날짜 (초기값) |
+| `truncate("긴 텍스트", 10)` | string | `"긴 텍스트..."` | 말줄임 |
+| `formatPhone("0312345678")` | string | `"03-1234-5678"` | 전화번호 |
+
+> **모든 함수는 null/undefined 안전** — null을 넣어도 에러 없이 기본값 반환
+
+---
+
+## 20. 배포 (Deployment)
+
+### 빌드
+
+```bash
+npm run build
+# → dist/ 폴더에 정적 파일 생성
+```
+
+### Netlify 배포 시 주의사항
+
+- **SPA 리다이렉트**: `public/_redirects` 파일이 존재 (`/* /index.html 200`)
+  - 이 파일이 없으면 브라우저에서 직접 URL 입력 시 404 발생
+- **빌드 출력 디렉토리**: `dist`
+- **빌드 명령어**: `npm run build`
+
+### 환경 변수
+
+Netlify/Vercel 등 배포 플랫폼에서 다음 환경 변수를 설정해야 합니다:
+
+| 변수명 | 값 (예시) | 설명 |
+|--------|-----------|------|
+| `VITE_API_BASE_URL` | `https://api.example.com/api` | C# 백엔드 URL |
+| `VITE_API_TIMEOUT` | `30000` | API 타임아웃 (ms) |
+| `VITE_USE_MOCK_DATA` | `false` | 운영 환경에서는 반드시 `false` |
+
+---
+
+> **관련 문서**: 더 상세한 React 개념 설명은 `REACT_EDUCATION.md`를, AI 에이전트용 코드베이스 컨텍스트는 `LLM_CONTEXT.md`를 참고하세요.
