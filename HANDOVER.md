@@ -246,7 +246,7 @@ src/
 ├── hooks/                      ← 커스텀 훅 (전역 상태 관리)
 │   ├── use-auth.tsx            ← 로그인/로그아웃 상태
 │   ├── use-theme.tsx           ← 다크/라이트 테마
-│   ├── use-mobile.tsx          ← 모바일 여부 감지
+│   ├── use-mobile.tsx          ← 모바일 여부 감지 (useIsMobile)
 │   ├── use-pagination.tsx      ← usePagination() 페이지네이션 공통 훅
 │   ├── use-pdf-download.tsx    ← PDF 생성 및 다운로드 훅
 │   └── api/                    ← React Query 데이터 fetching 훅
@@ -257,10 +257,29 @@ src/
 │       ├── use-warehouses.tsx
 │       └── use-partners.tsx
 │
+├── services/                    ← ★ API 통신 서비스 레이어 (C# 백엔드 연동용)
+│   ├── api-client.ts           ← HTTP 클라이언트 (fetch 래퍼, 인증, 타임아웃)
+│   ├── auth.service.ts         ← 인증 API (로그인, 로그아웃, 토큰 갱신)
+│   ├── slip.service.ts         ← 전표 API (CRUD + 상태 변경)
+│   ├── master.service.ts       ← 마스터 API (사원/품목/창고/거래처)
+│   └── index.ts                ← 통합 export
+│
+├── types/                       ← ★ TypeScript 타입 정의 (C# 모델과 1:1 매핑)
+│   ├── api.types.ts            ← ApiResponse<T>, PaginatedResponse<T>, LoginRequest 등
+│   ├── slip.types.ts           ← 전표 관련 타입
+│   ├── master.types.ts         ← 마스터 관련 타입
+│   └── index.ts                ← 통합 export
+│
 └── lib/
     ├── utils.ts                ← cn() 유틸리티 (Tailwind 클래스 병합)
+    ├── constants.ts            ← BRAND_HUE 등 전역 상수
     ├── slip-utils.ts           ← 전표 상태 관리, 전표 번호 생성 유틸
-    └── format-utils.ts         ← 금액, 날짜, 숫자 포맷팅 유틸
+    ├── format-utils.ts         ← 금액(¥), 날짜, 숫자 포맷팅 유틸
+    └── schemas/                ← ★ Zod 검증 스키마
+        ├── slip.schema.ts      ← 전표 생성/수정 검증
+        ├── employee.schema.ts  ← 사원 등록/수정 검증
+        ├── item.schema.ts      ← 품목 등록/수정 검증
+        └── index.ts            ← 통합 export
 ```
 
 ---
