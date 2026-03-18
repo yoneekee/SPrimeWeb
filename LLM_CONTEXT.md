@@ -3,7 +3,7 @@
 > **Single Source of Truth** for AI agents working on this codebase.
 > Contains all architectural decisions, file mappings, conventions, deployment knowledge, and domain logic needed to make accurate code changes.
 >
-> Last updated: 2026-03-11
+> Last updated: 2026-03-18
 
 ---
 
