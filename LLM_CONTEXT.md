@@ -488,6 +488,31 @@ import { cn } from "@/lib/utils";
 <div className={cn("p-4 rounded-lg", isActive && "bg-primary text-primary-foreground")} />
 ```
 
+### Form Validation Pattern (Zod + react-hook-form)
+
+All creation forms use this pattern:
+
+```tsx
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { productionSlipSchema, type ProductionSlipFormData } from "@/lib/schemas";
+import { FormError } from "@/components/erp/FormError";
+
+const { register, formState: { errors, isValid } } = useForm<ProductionSlipFormData>({
+  resolver: zodResolver(productionSlipSchema),
+  mode: "onChange",
+});
+
+// Input with error styling
+<Input className={cn(errors.date && "border-destructive ring-destructive")} {...register("date")} />
+<FormError message={errors.date?.message} />
+
+// Submit disabled until valid
+<Button disabled={!isValid}>保存</Button>
+```
+
+All error messages are in Japanese. Schemas: `src/lib/schemas/` (slip, employee, item).
+
 ---
 
 ## Mock Data (`src/services/mock-data.ts`)
