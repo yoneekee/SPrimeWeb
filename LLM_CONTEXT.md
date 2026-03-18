@@ -198,7 +198,8 @@ src/
 │   │   ├── SlipStatusChart.tsx  # Slip status pie chart
 │   │   ├── StatusFlowStepper.tsx# Visual step indicator for slip workflow
 │   │   ├── ItemSelectModal.tsx  # Modal for selecting catalog items
-│   │   └── PaginationControls.tsx # Reusable pagination UI
+│   │   ├── PaginationControls.tsx # Reusable pagination UI
+│   │   └── FormError.tsx        # Inline field-level validation error (Zod + react-hook-form)
 │   │
 │   ├── pdf/                     # PDF generation components (@react-pdf/renderer)
 │   │   ├── SlipPdfDocument.tsx  # PDF layout for slips (PO/invoice/production/shipment/BOM)
