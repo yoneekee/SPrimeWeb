@@ -224,7 +224,8 @@ src/
 │   │   ├── SlipStatusChart.tsx ← 전표 상태 차트
 │   │   ├── StatusFlowStepper.tsx ← 전표 상태 흐름 스텝퍼
 │   │   ├── ItemSelectModal.tsx ← 품목 선택 모달
-│   │   └── PaginationControls.tsx ← 재사용 가능한 페이지네이션 UI 컴포넌트
+│   │   ├── PaginationControls.tsx ← 재사용 가능한 페이지네이션 UI 컴포넌트
+│   │   └── FormError.tsx      ← 폼 필드 에러 메시지 표시 (Zod 검증 연동)
 │   │
 │   ├── pdf/                    ← ★ PDF 생성 전용 컴포넌트 (@react-pdf/renderer)
 │   │   ├── SlipPdfDocument.tsx ← 전표 PDF 레이아웃 (발주서/청구서/생산/출고/BOM)
