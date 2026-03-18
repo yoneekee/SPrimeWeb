@@ -1,73 +1,64 @@
-# Welcome to your Lovable project
+# S-PRIME ERP — 半導体精密機器 統合管理システム
 
-## Project info
+> Semiconductor Precision Resource & Inventory Management ERP
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui で構築された ERP フロントエンドプロトタイプです。
 
-## How can I edit this code?
+## クイックスタート
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install
+npm run dev        # → http://localhost:8080
+npm run build      # → dist/
+npm test           # vitest
 ```
 
-**Edit a file directly in GitHub**
+## 主な機能
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **ダッシュボード** — KPI、チャート、在庫現況
+- **生産伝票** — 作成・承認フロー・実行管理
+- **出庫伝票** — 出庫・配送・在庫調整
+- **BOM生産** — 自材明細ベースの自動展開
+- **財務諸表** — B/S・P/L 照会 + PDF出力
+- **請求書/発注書** — PDF プレビュー・一括印刷
+- **マスタ管理** — 社員・品目・倉庫 CRUD
 
-**Use GitHub Codespaces**
+## 技術スタック
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| 技術 | 用途 |
+|------|------|
+| React 18 + TypeScript | UI フレームワーク |
+| Vite | ビルドツール |
+| Tailwind CSS + shadcn/ui | スタイリング + UI コンポーネント |
+| TanStack React Query | API データ管理 |
+| Zod + react-hook-form | フォームバリデーション |
+| Recharts | ダッシュボードチャート |
+| @react-pdf/renderer | ブラウザ側 PDF 生成 |
 
-## What technologies are used for this project?
+## ドキュメント
 
-This project is built with:
+| ファイル | 対象 | 内容 |
+|----------|------|------|
+| `HANDOVER.md` | 開発者 | プロジェクト構造・全機能の詳細説明 (韓国語) |
+| `REACT_EDUCATION.md` | React 初心者 | React 基礎からプロジェクトパターンまで (韓国語) |
+| `LLM_CONTEXT.md` | AI エージェント | コードベース全体のコンテキスト (英語) |
+| `S-PRIME_ERP_企画書.md` | 企画 | 技術企画書 (日本語) |
+| `S-PRIME_ERP_기획서.md` | 기획 | 技術企画書 (韓国語) |
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## バックエンド連携
 
-## How can I deploy this project?
+C# .NET Core バックエンド連携に対応した設計済み:
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+- `src/services/` — API クライアント + ドメインサービス
+- `src/types/` — C# DTO とマッピングされた型定義
+- `src/hooks/api/` — React Query データフェッチングフック
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+# .env.local
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_USE_MOCK_DATA=true   # false で実 API に切替
+```
 
-Yes, you can!
+## ライセンス
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Private — S-Prime Corp.
