@@ -1033,9 +1033,12 @@ VITE_API_BASE_URL=http://localhost:5000/api
 VITE_API_TIMEOUT=30000
 ```
 
-### React Query 설정 (`main.tsx`)
+### React Query 설정 (`src/main.tsx`)
+
+> ⚠️ `App.tsx`에도 `new QueryClient()`가 있지만, `main.tsx`의 QueryClient가 더 바깥에서 Provider로 감싸므로 실질적으로 **`main.tsx`의 설정이 적용**됩니다.
 
 ```tsx
+// src/main.tsx
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
