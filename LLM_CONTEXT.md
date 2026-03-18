@@ -38,22 +38,23 @@ Path alias: `@/` → `src/`
 ## Architecture Overview
 
 ```
-main.tsx → ThemeProvider → AuthProvider → App.tsx (BrowserRouter + Routes)
-                                            └→ ProtectedRoute wraps all pages except /login
-                                                └→ Each page uses <ERPLayout> as shell
-                                                    ├── ERPSidebar (left nav)
-                                                    │   ├── Desktop: hover-expand with mouse enter/leave
-                                                    │   └── Mobile: tap-to-toggle via useIsMobile() hook
-                                                    ├── Header bar (search, theme toggle, notifications, user menu)
-                                                    │   └── Mobile: hamburger menu (☰) triggers Sheet drawer
-                                                    └── {children} = page content
+main.tsx → QueryClientProvider → ThemeProvider → AuthProvider → App.tsx (BrowserRouter + Routes)
+                                                                  └→ ProtectedRoute wraps all pages except /login
+                                                                      └→ Each page uses <ERPLayout> as shell
+                                                                          ├── ERPSidebar (left nav)
+                                                                          │   ├── Desktop: hover-expand with mouse enter/leave
+                                                                          │   └── Mobile: tap-to-toggle via useIsMobile() hook
+                                                                          ├── Header bar (search, theme toggle, notifications, user menu)
+                                                                          │   └── Mobile: hamburger menu (☰) triggers Sheet drawer
+                                                                          └── {children} = page content
 ```
 
 ### Boot Sequence
-1. `main.tsx` renders `<ThemeProvider>` → `<AuthProvider>` → `<App />`
-2. `ThemeProvider` (`src/hooks/use-theme.tsx`): reads theme from `localStorage("s-prime-theme")`, toggles `.dark` class on `<html>`
-3. `AuthProvider` (`src/hooks/use-auth.tsx`): reads login state from `sessionStorage("erp_logged_in")`. Demo auth — any non-empty username/password succeeds.
-4. `App.tsx`: defines all `<Route>` elements. `ProtectedRoute` redirects to `/login` if not authenticated.
+1. `main.tsx` renders `<QueryClientProvider>` → `<ThemeProvider>` → `<AuthProvider>` → `<App />`
+2. `QueryClientProvider`: TanStack React Query cache client (retry: 1, staleTime: 5min, no refetch on window focus)
+3. `ThemeProvider` (`src/hooks/use-theme.tsx`): reads theme from `localStorage("s-prime-theme")`, toggles `.dark` class on `<html>`
+4. `AuthProvider` (`src/hooks/use-auth.tsx`): reads login state from `sessionStorage("erp_logged_in")`. Demo auth — any non-empty username/password succeeds.
+5. `App.tsx`: defines all `<Route>` elements. `ProtectedRoute` redirects to `/login` if not authenticated. Note: `App.tsx` also creates its own `QueryClient` but the outer one from `main.tsx` takes precedence.
 
 ### Responsive Navigation (Mobile Fix)
 
