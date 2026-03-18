@@ -291,21 +291,24 @@ src/
 ```
 index.html
   └→ src/main.tsx              (1) React 앱 시작점
-       └→ ThemeProvider         (2) 다크/라이트 테마 제공
-            └→ AuthProvider     (3) 로그인 상태 제공
-                 └→ App.tsx     (4) URL에 따라 어떤 페이지를 보여줄지 결정
-                      └→ 각 페이지 컴포넌트 렌더링
+       └→ QueryClientProvider   (2) React Query 캐시/상태 제공
+            └→ ThemeProvider     (3) 다크/라이트 테마 제공
+                 └→ AuthProvider (4) 로그인 상태 제공
+                      └→ App.tsx (5) URL에 따라 어떤 페이지를 보여줄지 결정
+                           └→ 각 페이지 컴포넌트 렌더링
 ```
 
 **상세 설명**:
 
-1. **`main.tsx`** — React를 DOM에 마운트합니다. `<ThemeProvider>`와 `<AuthProvider>`로 전역 상태를 감쌉니다.
+1. **`main.tsx`** — React를 DOM에 마운트합니다. `<QueryClientProvider>`, `<ThemeProvider>`, `<AuthProvider>`로 전역 상태를 감쌉니다.
 
-2. **`ThemeProvider`** (`use-theme.tsx`) — `localStorage`에서 테마(dark/light) 저장·복원. `<html>` 태그에 `dark` 클래스를 추가/제거.
+2. **`QueryClientProvider`** — TanStack React Query의 캐시 클라이언트. API 데이터 캐싱, 재시도, 리페칭을 관리합니다.
 
-3. **`AuthProvider`** (`use-auth.tsx`) — `sessionStorage`에서 로그인 상태 저장·복원. `login()`, `logout()` 함수 제공.
+3. **`ThemeProvider`** (`use-theme.tsx`) — `localStorage`에서 테마(dark/light) 저장·복원. `<html>` 태그에 `dark` 클래스를 추가/제거.
 
-4. **`App.tsx`** — 모든 URL 경로를 정의. 로그인 안 된 상태면 `/login`으로 강제 이동 (`ProtectedRoute`).
+4. **`AuthProvider`** (`use-auth.tsx`) — `sessionStorage`에서 로그인 상태 저장·복원. `login()`, `logout()` 함수 제공.
+
+5. **`App.tsx`** — 모든 URL 경로를 정의. 로그인 안 된 상태면 `/login`으로 강제 이동 (`ProtectedRoute`). 자체적으로도 `QueryClient`를 생성하나, `main.tsx`의 것이 우선 적용됩니다.
 
 ---
 
