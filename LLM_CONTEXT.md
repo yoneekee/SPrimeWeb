@@ -217,7 +217,12 @@ src/
     ├── utils.ts                 # cn() — clsx + tailwind-merge utility
     ├── constants.ts             # Centralized brand colors, company info, dropdown options
     ├── slip-utils.ts            # Slip status management, slip number generation
-    └── format-utils.ts          # Currency, date, number formatting utilities
+    ├── format-utils.ts          # Currency, date, number formatting utilities
+    └── schemas/                 # Zod validation schemas (Japanese error messages)
+        ├── index.ts             # Unified re-export
+        ├── slip.schema.ts       # Slip header validation (date, requester, partner)
+        ├── employee.schema.ts   # Employee master validation (name, dept, joinDate)
+        └── item.schema.ts       # Item master validation (code, name, price)
 ```
 
 ---
