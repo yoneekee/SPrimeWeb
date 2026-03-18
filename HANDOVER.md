@@ -668,7 +668,23 @@ await downloadMultiplePdfs([pdfData1, pdfData2]);
 
 > **폰트**: PDF 내 일본어는 Google Fonts CDN의 `NotoSansJP`를 사용합니다. 네트워크 없이 생성 시 폰트 로딩이 실패할 수 있습니다.
 
-### 12.9 PaginationControls (페이지네이션 UI)
+### 12.9 FormError (폼 에러 메시지)
+
+`src/components/erp/FormError.tsx` — react-hook-form의 에러 메시지를 표시하는 인라인 컴포넌트입니다.
+
+```tsx
+import { FormError } from "@/components/erp/FormError";
+
+// react-hook-form의 errors 객체와 연결
+<Input className={cn(errors.name && "border-destructive ring-destructive")} {...register("name")} />
+<FormError message={errors.name?.message} />
+```
+
+- 에러가 없으면(`message`가 falsy) 아무것도 렌더링하지 않음
+- `text-destructive` 색상, `text-[10px]` 크기로 입력 필드 바로 아래 표시
+- `className` prop으로 추가 스타일 가능
+
+### 12.10 PaginationControls (페이지네이션 UI)
 
 `src/components/erp/PaginationControls.tsx` — `usePagination` 훅과 쌍으로 사용되는 페이지네이션 UI입니다.
 
