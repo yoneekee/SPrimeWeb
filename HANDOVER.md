@@ -1,6 +1,6 @@
 # S-PRIME ERP 시스템 — 개발자 인수인계 문서
 
-> **최종 갱신**: 2026-03-14  
+> **최종 갱신**: 2026-03-18  
 > **대상 독자**: React 경험이 없는 프론트엔드/풀스택 개발자  
 > **목적**: 이 문서 하나로 프로젝트 구조와 동작 원리를 파악하고 즉시 작업에 착수할 수 있도록 함
 
@@ -224,7 +224,8 @@ src/
 │   │   ├── SlipStatusChart.tsx ← 전표 상태 차트
 │   │   ├── StatusFlowStepper.tsx ← 전표 상태 흐름 스텝퍼
 │   │   ├── ItemSelectModal.tsx ← 품목 선택 모달
-│   │   └── PaginationControls.tsx ← 재사용 가능한 페이지네이션 UI 컴포넌트
+│   │   ├── PaginationControls.tsx ← 재사용 가능한 페이지네이션 UI 컴포넌트
+│   │   └── FormError.tsx      ← 폼 필드 에러 메시지 표시 (Zod 검증 연동)
 │   │
 │   ├── pdf/                    ← ★ PDF 생성 전용 컴포넌트 (@react-pdf/renderer)
 │   │   ├── SlipPdfDocument.tsx ← 전표 PDF 레이아웃 (발주서/청구서/생산/출고/BOM)
@@ -291,21 +292,24 @@ src/
 ```
 index.html
   └→ src/main.tsx              (1) React 앱 시작점
-       └→ ThemeProvider         (2) 다크/라이트 테마 제공
-            └→ AuthProvider     (3) 로그인 상태 제공
-                 └→ App.tsx     (4) URL에 따라 어떤 페이지를 보여줄지 결정
-                      └→ 각 페이지 컴포넌트 렌더링
+       └→ QueryClientProvider   (2) React Query 캐시/상태 제공
+            └→ ThemeProvider     (3) 다크/라이트 테마 제공
+                 └→ AuthProvider (4) 로그인 상태 제공
+                      └→ App.tsx (5) URL에 따라 어떤 페이지를 보여줄지 결정
+                           └→ 각 페이지 컴포넌트 렌더링
 ```
 
 **상세 설명**:
 
-1. **`main.tsx`** — React를 DOM에 마운트합니다. `<ThemeProvider>`와 `<AuthProvider>`로 전역 상태를 감쌉니다.
+1. **`main.tsx`** — React를 DOM에 마운트합니다. `<QueryClientProvider>`, `<ThemeProvider>`, `<AuthProvider>`로 전역 상태를 감쌉니다.
 
-2. **`ThemeProvider`** (`use-theme.tsx`) — `localStorage`에서 테마(dark/light) 저장·복원. `<html>` 태그에 `dark` 클래스를 추가/제거.
+2. **`QueryClientProvider`** — TanStack React Query의 캐시 클라이언트. API 데이터 캐싱, 재시도, 리페칭을 관리합니다.
 
-3. **`AuthProvider`** (`use-auth.tsx`) — `sessionStorage`에서 로그인 상태 저장·복원. `login()`, `logout()` 함수 제공.
+3. **`ThemeProvider`** (`use-theme.tsx`) — `localStorage`에서 테마(dark/light) 저장·복원. `<html>` 태그에 `dark` 클래스를 추가/제거.
 
-4. **`App.tsx`** — 모든 URL 경로를 정의. 로그인 안 된 상태면 `/login`으로 강제 이동 (`ProtectedRoute`).
+4. **`AuthProvider`** (`use-auth.tsx`) — `sessionStorage`에서 로그인 상태 저장·복원. `login()`, `logout()` 함수 제공.
+
+5. **`App.tsx`** — 모든 URL 경로를 정의. 로그인 안 된 상태면 `/login`으로 강제 이동 (`ProtectedRoute`). 자체적으로도 `QueryClient`를 생성하나, `main.tsx`의 것이 우선 적용됩니다.
 
 ---
 
@@ -664,7 +668,23 @@ await downloadMultiplePdfs([pdfData1, pdfData2]);
 
 > **폰트**: PDF 내 일본어는 Google Fonts CDN의 `NotoSansJP`를 사용합니다. 네트워크 없이 생성 시 폰트 로딩이 실패할 수 있습니다.
 
-### 12.9 PaginationControls (페이지네이션 UI)
+### 12.9 FormError (폼 에러 메시지)
+
+`src/components/erp/FormError.tsx` — react-hook-form의 에러 메시지를 표시하는 인라인 컴포넌트입니다.
+
+```tsx
+import { FormError } from "@/components/erp/FormError";
+
+// react-hook-form의 errors 객체와 연결
+<Input className={cn(errors.name && "border-destructive ring-destructive")} {...register("name")} />
+<FormError message={errors.name?.message} />
+```
+
+- 에러가 없으면(`message`가 falsy) 아무것도 렌더링하지 않음
+- `text-destructive` 색상, `text-[10px]` 크기로 입력 필드 바로 아래 표시
+- `className` prop으로 추가 스타일 가능
+
+### 12.10 PaginationControls (페이지네이션 UI)
 
 `src/components/erp/PaginationControls.tsx` — `usePagination` 훅과 쌍으로 사용되는 페이지네이션 UI입니다.
 
@@ -1013,9 +1033,12 @@ VITE_API_BASE_URL=http://localhost:5000/api
 VITE_API_TIMEOUT=30000
 ```
 
-### React Query 설정 (`main.tsx`)
+### React Query 설정 (`src/main.tsx`)
+
+> ⚠️ `App.tsx`에도 `new QueryClient()`가 있지만, `main.tsx`의 QueryClient가 더 바깥에서 Provider로 감싸므로 실질적으로 **`main.tsx`의 설정이 적용**됩니다.
 
 ```tsx
+// src/main.tsx
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
