@@ -413,11 +413,11 @@ const ProductionExecution = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請日</label>
-                <DatePicker value="2024-03-07" disabled={currentStatus !== "S00"} />
+                <DatePicker value={selectedSlipRec?.date} disabled={currentStatus !== "S00"} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">申請者（部署）</label>
-                <Input value="田中 太郎（製造1課）" readOnly className="h-8 text-xs bg-muted/50 border-border" />
+                <Input value={selectedSlipRec ? `${selectedSlipRec.requester}（${selectedSlipRec.department}）` : ""} readOnly className="h-8 text-xs bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">希望発注先</label>
@@ -437,7 +437,7 @@ const ProductionExecution = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">合計金額</label>
-                <Input value="¥68,750,000" readOnly className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold" />
+                <Input value={`¥${(selectedSlipRec?.totalAmount ?? 0).toLocaleString()}`} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">備考</label>
