@@ -19,10 +19,11 @@ import {
 import {
   Search, FileText, ChevronLeft, ChevronRight, ExternalLink, ListFilter,
 } from "lucide-react";
+import { useSlips } from "@/hooks/use-slip-store";
 
 // --- Status configuration (from slip-utils) ---
 
-// --- Mock Data ---
+// --- 型定義 ---
 interface SlipRecord {
   slipNo: string;
   slipType: "PROD" | "SHIP";
@@ -37,37 +38,14 @@ interface SlipRecord {
   totalAmount: number;
   itemCount: number;
 }
-
-const mockSlips: SlipRecord[] = [
-  { slipNo: "SLP20240307-001", slipType: "PROD", typeName: "製造購買", date: "2024-03-07", requester: "田中 太郎", department: "製造1課", approver: "佐藤 花子", handler: "山田 優子", status: "P03", partner: "東京半導体(株)", totalAmount: 68750000, itemCount: 3 },
-  { slipNo: "SLP20240305-003", slipType: "PROD", typeName: "製造購買", date: "2024-03-05", requester: "佐藤 花子", department: "品質管理課", approver: "鈴木 一郎", handler: "高橋 健太", status: "A01", partner: "大阪精密工業(株)", totalAmount: 12300000, itemCount: 2 },
-  { slipNo: "SLP20240304-002", slipType: "PROD", typeName: "製造購買", date: "2024-03-04", requester: "鈴木 一郎", department: "製造2課", approver: "田中 太郎", handler: "山田 優子", status: "I00", partner: "名古屋電子(株)", totalAmount: 95200000, itemCount: 5 },
-  { slipNo: "SLP20240301-001", slipType: "PROD", typeName: "製造購買", date: "2024-03-01", requester: "田中 太郎", department: "製造1課", approver: "-", handler: "-", status: "S00", partner: "-", totalAmount: 0, itemCount: 0 },
-  { slipNo: "SLP20240228-005", slipType: "PROD", typeName: "製造購買", date: "2024-02-28", requester: "高橋 健太", department: "資材課", approver: "佐藤 花子", handler: "高橋 健太", status: "P04", partner: "東京半導体(株)", totalAmount: 23400000, itemCount: 4 },
-  { slipNo: "SLP20240227-002", slipType: "PROD", typeName: "製造購買", date: "2024-02-27", requester: "佐藤 花子", department: "品質管理課", approver: "鈴木 一郎", handler: "-", status: "A02", partner: "九州ケミカル(株)", totalAmount: 8900000, itemCount: 1 },
-  { slipNo: "SLP20240226-004", slipType: "PROD", typeName: "製造購買", date: "2024-02-26", requester: "鈴木 一郎", department: "製造2課", approver: "田中 太郎", handler: "山田 優子", status: "P02", partner: "大阪精密工業(株)", totalAmount: 41600000, itemCount: 3 },
-  { slipNo: "SLP20240225-001", slipType: "PROD", typeName: "製造購買", date: "2024-02-25", requester: "田中 太郎", department: "製造1課", approver: "佐藤 花子", handler: "山田 優子", status: "I00", partner: "東京半導体(株)", totalAmount: 55000000, itemCount: 2 },
-  { slipNo: "SHP20240310-001", slipType: "SHIP", typeName: "出庫", date: "2024-03-10", requester: "高橋 修平", department: "物流課", approver: "佐藤 花子", handler: "山田 優子", status: "T01", partner: "東京エレクトロン(株)", totalAmount: 245000000, itemCount: 3 },
-  { slipNo: "SHP20240308-002", slipType: "SHIP", typeName: "出庫", date: "2024-03-08", requester: "高橋 修平", department: "物流課", approver: "鈴木 一郎", handler: "高橋 健太", status: "T03", partner: "SCREEN HD(株)", totalAmount: 156000000, itemCount: 2 },
-  { slipNo: "SHP20240306-001", slipType: "SHIP", typeName: "出庫", date: "2024-03-06", requester: "山田 優子", department: "営業課", approver: "田中 太郎", handler: "高橋 修平", status: "T02", partner: "ディスコ(株)", totalAmount: 89500000, itemCount: 1 },
-  { slipNo: "SHP20240303-003", slipType: "SHIP", typeName: "出庫", date: "2024-03-03", requester: "佐藤 花子", department: "品質管理課", approver: "鈴木 一郎", handler: "山田 優子", status: "T04", partner: "TSMC Japan", totalAmount: 12800000, itemCount: 2 },
-  { slipNo: "SHP20240228-002", slipType: "SHIP", typeName: "出庫", date: "2024-02-28", requester: "高橋 修平", department: "物流課", approver: "佐藤 花子", handler: "高橋 健太", status: "T03", partner: "キヤノン(株)", totalAmount: 178200000, itemCount: 4 },
-  { slipNo: "SHP20240225-001", slipType: "SHIP", typeName: "出庫", date: "2024-02-25", requester: "山田 優子", department: "営業課", approver: "田中 太郎", handler: "山田 優子", status: "A01", partner: "ニコン(株)", totalAmount: 67400000, itemCount: 2 },
-  { slipNo: "SLP20240222-003", slipType: "PROD", typeName: "製造購買", date: "2024-02-22", requester: "山田 優子", department: "資材課", approver: "佐藤 花子", handler: "高橋 健太", status: "S01", partner: "東京半導体(株)", totalAmount: 15750000, itemCount: 2 },
-  { slipNo: "SHP20240222-004", slipType: "SHIP", typeName: "出庫", date: "2024-02-22", requester: "高橋 健太", department: "物流課", approver: "鈴木 一郎", handler: "高橋 修平", status: "T02", partner: "アドバンテスト(株)", totalAmount: 34600000, itemCount: 1 },
-  { slipNo: "SLP20240220-002", slipType: "PROD", typeName: "製造購買", date: "2024-02-20", requester: "高橋 健太", department: "資材課", approver: "田中 太郎", handler: "山田 優子", status: "P01", partner: "名古屋電子(株)", totalAmount: 33200000, itemCount: 3 },
-  { slipNo: "SHP20240218-003", slipType: "SHIP", typeName: "出庫", date: "2024-02-18", requester: "山田 優子", department: "営業課", approver: "佐藤 花子", handler: "高橋 修平", status: "A02", partner: "東京エレクトロン(株)", totalAmount: 91300000, itemCount: 3 },
-  { slipNo: "SLP20240218-001", slipType: "PROD", typeName: "製造購買", date: "2024-02-18", requester: "佐藤 花子", department: "品質管理課", approver: "鈴木 一郎", handler: "高橋 健太", status: "A01", partner: "大阪精密工業(株)", totalAmount: 27800000, itemCount: 2 },
-  { slipNo: "SLP20240215-004", slipType: "PROD", typeName: "製造購買", date: "2024-02-15", requester: "鈴木 一郎", department: "製造2課", approver: "田中 太郎", handler: "山田 優子", status: "I00", partner: "東京半導体(株)", totalAmount: 62100000, itemCount: 4 },
-];
-
-const REQUESTER_OPTIONS = [...new Set(mockSlips.map(s => s.requester))];
-const APPROVER_OPTIONS = [...new Set(mockSlips.map(s => s.approver).filter(a => a !== "-"))];
-const HANDLER_OPTIONS = [...new Set(mockSlips.map(s => s.handler).filter(h => h !== "-"))];
 const STATUS_OPTIONS = Object.entries(SLIP_STATUS_CONFIG).map(([code, config]) => ({ code, label: config.label }));
 
 const SlipListPage = () => {
   const navigate = useNavigate();
+  const mockSlips = useSlips() as SlipRecord[];
+  const REQUESTER_OPTIONS = [...new Set(mockSlips.map(s => s.requester))];
+  const APPROVER_OPTIONS = [...new Set(mockSlips.map(s => s.approver).filter(a => a !== "-"))];
+  const HANDLER_OPTIONS = [...new Set(mockSlips.map(s => s.handler).filter(h => h !== "-"))];
 
   // Filter state
   const [typeFilter, setTypeFilter] = useState("all");

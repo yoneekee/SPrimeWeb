@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +47,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
+import { toast } from "sonner";
+import { useSlips } from "@/hooks/use-slip-store";
+import { slipStore, SHIP_TRANSITIONS } from "@/services/mock-store";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   S00: { label: "作成中 (Draft)", color: "bg-muted text-muted-foreground" },
@@ -117,31 +120,28 @@ const mockItems: ShipmentItem[] = [
   },
 ];
 
-const mockWorkflow: WorkflowEntry[] = [
-  { stepNo: 1, status: "出庫申請", empName: "高橋 修平", role: "申請者", comment: "東京エレクトロン 川崎FAB 納品案件", procAt: "2024-03-10 09:00:00" },
-  { stepNo: 2, status: "承認", empName: "佐藤 花子", role: "承認者（1次）", comment: "在庫確認完了、承認", procAt: "2024-03-10 11:30:00" },
-  { stepNo: 3, status: "承認", empName: "鈴木 一郎", role: "承認者（2次）", comment: "出庫承認", procAt: "2024-03-10 14:00:00" },
-  { stepNo: 4, status: "配送開始", empName: "山田 優子", role: "物流担当", comment: "運送業者: ヤマト運輸 / 送り状番号: YMT-240311-0891", procAt: "2024-03-11 08:30:00" },
-];
+// 履歴データはストアから取得する
 
 const ShipmentManagement = () => {
   const navigate = useNavigate();
-  const [currentStatus, setCurrentStatus] = useState("T01");
-  const [slipList] = useState([
-    { slipNo: "SHP20240310-001", date: "2024-03-10", customer: "東京エレクトロン(株)", status: "T01", totalAmount: "245,000,000" },
-    { slipNo: "SHP20240308-002", date: "2024-03-08", customer: "SCREEN HD(株)", status: "T03", totalAmount: "156,000,000" },
-    { slipNo: "SHP20240306-001", date: "2024-03-06", customer: "ディスコ(株)", status: "T02", totalAmount: "89,500,000" },
-    { slipNo: "SHP20240303-003", date: "2024-03-03", customer: "TSMC Japan", status: "T04", totalAmount: "12,800,000" },
-    { slipNo: "SHP20240228-002", date: "2024-02-28", customer: "キヤノン(株)", status: "T03", totalAmount: "178,200,000" },
-    { slipNo: "SHP20240225-001", date: "2024-02-25", customer: "ニコン(株)", status: "A01", totalAmount: "67,400,000" },
-    { slipNo: "SHP20240222-004", date: "2024-02-22", customer: "アドバンテスト(株)", status: "T02", totalAmount: "34,600,000" },
-    { slipNo: "SHP20240220-002", date: "2024-02-20", customer: "ルネサス(株)", status: "S01", totalAmount: "52,100,000" },
-    { slipNo: "SHP20240218-003", date: "2024-02-18", customer: "東京エレクトロン(株)", status: "A02", totalAmount: "91,300,000" },
-    { slipNo: "SHP20240215-001", date: "2024-02-15", customer: "SCREEN HD(株)", status: "T03", totalAmount: "124,700,000" },
-    { slipNo: "SHP20240212-002", date: "2024-02-12", customer: "ディスコ(株)", status: "T01", totalAmount: "43,800,000" },
-    { slipNo: "SHP20240210-001", date: "2024-02-10", customer: "TSMC Japan", status: "S00", totalAmount: "0" },
-  ]);
-  const [selectedSlip, setSelectedSlip] = useState("SHP20240310-001");
+  const allSlips = useSlips();
+  const rawList = useMemo(
+    () => allSlips.filter((s) => s.slipType === "SHIP"),
+    [allSlips]
+  );
+  // 表示用に customer フィールドへ partner をエイリアス
+  const slipList = useMemo(
+    () => rawList.map((s) => ({ ...s, customer: s.partner })),
+    [rawList]
+  );
+  const [selectedSlip, setSelectedSlip] = useState<string>(
+    () => slipList[0]?.slipNo ?? ""
+  );
+  const selectedSlipRec = useMemo(
+    () => rawList.find((s) => s.slipNo === selectedSlip) ?? rawList[0],
+    [rawList, selectedSlip]
+  );
+  const currentStatus = selectedSlipRec?.status ?? "S00";
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -183,9 +183,30 @@ const ShipmentManagement = () => {
   };
 
   const handleActionConfirm = () => {
-    console.log(`Action: ${actionModal.type}, Message: ${actionMessage}`);
+    if (selectedSlipRec && actionModal.type) {
+      const t = SHIP_TRANSITIONS[actionModal.type];
+      slipStore.changeStatus(
+        selectedSlipRec.slipNo,
+        t.next,
+        t.label,
+        actionMessage || `${t.label}しました`
+      );
+      toast.success(`${t.label}しました`);
+    }
     setActionModal({ open: false, type: null });
     setActionMessage("");
+  };
+
+  const runQuickAction = (key: keyof typeof SHIP_TRANSITIONS) => {
+    if (!selectedSlipRec) return;
+    const t = SHIP_TRANSITIONS[key];
+    slipStore.changeStatus(
+      selectedSlipRec.slipNo,
+      t.next,
+      t.label,
+      `${t.label}を実行しました`
+    );
+    toast.success(`${t.label}を実行しました`);
   };
 
   const openActionModal = (type: "approve" | "reject") => {
@@ -252,7 +273,7 @@ const ShipmentManagement = () => {
                               <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st?.color || ""}`}>
                                 {st?.label.split(" ")[0] || slip.status}
                               </Badge>
-                              <div className="text-muted-foreground">¥{slip.totalAmount}</div>
+                              <div className="text-muted-foreground">¥{slip.totalAmount.toLocaleString()}</div>
                             </div>
                           </div>
                         );
@@ -293,7 +314,7 @@ const ShipmentManagement = () => {
             </CardHeader>
             <CardContent className="px-4 pb-4">
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} onClick={() => runQuickAction("apply")} className="gap-1.5 text-xs">
                   <Send className="w-3.5 h-3.5" /> 出庫申請
                 </Button>
                 <Button size="sm" variant={isButtonActive("approve") ? "default" : "outline"} disabled={!isButtonActive("approve")} onClick={() => openActionModal("approve")} className="gap-1.5 text-xs">
@@ -303,17 +324,17 @@ const ShipmentManagement = () => {
                   <XCircle className="w-3.5 h-3.5" /> 否認
                 </Button>
                 <Separator orientation="vertical" className="h-8" />
-                <Button size="sm" variant={isButtonActive("transit") ? "default" : "outline"} disabled={!isButtonActive("transit")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("transit") ? "default" : "outline"} disabled={!isButtonActive("transit")} onClick={() => runQuickAction("transit")} className="gap-1.5 text-xs">
                   <Truck className="w-3.5 h-3.5" /> 配送開始（積送）
                 </Button>
-                <Button size="sm" variant={isButtonActive("delivered") ? "default" : "outline"} disabled={!isButtonActive("delivered")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("delivered") ? "default" : "outline"} disabled={!isButtonActive("delivered")} onClick={() => runQuickAction("delivered")} className="gap-1.5 text-xs">
                   <PackageCheck className="w-3.5 h-3.5" /> 出庫完了
                 </Button>
-                <Button size="sm" variant={isButtonActive("invoiced") ? "default" : "outline"} disabled={!isButtonActive("invoiced")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("invoiced") ? "default" : "outline"} disabled={!isButtonActive("invoiced")} onClick={() => runQuickAction("invoiced")} className="gap-1.5 text-xs">
                   <Receipt className="w-3.5 h-3.5" /> 売上確定
                 </Button>
                 <Separator orientation="vertical" className="h-8" />
-                <Button size="sm" variant="outline" className="gap-1.5 text-xs border-warning/50 text-warning hover:bg-warning/10">
+                <Button size="sm" variant="outline" onClick={() => runQuickAction("adjust")} className="gap-1.5 text-xs border-warning/50 text-warning hover:bg-warning/10">
                   <AlertTriangle className="w-3.5 h-3.5" /> 在庫調整
                 </Button>
               </div>
@@ -347,7 +368,7 @@ const ShipmentManagement = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票番号</label>
-                <Input value="SHP20240310-001" readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
+                <Input value={selectedSlipRec?.slipNo ?? ""} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票ステータス</label>
@@ -357,11 +378,11 @@ const ShipmentManagement = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">出庫希望日</label>
-                <DatePicker value="2024-03-15" disabled={currentStatus !== "S00"} />
+                <DatePicker value={selectedSlipRec?.date} disabled={currentStatus !== "S00"} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">得意先名</label>
-                <Input value="東京エレクトロン(株) 川崎事業所" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
+                <Input value={selectedSlipRec?.partner ?? ""} readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
               </div>
               <div className="space-y-1 md:col-span-2">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">配送先住所</label>
@@ -382,7 +403,7 @@ const ShipmentManagement = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">出庫合計金額</label>
-                <Input value="¥245,000,000" readOnly className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold" />
+                <Input value={`¥${(selectedSlipRec?.totalAmount ?? 0).toLocaleString()}`} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold" />
               </div>
             </div>
           </CardContent>
@@ -462,7 +483,13 @@ const ShipmentManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockWorkflow.map((wf) => (
+                {(selectedSlipRec?.workflow ?? []).length === 0 ? (
+                  <TableRow className="border-border">
+                    <TableCell colSpan={6} className="px-3 py-6 text-xs text-center text-muted-foreground">
+                      ワークフロー履歴がまだありません
+                    </TableCell>
+                  </TableRow>
+                ) : (selectedSlipRec?.workflow ?? []).map((wf) => (
                   <TableRow key={wf.stepNo} className="border-border hover:bg-secondary/50">
                     <TableCell className="px-3 py-2 text-xs text-center font-mono text-muted-foreground">{wf.stepNo}</TableCell>
                     <TableCell className="px-3 py-2 text-xs">

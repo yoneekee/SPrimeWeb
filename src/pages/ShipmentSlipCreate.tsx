@@ -24,6 +24,7 @@ import { ArrowLeft, Plus, Trash2, Save, Send, FileText, AlertTriangle } from "lu
 import { toast } from "sonner";
 import { shipmentSlipSchema, type ShipmentSlipFormValues } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
+import { slipStore, generateSlipNo as nextSlipNo } from "@/services/mock-store";
 
 interface ShipmentDetailItem {
   id: number;
@@ -63,14 +64,7 @@ const WAREHOUSES = [
   { value: "wh4", label: "大阪物流センター" },
 ];
 
-const generateSlipNo = () => {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  const seq = String(Math.floor(Math.random() * 999) + 1).padStart(3, "0");
-  return `SHP${y}${m}${d}-${seq}`;
-};
+const generateSlipNo = () => nextSlipNo("SHP");
 
 const ShipmentSlipCreate = () => {
   const navigate = useNavigate();
@@ -128,15 +122,45 @@ const ShipmentSlipCreate = () => {
   const totalAmount = details.reduce((sum, d) => sum + d.salesAmount, 0);
   const hasStockWarning = details.some((d) => d.shipQty > d.stockQty);
 
+  const CUSTOMER_LABEL: Record<string, string> = {
+    tel: "東京エレクトロン(株)",
+    screen: "SCREEN HD(株)",
+    disco: "ディスコ(株)",
+    tsmc: "TSMC Japan",
+    renesas: "ルネサス(株)",
+  };
+
+  const persist = (status: "S00" | "A00") => {
+    slipStore.add({
+      slipNo,
+      slipType: "SHIP",
+      typeName: "出庫",
+      date: shipDate || new Date().toISOString().split("T")[0],
+      requester,
+      department,
+      approver: status === "A00" ? "佐藤 花子" : "-",
+      handler: "-",
+      status,
+      partner: CUSTOMER_LABEL[customer] ?? "-",
+      totalAmount,
+      itemCount: details.length,
+      workflow: status === "A00"
+        ? [{ stepNo: 1, status: "出庫申請", empName: requester, role: "申請者", comment: "新規出庫伝票を申請しました", procAt: new Date().toISOString().replace("T", " ").slice(0, 19) }]
+        : [],
+    });
+  };
+
   const handleSave = () => {
     if (details.length === 0) { toast.error("1件以上の品目を追加してください。"); return; }
+    persist("S00");
     toast.success("出庫伝票を保存しました（作成中ステータス）");
     navigate("/production/shipping");
   };
 
-  const onSubmit = (data: ShipmentSlipFormValues) => {
+  const onSubmit = (_data: ShipmentSlipFormValues) => {
     if (details.length === 0) { toast.error("1件以上の品目を追加してください。"); return; }
     if (hasStockWarning) { toast.error("出庫数量が実在庫を超過する品目があります。"); return; }
+    persist("A00");
     toast.success("出庫伝票を申請しました");
     navigate("/production/shipping");
   };

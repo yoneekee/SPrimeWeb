@@ -23,6 +23,7 @@ import { ArrowLeft, Plus, Trash2, Save, Send, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { productionSlipSchema, type ProductionSlipFormValues } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
+import { slipStore, generateSlipNo as nextSlipNo } from "@/services/mock-store";
 
 interface NewDetailItem {
   id: number;
@@ -47,14 +48,7 @@ const ITEM_CATALOG: CatalogItem[] = [
   { code: "SEMI-PART-11", name: "O-Ring (Viton)", spec: "ID200 x 5.0", unit: "EA", price: 12000 },
 ];
 
-const generateSlipNo = () => {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  const seq = String(Math.floor(Math.random() * 999) + 1).padStart(3, "0");
-  return `SLP${y}${m}${d}-${seq}`;
-};
+const generateSlipNo = () => nextSlipNo("SLP");
 
 const ProductionSlipCreate = () => {
   const navigate = useNavigate();
@@ -108,14 +102,43 @@ const ProductionSlipCreate = () => {
 
   const totalAmount = details.reduce((sum, d) => sum + d.supplyAmount, 0);
 
+  const VENDOR_LABEL: Record<string, string> = {
+    tokyo: "東京半導体(株)",
+    osaka: "大阪精密(株)",
+    nagoya: "名古屋素材(株)",
+    screen: "SCREEN HD(株)",
+  };
+
+  const persist = (status: "S00" | "A00") => {
+    slipStore.add({
+      slipNo,
+      slipType: "PROD",
+      typeName: "製造購買",
+      date: reqDate || new Date().toISOString().split("T")[0],
+      requester,
+      department,
+      approver: status === "A00" ? "佐藤 花子" : "-",
+      handler: "-",
+      status,
+      partner: VENDOR_LABEL[vendor] ?? "-",
+      totalAmount,
+      itemCount: details.length,
+      workflow: status === "A00"
+        ? [{ stepNo: 1, status: "申請", empName: requester, role: "申請者", comment: "新規伝票を申請しました", procAt: new Date().toISOString().replace("T", " ").slice(0, 19) }]
+        : [],
+    });
+  };
+
   const handleSave = () => {
     if (details.length === 0) { toast.error("1件以上の品目を追加してください。"); return; }
+    persist("S00");
     toast.success("伝票を保存しました（作成中ステータス）");
     navigate("/production/execution");
   };
 
-  const onSubmit = (data: ProductionSlipFormValues) => {
+  const onSubmit = (_data: ProductionSlipFormValues) => {
     if (details.length === 0) { toast.error("1件以上の品目を追加してください。"); return; }
+    persist("A00");
     toast.success("伝票を申請しました");
     navigate("/production/execution");
   };
