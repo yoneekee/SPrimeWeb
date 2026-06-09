@@ -285,7 +285,7 @@ const ProductionExecution = () => {
                               <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st?.color || ""}`}>
                                 {st?.label.split(" ")[0] || slip.status}
                               </Badge>
-                              <div className="text-muted-foreground">¥{slip.totalAmount}</div>
+                              <div className="text-muted-foreground">¥{slip.totalAmount.toLocaleString()}</div>
                             </div>
                           </div>
                         );
@@ -346,7 +346,7 @@ const ProductionExecution = () => {
             </CardHeader>
             <CardContent className="px-4 pb-4">
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} onClick={() => runQuickAction("apply")} className="gap-1.5 text-xs">
                   <Send className="w-3.5 h-3.5" /> 申請
                 </Button>
                 <Button size="sm" variant={isButtonActive("approve") ? "default" : "outline"} disabled={!isButtonActive("approve")} onClick={() => openActionModal("approve")} className="gap-1.5 text-xs">
@@ -359,16 +359,16 @@ const ProductionExecution = () => {
                   <RotateCcw className="w-3.5 h-3.5" /> 差戻
                 </Button>
                 <Separator orientation="vertical" className="h-8" />
-                <Button size="sm" variant={isButtonActive("order") ? "default" : "outline"} disabled={!isButtonActive("order")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("order") ? "default" : "outline"} disabled={!isButtonActive("order")} onClick={() => runQuickAction("order")} className="gap-1.5 text-xs">
                   <FileCheck className="w-3.5 h-3.5" /> 発注確定
                 </Button>
-                <Button size="sm" variant={isButtonActive("partial") ? "default" : "outline"} disabled={!isButtonActive("partial")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("partial") ? "default" : "outline"} disabled={!isButtonActive("partial")} onClick={() => runQuickAction("partial")} className="gap-1.5 text-xs">
                   <Truck className="w-3.5 h-3.5" /> 分納登録
                 </Button>
-                <Button size="sm" variant={isButtonActive("receive") ? "default" : "outline"} disabled={!isButtonActive("receive")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("receive") ? "default" : "outline"} disabled={!isButtonActive("receive")} onClick={() => runQuickAction("receive")} className="gap-1.5 text-xs">
                   <PackageCheck className="w-3.5 h-3.5" /> 入庫完了
                 </Button>
-                <Button size="sm" variant={isButtonActive("inspect") ? "default" : "outline"} disabled={!isButtonActive("inspect")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("inspect") ? "default" : "outline"} disabled={!isButtonActive("inspect")} onClick={() => runQuickAction("inspect")} className="gap-1.5 text-xs">
                   <ClipboardCheck className="w-3.5 h-3.5" /> 検収完了
                 </Button>
               </div>
@@ -403,7 +403,7 @@ const ProductionExecution = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票番号</label>
-                <Input value="SLP20240307-001" readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
+                <Input value={selectedSlipRec?.slipNo ?? ""} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票ステータス</label>
