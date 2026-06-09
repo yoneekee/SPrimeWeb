@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +47,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
+import { toast } from "sonner";
+import { useSlips } from "@/hooks/use-slip-store";
+import { slipStore, PROD_TRANSITIONS } from "@/services/mock-store";
 
 // --- Mock Data ---
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
@@ -128,37 +131,23 @@ const mockDetails: DetailItem[] = [
   },
 ];
 
-const mockWorkflow: WorkflowEntry[] = [
-  { stepNo: 1, status: "申請", empName: "田中 太郎", role: "申請者", comment: "ウェーハおよび化学材料の緊急発注依頼", procAt: "2024-03-07 09:15:00" },
-  { stepNo: 2, status: "承認", empName: "佐藤 花子", role: "承認者（1次）", comment: "承認します", procAt: "2024-03-07 10:30:00" },
-  { stepNo: 3, status: "承認", empName: "鈴木 一郎", role: "承認者（2次）", comment: "数量確認完了、承認", procAt: "2024-03-07 14:20:00" },
-  { stepNo: 4, status: "見積", empName: "山田 優子", role: "製造担当", comment: "東京半導体(株) 見積受領完了", procAt: "2024-03-08 11:00:00" },
-  { stepNo: 5, status: "発注", empName: "山田 優子", role: "製造担当", comment: "発注確定 - PO#240308-001", procAt: "2024-03-09 09:00:00" },
-  { stepNo: 6, status: "分納入庫", empName: "山田 優子", role: "製造担当", comment: "第1回分納: ウェーハ 300EA 入庫", procAt: "2024-03-12 15:30:00" },
-];
+// 履歴データはストアから取得する
 
 const ProductionExecution = () => {
   const navigate = useNavigate();
-  const [currentStatus, setCurrentStatus] = useState("P03");
-  const [slipList] = useState([
-    { slipNo: "SLP20240307-001", date: "2024-03-07", requester: "田中 太郎", status: "P03", totalAmount: "68,750,000" },
-    { slipNo: "SLP20240305-003", date: "2024-03-05", requester: "佐藤 花子", status: "A01", totalAmount: "12,300,000" },
-    { slipNo: "SLP20240304-002", date: "2024-03-04", requester: "鈴木 一郎", status: "I00", totalAmount: "95,200,000" },
-    { slipNo: "SLP20240301-001", date: "2024-03-01", requester: "田中 太郎", status: "S00", totalAmount: "0" },
-    { slipNo: "SLP20240228-005", date: "2024-02-28", requester: "高橋 健太", status: "P04", totalAmount: "23,400,000" },
-    { slipNo: "SLP20240227-002", date: "2024-02-27", requester: "佐藤 花子", status: "A02", totalAmount: "8,900,000" },
-    { slipNo: "SLP20240226-004", date: "2024-02-26", requester: "鈴木 一郎", status: "P02", totalAmount: "41,600,000" },
-    { slipNo: "SLP20240225-001", date: "2024-02-25", requester: "田中 太郎", status: "I00", totalAmount: "55,000,000" },
-    { slipNo: "SLP20240222-003", date: "2024-02-22", requester: "山田 優子", status: "S01", totalAmount: "15,750,000" },
-    { slipNo: "SLP20240220-002", date: "2024-02-20", requester: "高橋 健太", status: "P01", totalAmount: "33,200,000" },
-    { slipNo: "SLP20240218-001", date: "2024-02-18", requester: "佐藤 花子", status: "A01", totalAmount: "27,800,000" },
-    { slipNo: "SLP20240215-004", date: "2024-02-15", requester: "鈴木 一郎", status: "I00", totalAmount: "62,100,000" },
-    { slipNo: "SLP20240212-002", date: "2024-02-12", requester: "田中 太郎", status: "P03", totalAmount: "18,500,000" },
-    { slipNo: "SLP20240210-001", date: "2024-02-10", requester: "山田 優子", status: "A00", totalAmount: "44,300,000" },
-    { slipNo: "SLP20240208-003", date: "2024-02-08", requester: "高橋 健太", status: "P04", totalAmount: "9,700,000" },
-    { slipNo: "SLP20240205-002", date: "2024-02-05", requester: "佐藤 花子", status: "I00", totalAmount: "71,000,000" },
-  ]);
-  const [selectedSlip, setSelectedSlip] = useState("SLP20240307-001");
+  const allSlips = useSlips();
+  const slipList = useMemo(
+    () => allSlips.filter((s) => s.slipType === "PROD"),
+    [allSlips]
+  );
+  const [selectedSlip, setSelectedSlip] = useState<string>(
+    () => slipList[0]?.slipNo ?? ""
+  );
+  const selectedSlipRec = useMemo(
+    () => slipList.find((s) => s.slipNo === selectedSlip) ?? slipList[0],
+    [slipList, selectedSlip]
+  );
+  const currentStatus = selectedSlipRec?.status ?? "S00";
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -204,9 +193,31 @@ const ProductionExecution = () => {
   };
 
   const handleActionConfirm = () => {
-    console.log(`Action: ${actionModal.type}, Message: ${actionMessage}`);
+    if (selectedSlipRec && actionModal.type) {
+      const t = PROD_TRANSITIONS[actionModal.type];
+      slipStore.changeStatus(
+        selectedSlipRec.slipNo,
+        t.next,
+        t.label,
+        actionMessage || `${t.label}しました`
+      );
+      toast.success(`${t.label}しました`);
+    }
     setActionModal({ open: false, type: null });
     setActionMessage("");
+  };
+
+  /** モーダル不要なワークフローアクション(申請/発注/分納/入庫/検収)を即時実行 */
+  const runQuickAction = (key: keyof typeof PROD_TRANSITIONS) => {
+    if (!selectedSlipRec) return;
+    const t = PROD_TRANSITIONS[key];
+    slipStore.changeStatus(
+      selectedSlipRec.slipNo,
+      t.next,
+      t.label,
+      `${t.label}を実行しました`
+    );
+    toast.success(`${t.label}を実行しました`);
   };
 
   const openActionModal = (type: "approve" | "reject" | "return") => {
