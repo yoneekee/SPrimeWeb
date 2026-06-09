@@ -539,7 +539,13 @@ const ProductionExecution = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockWorkflow.map((wf) => (
+                {(selectedSlipRec?.workflow ?? []).length === 0 ? (
+                  <TableRow className="border-border">
+                    <TableCell colSpan={6} className="px-3 py-6 text-xs text-center text-muted-foreground">
+                      ワークフロー履歴がまだありません
+                    </TableCell>
+                  </TableRow>
+                ) : (selectedSlipRec?.workflow ?? []).map((wf) => (
                   <TableRow key={wf.stepNo} className="border-border hover:bg-secondary/50">
                     <TableCell className="px-3 py-2 text-xs text-center font-mono text-muted-foreground">{wf.stepNo}</TableCell>
                     <TableCell className="px-3 py-2 text-xs">
