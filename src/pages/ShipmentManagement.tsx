@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +47,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import StatusFlowStepper from "@/components/erp/StatusFlowStepper";
+import { toast } from "sonner";
+import { useSlips } from "@/hooks/use-slip-store";
+import { slipStore, SHIP_TRANSITIONS } from "@/services/mock-store";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   S00: { label: "作成中 (Draft)", color: "bg-muted text-muted-foreground" },
@@ -117,31 +120,28 @@ const mockItems: ShipmentItem[] = [
   },
 ];
 
-const mockWorkflow: WorkflowEntry[] = [
-  { stepNo: 1, status: "出庫申請", empName: "高橋 修平", role: "申請者", comment: "東京エレクトロン 川崎FAB 納品案件", procAt: "2024-03-10 09:00:00" },
-  { stepNo: 2, status: "承認", empName: "佐藤 花子", role: "承認者（1次）", comment: "在庫確認完了、承認", procAt: "2024-03-10 11:30:00" },
-  { stepNo: 3, status: "承認", empName: "鈴木 一郎", role: "承認者（2次）", comment: "出庫承認", procAt: "2024-03-10 14:00:00" },
-  { stepNo: 4, status: "配送開始", empName: "山田 優子", role: "物流担当", comment: "運送業者: ヤマト運輸 / 送り状番号: YMT-240311-0891", procAt: "2024-03-11 08:30:00" },
-];
+// 履歴データはストアから取得する
 
 const ShipmentManagement = () => {
   const navigate = useNavigate();
-  const [currentStatus, setCurrentStatus] = useState("T01");
-  const [slipList] = useState([
-    { slipNo: "SHP20240310-001", date: "2024-03-10", customer: "東京エレクトロン(株)", status: "T01", totalAmount: "245,000,000" },
-    { slipNo: "SHP20240308-002", date: "2024-03-08", customer: "SCREEN HD(株)", status: "T03", totalAmount: "156,000,000" },
-    { slipNo: "SHP20240306-001", date: "2024-03-06", customer: "ディスコ(株)", status: "T02", totalAmount: "89,500,000" },
-    { slipNo: "SHP20240303-003", date: "2024-03-03", customer: "TSMC Japan", status: "T04", totalAmount: "12,800,000" },
-    { slipNo: "SHP20240228-002", date: "2024-02-28", customer: "キヤノン(株)", status: "T03", totalAmount: "178,200,000" },
-    { slipNo: "SHP20240225-001", date: "2024-02-25", customer: "ニコン(株)", status: "A01", totalAmount: "67,400,000" },
-    { slipNo: "SHP20240222-004", date: "2024-02-22", customer: "アドバンテスト(株)", status: "T02", totalAmount: "34,600,000" },
-    { slipNo: "SHP20240220-002", date: "2024-02-20", customer: "ルネサス(株)", status: "S01", totalAmount: "52,100,000" },
-    { slipNo: "SHP20240218-003", date: "2024-02-18", customer: "東京エレクトロン(株)", status: "A02", totalAmount: "91,300,000" },
-    { slipNo: "SHP20240215-001", date: "2024-02-15", customer: "SCREEN HD(株)", status: "T03", totalAmount: "124,700,000" },
-    { slipNo: "SHP20240212-002", date: "2024-02-12", customer: "ディスコ(株)", status: "T01", totalAmount: "43,800,000" },
-    { slipNo: "SHP20240210-001", date: "2024-02-10", customer: "TSMC Japan", status: "S00", totalAmount: "0" },
-  ]);
-  const [selectedSlip, setSelectedSlip] = useState("SHP20240310-001");
+  const allSlips = useSlips();
+  const rawList = useMemo(
+    () => allSlips.filter((s) => s.slipType === "SHIP"),
+    [allSlips]
+  );
+  // 表示用に customer フィールドへ partner をエイリアス
+  const slipList = useMemo(
+    () => rawList.map((s) => ({ ...s, customer: s.partner })),
+    [rawList]
+  );
+  const [selectedSlip, setSelectedSlip] = useState<string>(
+    () => slipList[0]?.slipNo ?? ""
+  );
+  const selectedSlipRec = useMemo(
+    () => rawList.find((s) => s.slipNo === selectedSlip) ?? rawList[0],
+    [rawList, selectedSlip]
+  );
+  const currentStatus = selectedSlipRec?.status ?? "S00";
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -183,9 +183,30 @@ const ShipmentManagement = () => {
   };
 
   const handleActionConfirm = () => {
-    console.log(`Action: ${actionModal.type}, Message: ${actionMessage}`);
+    if (selectedSlipRec && actionModal.type) {
+      const t = SHIP_TRANSITIONS[actionModal.type];
+      slipStore.changeStatus(
+        selectedSlipRec.slipNo,
+        t.next,
+        t.label,
+        actionMessage || `${t.label}しました`
+      );
+      toast.success(`${t.label}しました`);
+    }
     setActionModal({ open: false, type: null });
     setActionMessage("");
+  };
+
+  const runQuickAction = (key: keyof typeof SHIP_TRANSITIONS) => {
+    if (!selectedSlipRec) return;
+    const t = SHIP_TRANSITIONS[key];
+    slipStore.changeStatus(
+      selectedSlipRec.slipNo,
+      t.next,
+      t.label,
+      `${t.label}を実行しました`
+    );
+    toast.success(`${t.label}を実行しました`);
   };
 
   const openActionModal = (type: "approve" | "reject") => {
