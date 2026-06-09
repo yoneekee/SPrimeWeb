@@ -273,7 +273,7 @@ const ShipmentManagement = () => {
                               <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${st?.color || ""}`}>
                                 {st?.label.split(" ")[0] || slip.status}
                               </Badge>
-                              <div className="text-muted-foreground">¥{slip.totalAmount}</div>
+                              <div className="text-muted-foreground">¥{slip.totalAmount.toLocaleString()}</div>
                             </div>
                           </div>
                         );
@@ -314,7 +314,7 @@ const ShipmentManagement = () => {
             </CardHeader>
             <CardContent className="px-4 pb-4">
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("apply") ? "default" : "outline"} disabled={!isButtonActive("apply")} onClick={() => runQuickAction("apply")} className="gap-1.5 text-xs">
                   <Send className="w-3.5 h-3.5" /> 出庫申請
                 </Button>
                 <Button size="sm" variant={isButtonActive("approve") ? "default" : "outline"} disabled={!isButtonActive("approve")} onClick={() => openActionModal("approve")} className="gap-1.5 text-xs">
@@ -324,17 +324,17 @@ const ShipmentManagement = () => {
                   <XCircle className="w-3.5 h-3.5" /> 否認
                 </Button>
                 <Separator orientation="vertical" className="h-8" />
-                <Button size="sm" variant={isButtonActive("transit") ? "default" : "outline"} disabled={!isButtonActive("transit")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("transit") ? "default" : "outline"} disabled={!isButtonActive("transit")} onClick={() => runQuickAction("transit")} className="gap-1.5 text-xs">
                   <Truck className="w-3.5 h-3.5" /> 配送開始（積送）
                 </Button>
-                <Button size="sm" variant={isButtonActive("delivered") ? "default" : "outline"} disabled={!isButtonActive("delivered")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("delivered") ? "default" : "outline"} disabled={!isButtonActive("delivered")} onClick={() => runQuickAction("delivered")} className="gap-1.5 text-xs">
                   <PackageCheck className="w-3.5 h-3.5" /> 出庫完了
                 </Button>
-                <Button size="sm" variant={isButtonActive("invoiced") ? "default" : "outline"} disabled={!isButtonActive("invoiced")} className="gap-1.5 text-xs">
+                <Button size="sm" variant={isButtonActive("invoiced") ? "default" : "outline"} disabled={!isButtonActive("invoiced")} onClick={() => runQuickAction("invoiced")} className="gap-1.5 text-xs">
                   <Receipt className="w-3.5 h-3.5" /> 売上確定
                 </Button>
                 <Separator orientation="vertical" className="h-8" />
-                <Button size="sm" variant="outline" className="gap-1.5 text-xs border-warning/50 text-warning hover:bg-warning/10">
+                <Button size="sm" variant="outline" onClick={() => runQuickAction("adjust")} className="gap-1.5 text-xs border-warning/50 text-warning hover:bg-warning/10">
                   <AlertTriangle className="w-3.5 h-3.5" /> 在庫調整
                 </Button>
               </div>
@@ -368,7 +368,7 @@ const ShipmentManagement = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票番号</label>
-                <Input value="SHP20240310-001" readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
+                <Input value={selectedSlipRec?.slipNo ?? ""} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">伝票ステータス</label>
@@ -378,11 +378,11 @@ const ShipmentManagement = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">出庫希望日</label>
-                <DatePicker value="2024-03-15" disabled={currentStatus !== "S00"} />
+                <DatePicker value={selectedSlipRec?.date} disabled={currentStatus !== "S00"} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">得意先名</label>
-                <Input value="東京エレクトロン(株) 川崎事業所" readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
+                <Input value={selectedSlipRec?.partner ?? ""} readOnly={currentStatus !== "S00"} className="h-8 text-xs border-border" />
               </div>
               <div className="space-y-1 md:col-span-2">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">配送先住所</label>
@@ -403,7 +403,7 @@ const ShipmentManagement = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">出庫合計金額</label>
-                <Input value="¥245,000,000" readOnly className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold" />
+                <Input value={`¥${(selectedSlipRec?.totalAmount ?? 0).toLocaleString()}`} readOnly className="h-8 text-xs font-mono bg-muted/50 border-border text-primary font-semibold" />
               </div>
             </div>
           </CardContent>
@@ -483,7 +483,13 @@ const ShipmentManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockWorkflow.map((wf) => (
+                {(selectedSlipRec?.workflow ?? []).length === 0 ? (
+                  <TableRow className="border-border">
+                    <TableCell colSpan={6} className="px-3 py-6 text-xs text-center text-muted-foreground">
+                      ワークフロー履歴がまだありません
+                    </TableCell>
+                  </TableRow>
+                ) : (selectedSlipRec?.workflow ?? []).map((wf) => (
                   <TableRow key={wf.stepNo} className="border-border hover:bg-secondary/50">
                     <TableCell className="px-3 py-2 text-xs text-center font-mono text-muted-foreground">{wf.stepNo}</TableCell>
                     <TableCell className="px-3 py-2 text-xs">
