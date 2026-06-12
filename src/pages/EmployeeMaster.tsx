@@ -1,10 +1,9 @@
 /**
  * EmployeeMaster — 社員マスタ管理画面
- * 社員情報の一覧表示・新規登録・編集機能を提供
- * 
- * Validation: zod + react-hook-form による日本語エラーメッセージ付きバリデーション
+ * - localStorage 永続化 (employeeStore)
+ * - 擬似 API 遅延 + Toast + 削除確認モーダル
  */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ERPLayout from "@/components/erp/ERPLayout";
@@ -16,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -25,33 +25,16 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Search, Pencil, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Search, Pencil, Users, ChevronLeft, ChevronRight, Trash2, Loader2 } from "lucide-react";
 import { employeeSchema, employeeEditSchema, type EmployeeFormValues } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-
-interface Employee {
-  empId: number;
-  loginId: string;
-  empName: string;
-  deptCode: string;
-  deptName: string;
-  roleType: string;
-  roleName: string;
-  email: string;
-  isActive: boolean;
-  remarks: string;
-}
-
-const mockEmployees: Employee[] = [
-  { empId: 1001, loginId: "tanaka.t", empName: "田中 太郎", deptCode: "MFG1", deptName: "製造1課", roleType: "PROD", roleName: "製造担当", email: "tanaka.t@sprime.co.jp", isActive: true, remarks: "" },
-  { empId: 1002, loginId: "suzuki.h", empName: "鈴木 花子", deptCode: "MGT", deptName: "経営管理課", roleType: "APPROVER", roleName: "承認者", email: "suzuki.h@sprime.co.jp", isActive: true, remarks: "一次承認権限" },
-  { empId: 1003, loginId: "sato.k", empName: "佐藤 健一", deptCode: "MGT", deptName: "経営管理課", roleType: "APPROVER", roleName: "承認者", email: "sato.k@sprime.co.jp", isActive: true, remarks: "二次承認権限" },
-  { empId: 1004, loginId: "yamada.y", empName: "山田 裕子", deptCode: "MFG2", deptName: "製造2課", roleType: "PROD", roleName: "製造担当", email: "yamada.y@sprime.co.jp", isActive: true, remarks: "" },
-  { empId: 1005, loginId: "ito.m", empName: "伊藤 真一", deptCode: "LOG", deptName: "物流課", roleType: "PROD", roleName: "物流担当", email: "ito.m@sprime.co.jp", isActive: true, remarks: "" },
-  { empId: 1006, loginId: "watanabe.r", empName: "渡辺 涼介", deptCode: "QC", deptName: "品質管理課", roleType: "INSP", roleName: "検収担当", email: "watanabe.r@sprime.co.jp", isActive: true, remarks: "" },
-  { empId: 1007, loginId: "kobayashi.a", empName: "小林 明", deptCode: "MFG1", deptName: "製造1課", roleType: "PROD", roleName: "製造担当", email: "kobayashi.a@sprime.co.jp", isActive: false, remarks: "2024.02 退職" },
-];
+import { employeeStore, type EmployeeRow } from "@/services/master-store";
+import { useEmployees } from "@/hooks/use-master-store";
 
 const DEPT_OPTIONS = [
   { code: "MFG1", name: "製造1課" },
@@ -69,9 +52,14 @@ const ROLE_OPTIONS = [
 ];
 
 const EmployeeMaster = () => {
+  const { data: employees, loading } = useEmployees();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingEmp, setEditingEmp] = useState<Employee | null>(null);
+  const [editingEmp, setEditingEmp] = useState<EmployeeRow | null>(null);
   const [deptFilter, setDeptFilter] = useState("all");
+  const [searchText, setSearchText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<EmployeeRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -91,19 +79,66 @@ const EmployeeMaster = () => {
     setDialogOpen(true);
   };
 
-  const openEdit = (emp: Employee) => {
+  const openEdit = (emp: EmployeeRow) => {
     setEditingEmp(emp);
     reset({ loginId: emp.loginId, password: "", empName: emp.empName, deptCode: emp.deptCode, roleType: emp.roleType, email: emp.email, isActive: emp.isActive, remarks: emp.remarks });
     setDialogOpen(true);
   };
 
-  const onFormSubmit = (data: EmployeeFormValues) => {
-    toast.success(isEditing ? "社員情報を更新しました" : "社員を登録しました");
-    setDialogOpen(false);
+  const onFormSubmit = async (data: EmployeeFormValues) => {
+    setSubmitting(true);
+    const deptName = DEPT_OPTIONS.find(d => d.code === data.deptCode)?.name ?? "";
+    const roleName = ROLE_OPTIONS.find(r => r.code === data.roleType)?.name ?? "";
+    try {
+      if (isEditing && editingEmp) {
+        await employeeStore.update(editingEmp.empId, {
+          loginId: data.loginId, empName: data.empName,
+          deptCode: data.deptCode, deptName,
+          roleType: data.roleType, roleName,
+          email: data.email ?? "", isActive: data.isActive,
+          remarks: data.remarks ?? "",
+        });
+        toast.success("社員情報を更新しました");
+      } else {
+        await employeeStore.create({
+          loginId: data.loginId, empName: data.empName,
+          deptCode: data.deptCode, deptName,
+          roleType: data.roleType, roleName,
+          email: data.email ?? "", isActive: data.isActive,
+          remarks: data.remarks ?? "",
+        });
+        toast.success("社員を登録しました");
+      }
+      setDialogOpen(false);
+    } catch {
+      toast.error("保存に失敗しました");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const filtered = deptFilter === "all" ? mockEmployees : mockEmployees.filter(e => e.deptCode === deptFilter);
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await employeeStore.remove(deleteTarget.empId);
+      toast.success(`「${deleteTarget.empName}」を削除しました`);
+      setDeleteTarget(null);
+    } catch {
+      toast.error("削除に失敗しました");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const filtered = useMemo(() => {
+    const kw = searchText.trim().toLowerCase();
+    return employees
+      .filter(e => deptFilter === "all" || e.deptCode === deptFilter)
+      .filter(e => !kw || e.loginId.toLowerCase().includes(kw) || e.empName.toLowerCase().includes(kw) || String(e.empId).includes(kw));
+  }, [employees, deptFilter, searchText]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
   const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
@@ -127,12 +162,17 @@ const EmployeeMaster = () => {
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">社員番号/氏名</label>
                 <div className="flex items-center gap-1.5 bg-secondary rounded-md px-2.5 py-1 h-8">
                   <Search className="w-3 h-3 text-muted-foreground" />
-                  <input className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-28" placeholder="社員番号または氏名" />
+                  <input
+                    value={searchText}
+                    onChange={(e) => { setSearchText(e.target.value); setCurrentPage(1); }}
+                    className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-36"
+                    placeholder="社員番号または氏名"
+                  />
                 </div>
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">部署</label>
-                <Select value={deptFilter} onValueChange={setDeptFilter}>
+                <Select value={deptFilter} onValueChange={(v) => { setDeptFilter(v); setCurrentPage(1); }}>
                   <SelectTrigger className="h-8 text-xs border-border w-28"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">全件</SelectItem>
@@ -140,9 +180,6 @@ const EmployeeMaster = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button size="sm" className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground">
-                <Search className="w-3 h-3" /> 照会
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -165,11 +202,21 @@ const EmployeeMaster = () => {
                   <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">部署名</TableHead>
                   <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">権限種別</TableHead>
                   <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">在籍状態</TableHead>
-                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">編集</TableHead>
+                  <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">操作</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paged.map((emp) => (
+                {loading && Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={`sk-${i}`} className="border-border">
+                    {Array.from({ length: 7 }).map((__, j) => (
+                      <TableCell key={j} className="px-3 py-2"><Skeleton className="h-3 w-full" /></TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+                {!loading && paged.length === 0 && (
+                  <TableRow><TableCell colSpan={7} className="text-center py-8 text-xs text-muted-foreground">該当する社員がありません</TableCell></TableRow>
+                )}
+                {!loading && paged.map((emp) => (
                   <TableRow key={emp.empId} className="border-border hover:bg-secondary/50">
                     <TableCell className="px-3 py-2 text-xs font-mono text-muted-foreground">{emp.empId}</TableCell>
                     <TableCell className="px-3 py-2 text-xs font-mono text-primary">{emp.loginId}</TableCell>
@@ -187,9 +234,14 @@ const EmployeeMaster = () => {
                         : <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-destructive/10 text-destructive border-destructive/30">退職</Badge>}
                     </TableCell>
                     <TableCell className="px-3 py-2 text-center">
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEdit(emp)}>
-                        <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
-                      </Button>
+                      <div className="flex items-center justify-center gap-0.5">
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEdit(emp)}>
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteTarget(emp)}>
+                          <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -295,13 +347,34 @@ const EmployeeMaster = () => {
               </div>
               <DialogFooter className="gap-2">
                 <Button type="button" variant="outline" size="sm" className="text-xs" onClick={() => setDialogOpen(false)}>キャンセル</Button>
-                <Button type="submit" size="sm" disabled={!isValid} className="text-xs bg-primary text-primary-foreground disabled:opacity-50">
-                  {isEditing ? "更新保存" : "登録"}
+                <Button type="submit" size="sm" disabled={!isValid || submitting} className="text-xs bg-primary text-primary-foreground disabled:opacity-50 gap-1.5">
+                  {submitting && <Loader2 className="w-3 h-3 animate-spin" />}
+                  {submitting ? "保存中..." : isEditing ? "更新保存" : "登録"}
                 </Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+          <AlertDialogContent className="bg-card border-border">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-sm">社員の削除確認</AlertDialogTitle>
+              <AlertDialogDescription className="text-xs">
+                「{deleteTarget?.empName}」(社員番号 {deleteTarget?.empId}) を削除します。<br />
+                関連する伝票履歴は残りますが、社員マスタから削除されます。
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="text-xs" disabled={deleting}>キャンセル</AlertDialogCancel>
+              <AlertDialogAction className="text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-1.5" disabled={deleting} onClick={(e) => { e.preventDefault(); confirmDelete(); }}>
+                {deleting && <Loader2 className="w-3 h-3 animate-spin" />}
+                {deleting ? "削除中..." : "削除する"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </ERPLayout>
   );
