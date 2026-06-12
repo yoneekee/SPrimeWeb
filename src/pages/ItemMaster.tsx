@@ -1,10 +1,12 @@
 /**
  * ItemMaster — 品目マスタ管理画面
  * 原材料・半製品・完成品の品目情報登録および在庫管理
- * 
- * Validation: zod + react-hook-form による日本語エラーメッセージ付きバリデーション
+ *
+ * - Validation: zod + react-hook-form (日本語エラーメッセージ)
+ * - データ層: localStorage 永続化の itemStore (擬似バックエンド)
+ * - UX: 初回ロード時スケルトン、保存/削除に 300〜500ms 遅延 + Toast
  */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ERPLayout from "@/components/erp/ERPLayout";
@@ -16,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -25,37 +28,16 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Search, Pencil, Box, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Search, Pencil, Box, AlertTriangle, ChevronLeft, ChevronRight, Trash2, Loader2 } from "lucide-react";
 import { itemSchema, type ItemFormValues } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-
-interface Item {
-  itemId: number;
-  itemCode: string;
-  itemName: string;
-  itemType: string;
-  typeName: string;
-  spec: string;
-  unit: string;
-  stdPrice: number;
-  planQty: number;
-  stockQty: number;
-  safetyStock: number;
-  acctCode: string;
-  isActive: boolean;
-}
-
-const mockItems: Item[] = [
-  { itemId: 1, itemCode: "RAW-WAFER-300", itemName: "シリコンウェーハ 300mm", itemType: "RAW", typeName: "原材料", spec: "300mm / P-type", unit: "EA", stdPrice: 85000, planQty: 200, stockQty: 300, safetyStock: 100, acctCode: "1101", isActive: true },
-  { itemId: 2, itemCode: "RAW-CHEM-AZ", itemName: "フォトレジスト AZ-5214", itemType: "RAW", typeName: "原材料", spec: "1L / UV-grade", unit: "EA", stdPrice: 120000, planQty: 50, stockQty: 80, safetyStock: 30, acctCode: "1101", isActive: true },
-  { itemId: 3, itemCode: "RAW-GAS-N2", itemName: "高純度窒素ガス（N2）", itemType: "RAW", typeName: "原材料", spec: "99.999% / 47L", unit: "SET", stdPrice: 45000, planQty: 20, stockQty: 15, safetyStock: 20, acctCode: "1101", isActive: true },
-  { itemId: 4, itemCode: "SEMI-CHAMBER-01", itemName: "真空チャンバーモジュール", itemType: "SEMI", typeName: "半製品", spec: "SUS316L / Φ500", unit: "EA", stdPrice: 3500000, planQty: 5, stockQty: 8, safetyStock: 3, acctCode: "1102", isActive: true },
-  { itemId: 5, itemCode: "SEMI-RF-GEN", itemName: "RF発生器ユニット", itemType: "SEMI", typeName: "半製品", spec: "13.56MHz / 3kW", unit: "EA", stdPrice: 8200000, planQty: 5, stockQty: 3, safetyStock: 2, acctCode: "1102", isActive: true },
-  { itemId: 6, itemCode: "FIN-ETCH-500", itemName: "プラズマエッチング装置 PE-500", itemType: "FIN", typeName: "完成品", spec: "Standard Config", unit: "SET", stdPrice: 45000000, planQty: 0, stockQty: 2, safetyStock: 1, acctCode: "1103", isActive: true },
-  { itemId: 7, itemCode: "FIN-CVD-300", itemName: "CVD成膜装置 CV-300", itemType: "FIN", typeName: "完成品", spec: "Standard Config", unit: "SET", stdPrice: 78000000, planQty: 0, stockQty: 8, safetyStock: 2, acctCode: "1103", isActive: true },
-  { itemId: 8, itemCode: "RAW-ORING-VT", itemName: "バイトン Oリング（Φ300）", itemType: "RAW", typeName: "原材料", spec: "Viton / Φ300", unit: "EA", stdPrice: 15000, planQty: 0, stockQty: 25, safetyStock: 50, acctCode: "1101", isActive: false },
-];
+import { itemStore, type ItemRow } from "@/services/master-store";
+import { useItems } from "@/hooks/use-master-store";
 
 const TYPE_OPTIONS = [
   { code: "RAW", name: "原材料" },
@@ -71,10 +53,18 @@ const ACCT_OPTIONS = [
   { code: "1103", name: "完成品（製品）" },
 ];
 
+type SortKey = "latest" | "priceDesc" | "priceAsc" | "stockAsc" | "nameAsc";
+
 const ItemMaster = () => {
+  const { data: items, loading } = useItems();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [editingItem, setEditingItem] = useState<ItemRow | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
+  const [searchText, setSearchText] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("latest");
+  const [submitting, setSubmitting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ItemRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -94,20 +84,65 @@ const ItemMaster = () => {
     setDialogOpen(true);
   };
 
-  const openEdit = (item: Item) => {
+  const openEdit = (item: ItemRow) => {
     setEditingItem(item);
     reset({ itemCode: item.itemCode, itemType: item.itemType, itemName: item.itemName, spec: item.spec, unit: item.unit, stdPrice: item.stdPrice, safetyStock: item.safetyStock, acctCode: item.acctCode, isActive: item.isActive });
     setDialogOpen(true);
   };
 
-  const onFormSubmit = (data: ItemFormValues) => {
-    toast.success(isEditing ? "品目情報を更新しました" : "品目を登録しました");
-    setDialogOpen(false);
+  const onFormSubmit = async (data: ItemFormValues) => {
+    setSubmitting(true);
+    const typeName = TYPE_OPTIONS.find(t => t.code === data.itemType)?.name ?? "";
+    try {
+      if (isEditing && editingItem) {
+        await itemStore.update(editingItem.itemId, { ...data, typeName, planQty: editingItem.planQty, stockQty: editingItem.stockQty });
+        toast.success("品目情報を更新しました");
+      } else {
+        await itemStore.create({ ...data, typeName, planQty: 0, stockQty: 0, safetyStock: data.safetyStock ?? 0 });
+        toast.success("品目を登録しました");
+      }
+      setDialogOpen(false);
+    } catch {
+      toast.error("保存に失敗しました");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const filtered = typeFilter === "all" ? mockItems : mockItems.filter(i => i.itemType === typeFilter);
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await itemStore.remove(deleteTarget.itemId);
+      toast.success(`「${deleteTarget.itemName}」を削除しました`);
+      setDeleteTarget(null);
+    } catch {
+      toast.error("削除に失敗しました");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const filtered = useMemo(() => {
+    const kw = searchText.trim().toLowerCase();
+    return items
+      .filter(i => typeFilter === "all" || i.itemType === typeFilter)
+      .filter(i => !kw || i.itemCode.toLowerCase().includes(kw) || i.itemName.toLowerCase().includes(kw));
+  }, [items, typeFilter, searchText]);
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    switch (sortKey) {
+      case "priceDesc": return arr.sort((a, b) => b.stdPrice - a.stdPrice);
+      case "priceAsc":  return arr.sort((a, b) => a.stdPrice - b.stdPrice);
+      case "stockAsc":  return arr.sort((a, b) => a.stockQty - b.stockQty);
+      case "nameAsc":   return arr.sort((a, b) => a.itemName.localeCompare(b.itemName, "ja"));
+      default: return arr; // latest = ストア追加順 (新規が先頭)
+    }
+  }, [filtered, sortKey]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / itemsPerPage));
+  const paged = sorted.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <ERPLayout>
@@ -130,12 +165,17 @@ const ItemMaster = () => {
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">品目コード/名</label>
                 <div className="flex items-center gap-1.5 bg-secondary rounded-md px-2.5 py-1 h-8">
                   <Search className="w-3 h-3 text-muted-foreground" />
-                  <input className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-32" placeholder="コードまたは品目名" />
+                  <input
+                    value={searchText}
+                    onChange={(e) => { setSearchText(e.target.value); setCurrentPage(1); }}
+                    className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-40"
+                    placeholder="コードまたは品目名"
+                  />
                 </div>
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">品目分類</label>
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setCurrentPage(1); }}>
                   <SelectTrigger className="h-8 text-xs border-border w-28"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">全件</SelectItem>
@@ -143,9 +183,19 @@ const ItemMaster = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button size="sm" className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground">
-                <Search className="w-3 h-3" /> 照会
-              </Button>
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">並べ替え</label>
+                <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+                  <SelectTrigger className="h-8 text-xs border-border w-36"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="latest">最新順</SelectItem>
+                    <SelectItem value="priceDesc">単価が高い順</SelectItem>
+                    <SelectItem value="priceAsc">単価が安い順</SelectItem>
+                    <SelectItem value="stockAsc">在庫が少ない順</SelectItem>
+                    <SelectItem value="nameAsc">品目名（あ→ん）</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -155,7 +205,7 @@ const ItemMaster = () => {
           <CardHeader className="py-3 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Box className="w-4 h-4 text-primary" /> 品目一覧
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground ml-1">{filtered.length}件</Badge>
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground ml-1">{sorted.length}件</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="px-0 pb-0">
@@ -171,11 +221,21 @@ const ItemMaster = () => {
                     <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">実在庫</TableHead>
                     <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-right">標準単価</TableHead>
                     <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">ステータス</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">編集</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">操作</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paged.map((item) => {
+                  {loading && Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={`sk-${i}`} className="border-border">
+                      {Array.from({ length: 9 }).map((__, j) => (
+                        <TableCell key={j} className="px-3 py-2"><Skeleton className="h-3 w-full" /></TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                  {!loading && paged.length === 0 && (
+                    <TableRow><TableCell colSpan={9} className="text-center py-8 text-xs text-muted-foreground">該当する品目がありません</TableCell></TableRow>
+                  )}
+                  {!loading && paged.map((item) => {
                     const belowSafety = item.stockQty < item.safetyStock;
                     return (
                       <TableRow key={item.itemId} className="border-border hover:bg-secondary/50">
@@ -202,9 +262,14 @@ const ItemMaster = () => {
                             : <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-destructive/10 text-destructive border-destructive/30">廃番</Badge>}
                         </TableCell>
                         <TableCell className="px-3 py-2 text-center">
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEdit(item)}>
-                            <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
-                          </Button>
+                          <div className="flex items-center justify-center gap-0.5">
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEdit(item)}>
+                              <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteTarget(item)}>
+                              <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -225,7 +290,7 @@ const ItemMaster = () => {
                 </SelectContent>
               </Select>
               <span className="text-xs text-muted-foreground">
-                {filtered.length}件中 {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filtered.length)}件
+                {sorted.length}件中 {sorted.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, sorted.length)}件
               </span>
             </div>
             {totalPages > 1 && (
@@ -324,13 +389,34 @@ const ItemMaster = () => {
               </div>
               <DialogFooter className="gap-2">
                 <Button type="button" variant="outline" size="sm" className="text-xs" onClick={() => setDialogOpen(false)}>キャンセル</Button>
-                <Button type="submit" size="sm" disabled={!isValid} className="text-xs bg-primary text-primary-foreground disabled:opacity-50">
-                  {isEditing ? "更新保存" : "登録"}
+                <Button type="submit" size="sm" disabled={!isValid || submitting} className="text-xs bg-primary text-primary-foreground disabled:opacity-50 gap-1.5">
+                  {submitting && <Loader2 className="w-3 h-3 animate-spin" />}
+                  {submitting ? "保存中..." : isEditing ? "更新保存" : "登録"}
                 </Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+          <AlertDialogContent className="bg-card border-border">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-sm">品目の削除確認</AlertDialogTitle>
+              <AlertDialogDescription className="text-xs">
+                「{deleteTarget?.itemName}」({deleteTarget?.itemCode}) を削除します。<br />
+                この操作は取り消せません。よろしいですか？
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="text-xs" disabled={deleting}>キャンセル</AlertDialogCancel>
+              <AlertDialogAction className="text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-1.5" disabled={deleting} onClick={(e) => { e.preventDefault(); confirmDelete(); }}>
+                {deleting && <Loader2 className="w-3 h-3 animate-spin" />}
+                {deleting ? "削除中..." : "削除する"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </ERPLayout>
   );
