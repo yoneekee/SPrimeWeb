@@ -1,5 +1,13 @@
-import { useState } from "react";
+/**
+ * WarehouseMaster — 倉庫拠点マスタ
+ * - localStorage 永続化 (locationStore)
+ * - zod + RHF バリデーション、擬似 API 遅延、削除確認モーダル
+ */
+import { useState, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import ERPLayout from "@/components/erp/ERPLayout";
+import { FormError } from "@/components/erp/FormError";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -16,28 +25,16 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Search, Pencil, Warehouse, ChevronLeft, ChevronRight } from "lucide-react";
-
-interface Location {
-  locId: number;
-  locName: string;
-  locType: string;
-  typeName: string;
-  postalCode: string;
-  address: string;
-  contactInfo: string;
-  isActive: boolean;
-  remarks: string;
-}
-
-const mockLocations: Location[] = [
-  { locId: 1, locName: "本社 第1倉庫", locType: "FACTORY", typeName: "工場", postalCode: "150-0002", address: "東京都渋谷区渋谷1-2-3 本社ビルB1F", contactInfo: "03-1234-5678", isActive: true, remarks: "クリーンルーム環境（Class 1000）" },
-  { locId: 2, locName: "本社 第2倉庫", locType: "FACTORY", typeName: "工場", postalCode: "150-0002", address: "東京都渋谷区渋谷1-2-3 本社ビル1F", contactInfo: "03-1234-5679", isActive: true, remarks: "一般資材保管" },
-  { locId: 3, locName: "渋谷物流センター", locType: "STORE", typeName: "倉庫", postalCode: "150-0041", address: "東京都渋谷区神南2-5-10", contactInfo: "03-9876-5432", isActive: true, remarks: "出荷前ステージング専用" },
-  { locId: 4, locName: "平沢FAB納品拠点", locType: "VENDOR", typeName: "取引先", postalCode: "", address: "京畿道平沢市三南面サムスンロ1キル30", contactInfo: "031-000-0000", isActive: true, remarks: "サムスン電子 平沢キャンパス" },
-  { locId: 5, locName: "輸送中（積送）", locType: "TRANSIT", typeName: "積送", postalCode: "", address: "輸送中", contactInfo: "-", isActive: true, remarks: "積送品勘定管理用仮想拠点" },
-  { locId: 6, locName: "大阪支店倉庫", locType: "FACTORY", typeName: "工場", postalCode: "530-0001", address: "大阪府大阪市北区梅田3-1-1", contactInfo: "06-1111-2222", isActive: false, remarks: "2024.01 閉鎖" },
-];
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Search, Pencil, Warehouse, ChevronLeft, ChevronRight, Trash2, Loader2 } from "lucide-react";
+import { warehouseSchema, type WarehouseFormValues } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { locationStore, type LocationRow } from "@/services/master-store";
+import { useLocations } from "@/hooks/use-master-store";
 
 const TYPE_OPTIONS = [
   { code: "FACTORY", name: "工場（FACTORY）" },
@@ -47,17 +44,84 @@ const TYPE_OPTIONS = [
 ];
 
 const WarehouseMaster = () => {
+  const { data: locations, loading } = useLocations();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingLoc, setEditingLoc] = useState<Location | null>(null);
+  const [editingLoc, setEditingLoc] = useState<LocationRow | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
+  const [searchText, setSearchText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<LocationRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  const openNew = () => { setEditingLoc(null); setDialogOpen(true); };
-  const openEdit = (loc: Location) => { setEditingLoc(loc); setDialogOpen(true); };
+  const isEditing = !!editingLoc;
 
-  const filtered = typeFilter === "all" ? mockLocations : mockLocations.filter(l => l.locType === typeFilter);
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const form = useForm<WarehouseFormValues>({
+    resolver: zodResolver(warehouseSchema),
+    defaultValues: { locName: "", locType: "", postalCode: "", address: "", contactInfo: "", isActive: true, remarks: "" },
+    mode: "onChange",
+  });
+  const { register, handleSubmit, setValue, watch, formState: { errors, isValid }, reset } = form;
+
+  const openNew = () => {
+    setEditingLoc(null);
+    reset({ locName: "", locType: "", postalCode: "", address: "", contactInfo: "", isActive: true, remarks: "" });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (loc: LocationRow) => {
+    setEditingLoc(loc);
+    reset({
+      locName: loc.locName, locType: loc.locType,
+      postalCode: loc.postalCode ?? "", address: loc.address ?? "",
+      contactInfo: loc.contactInfo ?? "", isActive: loc.isActive,
+      remarks: loc.remarks ?? "",
+    });
+    setDialogOpen(true);
+  };
+
+  const onFormSubmit = async (data: WarehouseFormValues) => {
+    setSubmitting(true);
+    const typeName = TYPE_OPTIONS.find(t => t.code === data.locType)?.name.replace(/（.+?）/, "") ?? "";
+    try {
+      if (isEditing && editingLoc) {
+        await locationStore.update(editingLoc.locId, { ...data, typeName, postalCode: data.postalCode ?? "", address: data.address ?? "", contactInfo: data.contactInfo ?? "", remarks: data.remarks ?? "" });
+        toast.success("拠点情報を更新しました");
+      } else {
+        await locationStore.create({ ...data, typeName, postalCode: data.postalCode ?? "", address: data.address ?? "", contactInfo: data.contactInfo ?? "", remarks: data.remarks ?? "" });
+        toast.success("拠点を登録しました");
+      }
+      setDialogOpen(false);
+    } catch {
+      toast.error("保存に失敗しました");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await locationStore.remove(deleteTarget.locId);
+      toast.success(`「${deleteTarget.locName}」を削除しました`);
+      setDeleteTarget(null);
+    } catch {
+      toast.error("削除に失敗しました");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const filtered = useMemo(() => {
+    const kw = searchText.trim().toLowerCase();
+    return locations
+      .filter(l => typeFilter === "all" || l.locType === typeFilter)
+      .filter(l => !kw || l.locName.toLowerCase().includes(kw) || l.address.toLowerCase().includes(kw));
+  }, [locations, typeFilter, searchText]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
   const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
@@ -81,12 +145,17 @@ const WarehouseMaster = () => {
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">拠点名</label>
                 <div className="flex items-center gap-1.5 bg-secondary rounded-md px-2.5 py-1 h-8">
                   <Search className="w-3 h-3 text-muted-foreground" />
-                  <input className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-28" placeholder="拠点名検索" />
+                  <input
+                    value={searchText}
+                    onChange={(e) => { setSearchText(e.target.value); setCurrentPage(1); }}
+                    className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none w-40"
+                    placeholder="拠点名・住所で検索"
+                  />
                 </div>
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">拠点種別</label>
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setCurrentPage(1); }}>
                   <SelectTrigger className="h-8 text-xs border-border w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -96,9 +165,6 @@ const WarehouseMaster = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button size="sm" className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground">
-                <Search className="w-3 h-3" /> 照会
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -122,11 +188,21 @@ const WarehouseMaster = () => {
                     <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">拠点種別</TableHead>
                     <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3">住所</TableHead>
                     <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">使用状態</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">編集</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-wider text-muted-foreground h-8 px-3 text-center">操作</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paged.map((loc) => (
+                  {loading && Array.from({ length: 4 }).map((_, i) => (
+                    <TableRow key={`sk-${i}`} className="border-border">
+                      {Array.from({ length: 6 }).map((__, j) => (
+                        <TableCell key={j} className="px-3 py-2"><Skeleton className="h-3 w-full" /></TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                  {!loading && paged.length === 0 && (
+                    <TableRow><TableCell colSpan={6} className="text-center py-8 text-xs text-muted-foreground">該当する拠点がありません</TableCell></TableRow>
+                  )}
+                  {!loading && paged.map((loc) => (
                     <TableRow key={loc.locId} className="border-border hover:bg-secondary/50">
                       <TableCell className="px-3 py-2 text-xs font-mono text-muted-foreground">{loc.locId}</TableCell>
                       <TableCell className="px-3 py-2 text-xs font-medium text-foreground">{loc.locName}</TableCell>
@@ -149,9 +225,14 @@ const WarehouseMaster = () => {
                         )}
                       </TableCell>
                       <TableCell className="px-3 py-2 text-center">
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEdit(loc)}>
-                          <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
-                        </Button>
+                        <div className="flex items-center justify-center gap-0.5">
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEdit(loc)}>
+                            <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteTarget(loc)}>
+                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -199,62 +280,89 @@ const WarehouseMaster = () => {
           <DialogContent className="sm:max-w-xl bg-card border-border">
             <DialogHeader>
               <DialogTitle className="text-sm font-semibold text-foreground">
-                {editingLoc ? "拠点情報編集" : "拠点新規登録"}
+                {isEditing ? "拠点情報編集" : "拠点新規登録"}
               </DialogTitle>
             </DialogHeader>
-            <div className="space-y-3 py-2">
+            <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-3 py-2">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">拠点名称 <span className="text-destructive">*</span></Label>
-                  <Input defaultValue={editingLoc?.locName || ""} className="h-8 text-xs border-border" placeholder="例: 本社 第1倉庫" />
+                  <Input {...register("locName")} className={cn("h-8 text-xs border-border", errors.locName && "border-destructive ring-1 ring-destructive")} placeholder="例: 本社 第1倉庫" />
+                  <FormError message={errors.locName?.message} />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">拠点種別 <span className="text-destructive">*</span></Label>
-                  <Select defaultValue={editingLoc?.locType || ""}>
-                    <SelectTrigger className="h-8 text-xs border-border">
+                  <Select value={watch("locType")} onValueChange={(v) => setValue("locType", v, { shouldValidate: true })}>
+                    <SelectTrigger className={cn("h-8 text-xs border-border", errors.locType && "border-destructive ring-1 ring-destructive")}>
                       <SelectValue placeholder="種別選択" />
                     </SelectTrigger>
                     <SelectContent>
                       {TYPE_OPTIONS.map(t => <SelectItem key={t.code} value={t.code}>{t.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
+                  <FormError message={errors.locType?.message} />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">郵便番号（〒）</Label>
-                  <Input defaultValue={editingLoc?.postalCode || ""} className="h-8 text-xs border-border" placeholder="000-0000" />
+                  <Input {...register("postalCode")} className={cn("h-8 text-xs border-border", errors.postalCode && "border-destructive ring-1 ring-destructive")} placeholder="000-0000" />
+                  <FormError message={errors.postalCode?.message} />
                 </div>
                 <div className="space-y-1 col-span-2">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">担当者連絡先</Label>
-                  <Input defaultValue={editingLoc?.contactInfo || ""} className="h-8 text-xs border-border" placeholder="03-XXXX-XXXX" />
+                  <Input {...register("contactInfo")} className={cn("h-8 text-xs border-border", errors.contactInfo && "border-destructive ring-1 ring-destructive")} placeholder="03-XXXX-XXXX" />
+                  <FormError message={errors.contactInfo?.message} />
                 </div>
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">住所</Label>
-                <Input defaultValue={editingLoc?.address || ""} className="h-8 text-xs border-border" placeholder="詳細住所入力" />
+                <Input {...register("address")} className={cn("h-8 text-xs border-border", errors.address && "border-destructive ring-1 ring-destructive")} placeholder="詳細住所入力" />
+                <FormError message={errors.address?.message} />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">使用状態</Label>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">閉鎖</span>
-                  <Switch defaultChecked={editingLoc?.isActive ?? true} />
+                  <Switch checked={watch("isActive")} onCheckedChange={(v) => setValue("isActive", v)} />
                   <span className="text-xs text-foreground">稼働中</span>
                 </div>
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">備考</Label>
-                <Textarea defaultValue={editingLoc?.remarks || ""} className="text-xs border-border min-h-[60px]" placeholder="特記事項を記入（危険物保管有無など）" />
+                <Textarea {...register("remarks")} className={cn("text-xs border-border min-h-[60px]", errors.remarks && "border-destructive")} placeholder="特記事項を記入（危険物保管有無など）" />
+                <FormError message={errors.remarks?.message} />
               </div>
-            </div>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" size="sm" className="text-xs" onClick={() => setDialogOpen(false)}>キャンセル</Button>
-              <Button size="sm" className="text-xs bg-primary text-primary-foreground" onClick={() => setDialogOpen(false)}>
-                {editingLoc ? "更新保存" : "登録"}
-              </Button>
-            </DialogFooter>
+              <DialogFooter className="gap-2">
+                <Button type="button" variant="outline" size="sm" className="text-xs" onClick={() => setDialogOpen(false)}>キャンセル</Button>
+                <Button type="submit" size="sm" disabled={!isValid || submitting} className="text-xs bg-primary text-primary-foreground disabled:opacity-50 gap-1.5">
+                  {submitting && <Loader2 className="w-3 h-3 animate-spin" />}
+                  {submitting ? "保存中..." : isEditing ? "更新保存" : "登録"}
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+          <AlertDialogContent className="bg-card border-border">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-sm">拠点の削除確認</AlertDialogTitle>
+              <AlertDialogDescription className="text-xs">
+                「{deleteTarget?.locName}」を削除します。<br />
+                関連する在庫データがある場合は事前にご確認ください。
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="text-xs" disabled={deleting}>キャンセル</AlertDialogCancel>
+              <AlertDialogAction className="text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-1.5" disabled={deleting} onClick={(e) => { e.preventDefault(); confirmDelete(); }}>
+                {deleting && <Loader2 className="w-3 h-3 animate-spin" />}
+                {deleting ? "削除中..." : "削除する"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </ERPLayout>
   );
