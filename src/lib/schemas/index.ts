@@ -10,3 +10,4 @@
 export * from "./slip.schema";
 export * from "./employee.schema";
 export * from "./item.schema";
+export * from "./warehouse.schema";
