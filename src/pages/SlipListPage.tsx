@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -243,7 +244,7 @@ const SlipListPage = () => {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2 mt-3">
-              <Button size="sm" className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground">
+              <Button size="sm" className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground" onClick={() => toast.success("検索条件を適用しました")}>
                 <Search className="w-3 h-3" /> 照会
               </Button>
               <Button size="sm" variant="outline" className="h-8 text-xs" onClick={resetFilters}>

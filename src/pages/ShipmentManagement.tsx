@@ -414,7 +414,7 @@ const ShipmentManagement = () => {
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">明細品目一覧</CardTitle>
-              <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7" disabled={currentStatus !== "S00"}>
+              <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7" disabled={currentStatus !== "S00"} onClick={() => toast.info("品目追加は伝票作成画面から行えます")}>
                 <Plus className="w-3 h-3" /> 品目追加
               </Button>
             </div>
