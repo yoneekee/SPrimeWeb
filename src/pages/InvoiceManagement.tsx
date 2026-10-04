@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState } from "react";
 import ERPLayout from "@/components/erp/ERPLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -173,7 +174,7 @@ const InvoiceManagement = () => {
               </div>
 
               <div className="flex gap-2 ml-auto">
-                <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => toast.success("検索条件を適用しました")}>
                   <Search className="w-3.5 h-3.5" /> 照会
                 </Button>
                 <Button 
