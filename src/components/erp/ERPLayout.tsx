@@ -264,7 +264,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
 
       {/* Settings Modal */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-base">ユーザー設定</DialogTitle>
           </DialogHeader>
