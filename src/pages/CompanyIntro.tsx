@@ -1651,7 +1651,7 @@ const CompanyIntro = () => {
         open={!!selectedTable}
         onOpenChange={(open) => !open && setSelectedTable(null)}
       >
-        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-sm font-mono flex items-center gap-2">
               <Database className="w-4 h-4 text-primary" />
@@ -1722,7 +1722,7 @@ const CompanyIntro = () => {
         open={!!navigateTarget}
         onOpenChange={(open) => !open && setNavigateTarget(null)}
       >
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-sm">
               該当画面に遷移しますか？
