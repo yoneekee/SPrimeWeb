@@ -5,10 +5,11 @@
 import { useState, useRef, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import ERPSidebar from "./ERPSidebar";
-import { Bell, Search, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X, LogOut, Settings, UserCircle, Menu } from "lucide-react";
+import { Bell, User, Sun, Moon, Info, CheckCircle2, AlertTriangle, X, LogOut, Settings, UserCircle, Menu } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/hooks/use-auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -50,6 +51,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -73,7 +75,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
   // Close mobile drawer on route change
   useEffect(() => {
     setMobileMenuOpen(false);
-  }, [navigate]);
+  }, [location.pathname]);
 
   // Close on outside click
   useEffect(() => {
@@ -123,10 +125,6 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
               ) : (
                 <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
               )}
-              <div className="hidden sm:flex items-center gap-2 bg-secondary rounded-md px-3 py-1.5">
-                <Search className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">検索...</span>
-              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -329,7 +327,7 @@ const ERPLayout = ({ children }: ERPLayoutProps) => {
 
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" size="sm" onClick={() => setSettingsOpen(false)}>キャンセル</Button>
-              <Button size="sm" onClick={() => setSettingsOpen(false)}>保存</Button>
+              <Button size="sm" onClick={() => { setSettingsOpen(false); toast.success("設定を保存しました"); }}>保存</Button>
             </div>
           </div>
         </DialogContent>

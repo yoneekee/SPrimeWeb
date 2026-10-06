@@ -23,7 +23,7 @@ export interface SlipStatusConfig {
 
 /**
  * 전표 상태 코드 → 설정 매핑
- * TODO: API 연동 시 이 객체를 서버에서 받아오거나 동적으로 구성
+ * NOTE: API 연동 시 이 객체를 서버에서 받아오거나 동적으로 구성
  */
 export const SLIP_STATUS_CONFIG: Record<string, SlipStatusConfig> = {
   // 공통 - 작성/신청/승인 단계
@@ -149,7 +149,7 @@ export function getSlipExtraStep(slipType: "PROD" | "SHIP"): StatusStep | undefi
  *   generateSlipNumber("SHP")  → "SHP20240307-123"
  *   generateSlipNumber("BOM")  → "BOM20240307-045"
  * 
- * TODO: 백엔드 연동 시 실제 시퀀스를 API에서 받아올 것
+ * NOTE: 백엔드 연동 시 실제 시퀀스를 API에서 받아올 것
  */
 export function generateSlipNumber(prefix: string): string {
   const now = new Date();
