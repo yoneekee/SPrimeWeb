@@ -235,10 +235,10 @@ const EmployeeMaster = () => {
                     </TableCell>
                     <TableCell className="px-3 py-2 text-center">
                       <div className="flex items-center justify-center gap-0.5">
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEdit(emp)}>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" aria-label="編集" onClick={() => openEdit(emp)}>
                           <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteTarget(emp)}>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" aria-label="削除" onClick={() => setDeleteTarget(emp)}>
                           <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
                         </Button>
                       </div>
